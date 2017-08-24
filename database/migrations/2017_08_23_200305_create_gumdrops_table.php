@@ -16,8 +16,8 @@ class CreateGumdropsTable extends Migration
         Schema::create('gumdrops', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->text('name');
-            $table->text('color');
+            $table->string('name',80);
+            $table->string('color',80);
         });
     }
 

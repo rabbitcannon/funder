@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Gumdrop extends Model
 {
-
     /**
      * The attributes that are mass assignable.
      *

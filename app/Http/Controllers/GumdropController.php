@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Gumdrop;
 use App\User;
+use Validator;
 
 class GumdropController extends Controller
 {
@@ -28,14 +29,22 @@ class GumdropController extends Controller
      */
     public function store(Request $request)
     {
+        // do some validation
+        $validator = Validator::make( $request->all(),
+            ['name' => 'required', 'color' => 'required']);
+        if( $validator->fails() )
+        {
+            return response()->json( ['error' => 'VALIDATION',
+                'message' => $validator->errors()->messages()] , 400 );
+        }
         // store me a new gumdrop for some user
-        $userId = $request->get('user_id');
+        $user_id = $request->get('user_id');
         $name = $request->get('gumdrop_name');
         $color = $request->get('gumdrop_color');
         $gumdrop = new Gumdrop(['name' => $name, 'color' => $color]);
         $gumdrop->save();
         // better link it to my user!
-        $user = User::find($userId);
+        $user = User::findOrFail($user_id);
         DB::table('gumdrop_user')->insert([
             'gumdrop_id' => $gumdrop->id,
             'user_id' => $user->id]);
@@ -52,16 +61,10 @@ class GumdropController extends Controller
     public function gumdropsForUser(Request $request, $user_id)
     {
         // awesomely, I get $user_id from my route
-        $user = User::find($user_id);
+        $user = User::findOrFail($user_id);
         // now I gotta go find all his gumdrops
         $gumdrops = Gumdrop::all();
-        $my_gumdrops = [];
-        foreach( $gumdrops as $gumdrop ) {
-            if( $gumdrop->user_id == $user->id ) {
-                $my_gumdrops[] = $gumdrop;
-            }
-        }
-        // woot! nailed it again
+        $my_gumdrops = $user->gumdrops()->get();
         return response()->json($my_gumdrops);
     }
 
@@ -74,8 +77,16 @@ class GumdropController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // do some validation
+        $validator = Validator::make( $request->all(),
+            ['name' => 'required', 'color' => 'required']);
+        if( $validator->fails() )
+        {
+            return response()->json( ['error' => 'VALIDATION',
+                'message' => $validator->errors()->messages()] , 400 );
+        }
         // that's my little gumdrop
-        $gumdrop = Gumdrop::find($id);
+        $gumdrop = Gumdrop::findOrFail($id);
         $name = $request->get('gumdrop_name');
         $color = $request->get('gumdrop_color');
         $gumdrop->update( ['name' => $name, 'color' => $color ] );
