@@ -1,0 +1,230 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Boogers API",
+        "version": "1.0.0"
+    },
+    "basePath": "/api",
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/gumdrops": {
+            "get": {
+                "tags": [
+                    "gumdrops"
+                ],
+                "summary": "Get all the gumdrops",
+                "operationId": "getAllGumdrops",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Gumdrop"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "gumdrops"
+                ],
+                "summary": "Add a new gumdrop",
+                "operationId": "createGumdrop",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Gumdrop Parameters.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/GumdropAndUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        },
+        "/users/{id}/gumdrops": {
+            "get": {
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get gumdrops for a user",
+                "operationId": "getUserGumdrops",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User Id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Gumdrop"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        },
+        "/gumdrops/{id}": {
+            "put": {
+                "tags": [
+                    "gumdrops"
+                ],
+                "summary": "Modify a gumdrop",
+                "operationId": "modifyGumdrop",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Gumdrop Id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Gumdrop Parameters.",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Gumdrop"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Gumdrop not found"
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "gumdrops"
+                ],
+                "summary": "Delete a gumdrop",
+                "operationId": "deleteGumdrop",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Gumdrop Id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful"
+                    },
+                    "404": {
+                        "description": "Gumdrop not found"
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Gumdrop": {
+            "required": [
+                "name",
+                "color"
+            ],
+            "properties": {
+                "id": {
+                    "description": "The gumdrop identifier.",
+                    "format": "int64",
+                    "example": 21
+                },
+                "name": {
+                    "description": "Unique name of the gumdrop.",
+                    "format": "string",
+                    "example": "Bobby"
+                },
+                "color": {
+                    "description": "The gumdrop color.",
+                    "format": "string",
+                    "example": "red"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "Gumdrop"
+            }
+        },
+        "GumdropAndUser": {
+            "required": [
+                "name",
+                "color"
+            ],
+            "properties": {
+                "user_id": {
+                    "description": "The user to link to the gumdrop.",
+                    "format": "int64",
+                    "example": 3
+                },
+                "name": {
+                    "description": "Unique name of the gumdrop.",
+                    "format": "string",
+                    "example": "Billy"
+                },
+                "color": {
+                    "description": "The gumdrop color.",
+                    "format": "string",
+                    "example": "blue"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "GumdropAndUser"
+            }
+        }
+    }
+}
