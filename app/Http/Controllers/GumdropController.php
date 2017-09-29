@@ -92,9 +92,13 @@ class GumdropController extends Controller
      **/
     public function gumdropsForUser(Request $request, $user_id)
     {
-        // awesomely, I get $user_id from my route
+        // awesomely, I get $user_id from my route.
+        // another way I can do this is to inject the user:
+        // public function gumdropsForUser(Request $request, User $user)
+        // that way the route actually does this findOrFail.
+        // be aware that doesn't work for phpunit if you drop the middleware, though.
         $user = User::findOrFail($user_id);
-        // now I gotta go find all his gumdrops
+        // now go find all his gumdrops
         $my_gumdrops = $user->gumdrops()->get();
         return response()->json($my_gumdrops);
     }

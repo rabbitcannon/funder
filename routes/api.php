@@ -19,3 +19,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::resource('gumdrops','GumdropController');
 Route::get('/users/{user_id}/gumdrops', 'GumdropController@gumdropsForUser');
+
+/**
+ * These generic routes are required for ALL EOS services
+ */
+Route::post('/configure','ClientController@configure');
+Route::get('/probe','ProbeController@probe');
+Route::get('/version', 'ProbeController@version');

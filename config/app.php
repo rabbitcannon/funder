@@ -125,6 +125,18 @@ return [
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
     /*
+  * Custom configuration - ideally, overridden by push from EOS MC
+  */
+    'sciplay_url' => env( 'SCIPLAY_URL', ''),
+    'sciplay_api_version' => env('SCIPLAY_API_VERSION',''),
+    'sciplay_api_key' => env('SCIPLAY_API_KEY',''),
+    'sciplay_api_secret' => env('SCIPLAY_API_SECRET',''),
+    'bonusing_url' => env('BONUSING_URL',''),
+    'bonusing_client_id' => env( 'BONUSING_CLIENT_ID',''),
+    'bonusing_client_secret' => env( 'BONUSING_CLIENT_SECRET',''),
+
+
+    /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
     |--------------------------------------------------------------------------
