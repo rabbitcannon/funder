@@ -26,3 +26,7 @@ Route::get('/users/{user_id}/gumdrops', 'GumdropController@gumdropsForUser');
 Route::post('/configure','ClientController@configure');
 Route::get('/probe','ProbeController@probe');
 Route::get('/version', 'ProbeController@version');
+Route::get('/settings', 'ClientController@settingsList');
+Route::get('/settings/{pack_id}', 'ClientController@getSettingsPack');
+Route::post('/settings/{pack_id}', 'ClientController@postSettings');
+Route::delete('/settings/{pack_id}', 'ClientController@deleteSettings');
