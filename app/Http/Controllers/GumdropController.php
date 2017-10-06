@@ -56,16 +56,19 @@ class GumdropController extends Controller
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
 
-        // store me a new gumdrop for some user
+        // store me a new gumdrop for some user.
         $user_id = $request->get( 'user_id' );
         $name = $request->get( 'name' );
         $color = $request->get( 'color' );
-        $gumdrop = new Gumdrop( ['name' => $name, 'color' => $color] );
-        $gumdrop->save();
-        // link it to my user!
-        $user = User::findOrFail( $user_id );
-        $user->gumdrops()->attach($gumdrop);
-        return response()->json([]);
+        // now I need to create the new Gumdrop, save it, and link it to my user.
+        // I could do this here, but then my API route is the only way to access
+        // this 'transaction' -- it's better to use a static model method.
+        $success = Gumdrop::createNewGumdropForUser([
+            'name' => $name,
+            'color' => $color,
+            'user_id' => $user_id]);
+
+        return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }
 
     /**

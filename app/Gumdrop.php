@@ -20,6 +20,25 @@ class Gumdrop extends Model
     protected $fillable = [
         'name', 'color'
     ];
+
+    /**
+     * @param $values - ['name', 'color', 'user_id']
+     * @return bool - true if success.
+     */
+    static function createNewGumdropForUser( $values )
+    {
+        try {
+            $gumdrop = new Gumdrop(['name' => $values['name'], 'color' => $values['color']]);
+            $gumdrop->save();
+            // link it to my user!
+            $user = User::findOrFail($values['user_id']);
+
+            $user->gumdrops()->attach($gumdrop);
+        } catch ( \Exception $e ) {
+            return false;
+        }
+        return true;
+    }
 }
 
 /**

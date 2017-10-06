@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
+use Storage;
 use Predis\ClientException;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
@@ -82,22 +83,41 @@ class ClientController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/settings",
-     *   summary="REQUIRED API FOR SERVICES: Return settings pack names",
-     *   operationId="settingsList",
+     *   path="/schema",
+     *   summary="REQUIRED API FOR SERVICES: Return settings pack schema",
+     *   operationId="settingsSchema",
      *   tags={"eos"},
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
-     *       type="array",
-     *       @SWG\Items(type="string"))
+     *       type="string")
      *   ),
      * @SWG\Response(response=500, description="internal server error")
      * )
      **/
-    public function settingsList(Request $request)
+    public function settingsSchema(Request $request)
+    {
+        $schemafile = file_get_contents('../config/settings.schema.json');
+        $schema = json_decode($schemafile);
+        return response()->json($schema);
+    }
+
+    /**
+     * @SWG\Get(
+     *   path="/settings",
+     *   summary="REQUIRED API FOR SERVICES: Return settings",
+     *   operationId="getSettings",
+     *   tags={"eos"},
+     * @SWG\Response(response=200, description="successful",
+     *     @SWG\Schema(
+     *       type="string")
+     *   ),
+     * @SWG\Response(response=500, description="internal server error")
+     * )
+     **/
+    public function getSettings(Request $request)
     {
         $settings = [];
-        $settingsJson = Redis::get( 'settings-packs' );
+        $settingsJson = Redis::get( 'settings' );
         if( $settingsJson ) {
             $settings = json_decode( $settingsJson, true );
         }
@@ -105,127 +125,82 @@ class ClientController extends Controller
     }
 
     /**
-     * @SWG\Get(
-     *   path="/settings/{pack_id}",
-     *   summary="REQUIRED API FOR SERVICES: Return specific settings pack",
-     *   operationId="getSettingsPack",
+     * @SWG\Post(
+     *   path="/settings",
+     *   summary="REQUIRED API FOR SERVICES: Accept settings",
+     *   operationId="postSettings",
      *   tags={"eos"},
      * @SWG\Parameter(
-     *   in="path",
-     *   name="pack_id",
-     *   description="Unique Pack Identifier",
+     *   in="body",
+     *   name="body",
+     *   description="Settings JSON Data",
      *   required=true,
-     *   type="string",
+     *   @SWG\Schema(
+     *       type="string")
      *   ),
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="string")
      *   ),
-     *   @SWG\Response(response=404, description="settings pack not found"),
-     *   @SWG\Response(response=500, description="internal server error")
-     * )
-     **/
-    public function getSettingsPack(Request $request, $pack_id)
-    {
-        $settings = [];
-        $settingsJson = Redis::get( 'settings-packs' );
-        if( $settingsJson ) {
-            $settings = json_decode( $settingsJson, true );
-        }
-        if( !in_array( $pack_id, $settings ) )
-        { return response()->json( ['message' => 'Could not find pack '.$pack_id], 404 ); }
-        return response()->json( Redis::get( 'PACK.'.$pack_id ) );
-    }
-
-    /**
-     * @SWG\Post(
-     *   path="/settings/{pack_id}",
-     *   summary="REQUIRED API FOR SERVICES: Accept settings pack",
-     *   operationId="postSettings",
-     *   tags={"eos"},
-     * @SWG\Parameter(
-     *   in="path",
-     *   name="pack_id",
-     *   description="Unique Pack Identifier",
-     *   required=true,
-     *   type="string",
-     *   ),
-     * @SWG\Parameter(
-     *   in="body",
-     *   name="body",
-     *   description="Pack Value Data",
-     *   required=true,
-     *   @SWG\Schema(
-     *       type="string")
-     *   ),
-     * @SWG\Response(response=200, description="successful"),
      * @SWG\Response(response=500, description="internal server error")
      * )
      **/
-    public function postSettings(Request $request, $pack_id)
+    public function postSettings(Request $request)
     {
-        // get our current list of settings packs; may need to add a new pack id
+        // get our current settings for comparison
         $settings = [];
-        $settingsJson = Redis::get( 'settings-packs' );
+        $settingsJson = Redis::get( 'settings' );
         if( $settingsJson ) {
             $settings = json_decode( $settingsJson, true );
         }
-        // add to the list if not already present
-        if( !in_array( $pack_id, $settings ) ) {
-            $message = "New pack ".$pack_id;
-            $settings[] = $pack_id;
-            $settingsJson = json_encode( $settings );
-            Redis::set( 'settings-packs', $settingsJson );
-        } else {
-            $message = "Replaced pack ".$pack_id;
-        }
-        // decode to validate good JSON
+        // decode the new settings
         try
-        { $pack = json_decode( $request->getContent(), true ); }
+        { $new_settings = json_decode( $request->getContent(), true ); }
         catch( \Exception $e )
         { return response()->json( ['message' => 'Bad JSON detected, not updated'], 500 ); }
 
-        // add or update the pack with body contents
-        Redis::set( 'PACK.'.$pack_id, $request->getContent() );
+       // $changes = $this->array_diff_assoc_recursive( $settings, $new_settings );
 
-        return response()->json( ['message' => $message] );
+        $settingsJson = json_encode( $new_settings );
+        Redis::set( 'settings', $settingsJson );
+
+        return response()->json( ['changes' => []] );
+    }
+
+    private function array_diff_assoc_recursive($array1, $array2)
+    {
+        foreach($array1 as $key => $value){
+            if(is_array($value)){
+                if(!isset($array2[$key]))
+                { $difference[$key] = $value; }
+                elseif(!is_array($array2[$key]))
+                { $difference[$key] = $value;}
+                else {
+                    $new_diff = $this->array_diff_assoc_recursive($value, $array2[$key]);
+                    if($new_diff != FALSE)
+                    { $difference[$key] = $new_diff;}
+                }
+            }
+            elseif((!isset($array2[$key]) || $array2[$key] != $value) && !($array2[$key]===null && $value===null))
+            { $difference[$key] = $value;}
+        }
+        return !isset($difference) ? [] : $difference;
     }
 
     /**
      * @SWG\Delete(
-     *   path="/settings/{pack_id}",
-     *   summary="REQUIRED API FOR SERVICES: Delete settings pack",
+     *   path="/settings",
+     *   summary="REQUIRED API FOR SERVICES: Delete settings",
      *   operationId="deleteSettings",
      *   tags={"eos"},
-     * @SWG\Parameter(
-     *   in="path",
-     *   name="pack_id",
-     *   description="Unique Pack Identifier",
-     *   required=true,
-     *   type="string",
-     *   ),
      * @SWG\Response(response=200, description="successful"),
-     * @SWG\Response(response=404, description="settings pack not found"),
      * @SWG\Response(response=500, description="internal server error")
      * )
      **/
-    public function deleteSettings(Request $request, $pack_id)
+    public function deleteSettings(Request $request)
     {
-        $settings = [];
-        $settingsJson = Redis::get( 'settings-packs' );
-        if( $settingsJson ) {
-            $settings = json_decode( $settingsJson, true );
-        }
-        if( !in_array( $pack_id, $settings ) )
-        { return response()->json( ['message' => 'Could not find pack '.$pack_id], 404 ); }
-        else
-        {
-            unset($settings[ array_search($pack_id,$settings) ]);
-            $settingsJson = json_encode( $settings );
-            Redis::set( 'settings-packs', $settingsJson );
-        }
-
-        Redis::del('PACK.'.$pack_id);
+        Redis::del( 'settings' );
+        return response()->json( ['message' =>"Settings deleted."] );
     }
 
 }
