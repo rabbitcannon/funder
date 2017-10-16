@@ -11,19 +11,32 @@ class SettingsSchema
     // Remove this comment and change this to your own service schema.
     // This schema is provided as an example only.
     public static $schema = [
-        "color" => ["type"=>"text","value"=>"red"],
-        "count" => ["type"=>"number","value"=>1,"valid"=>["min"=>1,"max"=>10]],
-        "notify" => ["type"=>"group","fields"=> [
-            "playerid" => ["type"=>"text"],
-            "by" => ["type"=>"enum","valid"=>["email","push","messagecenter"],"value"=>"email"]
+        "Sample" => ["type" =>"group","fields"=>[
+            "color" => ["type"=>"text","value"=>"red"],
+            "count" => ["type"=>"number","value"=>1,"valid"=>["min"=>1,"max"=>10]],
+            "notify" => ["type"=>"group","fields"=> [
+                "playerid" => ["type"=>"text"],
+                "by" => ["type"=>"enum","valid"=>["email","push","messagecenter"],"value"=>"email"]
+                ]
+            ],
+            "games" => ["type"=>"multigroup","extensible"=>true,"fields"=> [
+                "name" => ["type"=>"text","valid"=>["sample"=>"Powerball"]],
+                "desc" => ["type"=>"text","valid"=>["sample"=>"A multi-state draw game"]],
+                "effective" => ["type"=>"text","valid"=>["regex"=>"\d{4}-\d{2}-\d{2}","sample"=>"YYYY-MM-DD"]]]
             ]
-        ],
-        "games" => ["type"=>"multigroup","extensible"=>true,"fields"=> [
-            "name" => ["type"=>"text","valid"=>["sample"=>"Powerball"]],
-            "desc" => ["type"=>"text","valid"=>["sample"=>"A multi-state draw game"]],
-            "effective" => ["type"=>"text","valid"=>["regex"=>"\d{4}-\d{2}-\d{2}","sample"=>"YYYY-MM-DD"]]]
+        ]
         ]
     ];
+
+    // if your service brings in a component, e.g. from Composer, which wants to extend the
+    // configuration schema, it must merge its schema's top-level tag (group) with the master
+    // schema (SettingsSchema::$schema), perhaps in a ServiceProvider::boot(). The top level
+    // tags must be unique.
+    //
+    public static function mergeSchema($component_schema)
+    {
+        self::$schema = array_merge(self::$schema, $component_schema);
+    }
 
     // SettingsSchema::fetch('ns.games') should intelligently fetch an array of all
     // games in 'ns.games' along with any defined in 'global.games' - as well as checking

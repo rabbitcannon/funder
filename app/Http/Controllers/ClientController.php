@@ -97,6 +97,12 @@ class ClientController extends Controller
      **/
     public function settingsSchema(Request $request)
     {
+        // sample of extending a schema
+        $component = ["Gumdrops" => ["type"=>"group","fields"=> [
+           "gumdropSize" => ["type"=>"enum","valid"=>["small","medium","large"],"value"=>"medium"],
+           "gumdropColor" => ["type"=>"text","value"=>"red"]
+        ]]];
+        SettingsSchema::mergeSchema($component);
         $schema = SettingsSchema::$schema;
         return response()->json($schema);
     }
