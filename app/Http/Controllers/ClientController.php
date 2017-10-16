@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
-use Storage;
+use Illuminate\Support\Facades\Storage;
+use App\SettingsSchema;
 use Predis\ClientException;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
@@ -96,8 +97,7 @@ class ClientController extends Controller
      **/
     public function settingsSchema(Request $request)
     {
-        $schemafile = file_get_contents('../config/settings.schema.json');
-        $schema = json_decode($schemafile);
+        $schema = SettingsSchema::$schema;
         return response()->json($schema);
     }
 
@@ -116,11 +116,7 @@ class ClientController extends Controller
      **/
     public function getSettings(Request $request)
     {
-        $settings = [];
-        $settingsJson = Redis::get( 'settings' );
-        if( $settingsJson ) {
-            $settings = json_decode( $settingsJson, true );
-        }
+        $settings = SettingsSchema::getRawSettings();
         return response()->json( $settings );
     }
 
@@ -147,44 +143,14 @@ class ClientController extends Controller
      **/
     public function postSettings(Request $request)
     {
-        // get our current settings for comparison
-        $settings = [];
-        $settingsJson = Redis::get( 'settings' );
-        if( $settingsJson ) {
-            $settings = json_decode( $settingsJson, true );
-        }
         // decode the new settings
-        try
-        { $new_settings = json_decode( $request->getContent(), true ); }
-        catch( \Exception $e )
-        { return response()->json( ['message' => 'Bad JSON detected, not updated'], 500 ); }
+        $error = null;
+        SettingsSchema::putRawSettings( $request->getContent(), $error );
 
-       // $changes = $this->array_diff_assoc_recursive( $settings, $new_settings );
+        if($error)
+        { return response()->json( ['Status' => 'Error', 'message' => 'Bad JSON detected, not updated'], 500 ); }
 
-        $settingsJson = json_encode( $new_settings );
-        Redis::set( 'settings', $settingsJson );
-
-        return response()->json( ['changes' => []] );
-    }
-
-    private function array_diff_assoc_recursive($array1, $array2)
-    {
-        foreach($array1 as $key => $value){
-            if(is_array($value)){
-                if(!isset($array2[$key]))
-                { $difference[$key] = $value; }
-                elseif(!is_array($array2[$key]))
-                { $difference[$key] = $value;}
-                else {
-                    $new_diff = $this->array_diff_assoc_recursive($value, $array2[$key]);
-                    if($new_diff != FALSE)
-                    { $difference[$key] = $new_diff;}
-                }
-            }
-            elseif((!isset($array2[$key]) || $array2[$key] != $value) && !($array2[$key]===null && $value===null))
-            { $difference[$key] = $value;}
-        }
-        return !isset($difference) ? [] : $difference;
+        return response()->json( ['Status' => 'Ok'] );
     }
 
     /**
@@ -199,8 +165,8 @@ class ClientController extends Controller
      **/
     public function deleteSettings(Request $request)
     {
-        Redis::del( 'settings' );
-        return response()->json( ['message' =>"Settings deleted."] );
+        SettingsSchema::clearRawSettings();
+        return response()->json( ['Status' => 'Ok', 'message' =>"Settings deleted."] );
     }
 
 }
