@@ -10,12 +10,22 @@ use Illuminate\Validation\Validator;
 
 class GumdropController extends Controller
 {
+    public function __construct()
+    {
+        // all calls to /api/gumdrops require OAUTH2 client credentials token
+        // you may place in your .env: L5_SWAGGER_API_AUTH_TOKEN="Bearer <my-bearer-token>"
+        // for the simplest way to authorize the API
+        // use the /oauth/token call to get the bearer token, see EOS API group
+        $this->middleware('client');
+    }
+
     /**
      * @SWG\Get(
-     *   path="/gumdrops",
+     *   path="/api/gumdrops",
      *   summary="Get all the gumdrops",
      *   operationId="getAllGumdrops",
      *   tags={"gumdrops"},
+     *   security={{"oauth2": {""}}},
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="array",
@@ -32,10 +42,11 @@ class GumdropController extends Controller
 
     /**
      * @SWG\Post(
-     *   path="/gumdrops",
+     *   path="/api/gumdrops",
      *   summary="Add a new gumdrop",
      *   operationId="createGumdrop",
      *   tags={"gumdrops"},
+     *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *     name="body",
      *     in="body",
@@ -73,10 +84,11 @@ class GumdropController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/users/{id}/gumdrops",
+     *   path="/api/users/{id}/gumdrops",
      *   summary="Get gumdrops for a user",
      *   operationId="getUserGumdrops",
      *   tags={"users"},
+     *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *   in="path",
      *   name="id",
@@ -108,10 +120,11 @@ class GumdropController extends Controller
 
     /**
      * @SWG\Put(
-     *   path="/gumdrops/{id}",
+     *   path="/api/gumdrops/{id}",
      *   summary="Modify a gumdrop",
      *   operationId="modifyGumdrop",
      *   tags={"gumdrops"},
+     *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *   in="path",
      *   name="id",
@@ -147,10 +160,11 @@ class GumdropController extends Controller
 
     /**
      * @SWG\Delete(
-     *   path="/gumdrops/{id}",
+     *   path="/api/gumdrops/{id}",
      *   summary="Delete a gumdrop",
      *   operationId="deleteGumdrop",
      *   tags={"gumdrops"},
+     *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *   in="path",
      *   name="id",

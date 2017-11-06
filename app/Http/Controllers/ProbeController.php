@@ -22,7 +22,7 @@ class ProbeController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/probe",
+     *   path="/api/probe",
      *   summary="REQUIRED API FOR SERVICES: Execute peer probe",
      *   operationId="probe",
      *   tags={"eos"},
@@ -75,7 +75,7 @@ class ProbeController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/version",
+     *   path="/api/version",
      *   summary="REQUIRED API FOR SERVICES: Respond with version number",
      *   operationId="version",
      *   tags={"eos"},

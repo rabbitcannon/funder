@@ -20,7 +20,7 @@ class ClientController extends Controller
 
     /**
      * @SWG\Post(
-     *   path="/configure",
+     *   path="/api/configure",
      *   summary="REQUIRED API FOR SERVICES: Accept configuration push from eos-mc service",
      *   operationId="acceptConfiguration",
      *   tags={"eos"},
@@ -84,7 +84,7 @@ class ClientController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/schema",
+     *   path="/api/schema",
      *   summary="REQUIRED API FOR SERVICES: Return settings pack schema",
      *   operationId="settingsSchema",
      *   tags={"eos"},
@@ -109,7 +109,7 @@ class ClientController extends Controller
 
     /**
      * @SWG\Get(
-     *   path="/settings",
+     *   path="/api/settings",
      *   summary="REQUIRED API FOR SERVICES: Return settings",
      *   operationId="getSettings",
      *   tags={"eos"},
@@ -128,7 +128,7 @@ class ClientController extends Controller
 
     /**
      * @SWG\Post(
-     *   path="/settings",
+     *   path="/api/settings",
      *   summary="REQUIRED API FOR SERVICES: Accept settings",
      *   operationId="postSettings",
      *   tags={"eos"},
@@ -161,7 +161,7 @@ class ClientController extends Controller
 
     /**
      * @SWG\Delete(
-     *   path="/settings",
+     *   path="/api/settings",
      *   summary="REQUIRED API FOR SERVICES: Delete settings",
      *   operationId="deleteSettings",
      *   tags={"eos"},
@@ -177,6 +177,47 @@ class ClientController extends Controller
 
 }
 
+/**
+ * for convenience, we'll add the oauth/token api call in the 'eos' group as well, even though
+ * it's actually provided by laravel/passport.
+ */
+/**
+ * @SWG\Post(
+ *   path="/oauth/token",
+ *   summary="GET AN ACCESS TOKEN: You must know the client credentials id and secret.",
+ *   operationId="getClientCredentialsToken",
+ *   tags={"eos"},
+ * @SWG\Parameter(
+ *     name="body",
+ *     in="body",
+ *     description="Client Authorization",
+ *     required=true,
+ *     @SWG\Schema(ref="#/definitions/OauthGrantRequest")
+ *   ),
+ *   @SWG\Response(response=200, description="successful",
+ *     @SWG\Schema(ref="#/definitions/OauthGrantResponse")),
+ *   @SWG\Response(response=500, description="System error")
+ *  )
+ **/
+class OauthPassport {}
+
+/**
+ * strictly for Swagger doc
+ * @SWG\Definition(required={"grant_type","client_id","client_secret","scope"}, type="object", @SWG\Xml(name="OauthGrantRequest"))
+ * @SWG\Property(format="string", property="grant_type", example="client_credentials", description="Grant type")
+ * @SWG\Property(type="string", property="client_id", example="2", description="ID of the credentials client")
+ * @SWG\Property(type="string", property="client_secret", example="random-string", description="credentials client secret")
+ * @SWG\Property(type="string", property="scope", example="manage-keys view-credentials", description="requested scopes")
+ **/
+class OauthGrantRequest {}
+/**
+ * strictly for Swagger doc
+ * @SWG\Definition(required={"access_token","refresh_token","expires_in"}, type="object", @SWG\Xml(name="OauthGrantResponse"))
+ * @SWG\Property(format="string", property="access_token", example="long-string", description="use as Bearer token")
+ * @SWG\Property(type="string", property="refresh_token", example="long-string", description="use to refresh expired token")
+ * @SWG\Property(type="number", property="expires_in", example="445632", description="seconds until expiration")
+ **/
+class OauthGrantResponse {}
 
 /**
  * strictly for Swagger doc

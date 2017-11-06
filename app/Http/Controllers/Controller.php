@@ -9,12 +9,17 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
  * @SWG\Swagger(
- *   basePath="/api",
+ *   basePath="/",
  *   consumes={"application/json"},
  *   produces={"application/json"},
  *   @SWG\Info(
  *     title="Boogers API",
  *     version="1.0.0"
+ *   ),
+ *   @SWG\SecurityScheme(
+ *      securityDefinition="oauth2", type="oauth2", description="OAuth2 Client Grant", flow="application",
+ *      tokenUrl="/oauth/token",
+ *      scopes={"scope": ""}
  *   )
  * )
  **/
