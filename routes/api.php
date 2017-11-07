@@ -13,24 +13,28 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+// all your API routes should be within this route group!
+Route::group(['namespace'=>'App\Http\Controllers'],function() {
+
+
+    Route::middleware('auth:api')->get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    Route::resource('gumdrops', 'GumdropController');
+    Route::get('/users/{user_id}/gumdrops', 'GumdropController@gumdropsForUser');
+
+    /**
+     * These generic routes are required for ALL EOS services
+     */
+    Route::post('/configure', 'ClientController@configure');
+    Route::get('/probe', 'ProbeController@probe');
+    Route::get('/version', 'ProbeController@version');
+    Route::get('/schema', 'ClientController@settingsSchema');
+    Route::get('/settings', 'ClientController@getSettings');
+    Route::post('/settings', 'ClientController@postSettings');
+    Route::delete('/settings', 'ClientController@deleteSettings');
 });
-
-Route::resource('gumdrops','GumdropController');
-Route::get('/users/{user_id}/gumdrops', 'GumdropController@gumdropsForUser');
-
-/**
- * These generic routes are required for ALL EOS services
- */
-Route::post('/configure','ClientController@configure');
-Route::get('/probe','ProbeController@probe');
-Route::get('/version', 'ProbeController@version');
-Route::get('/schema', 'ClientController@settingsSchema');
-Route::get('/settings', 'ClientController@getSettings');
-Route::post('/settings', 'ClientController@postSettings');
-Route::delete('/settings', 'ClientController@deleteSettings');
-
 // override routes from Passport to allow api client access
 Route::group(['namespace' => 'Laravel\Passport\Http\Controllers'], function() {
     Route::get('/oauth/clients','ClientController@forUser')->middleware(['auth.basic']);

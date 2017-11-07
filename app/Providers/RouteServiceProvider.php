@@ -14,7 +14,9 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    protected $namespace = 'App\Http\Controllers';
+    // we don't default to app/Http/Controllers, because we also want to
+    // override some routes from Passport
+    protected $namespace = '';
 
     /**
      * Define your route model bindings, pattern filters, etc.
