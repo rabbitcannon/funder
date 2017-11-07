@@ -27,13 +27,13 @@ Route::group(['namespace'=>'App\Http\Controllers'],function() {
     /**
      * These generic routes are required for ALL EOS services
      */
-    Route::post('/configure', 'ClientController@configure');
+    Route::post('/configure', 'ClientController@configure')->middleware(['auth.key']);
     Route::get('/probe', 'ProbeController@probe');
     Route::get('/version', 'ProbeController@version');
-    Route::get('/schema', 'ClientController@settingsSchema');
-    Route::get('/settings', 'ClientController@getSettings');
-    Route::post('/settings', 'ClientController@postSettings');
-    Route::delete('/settings', 'ClientController@deleteSettings');
+    Route::get('/schema', 'ClientController@settingsSchema')->middleware(['auth.key']);
+    Route::get('/settings', 'ClientController@getSettings')->middleware(['auth.key']);
+    Route::post('/settings', 'ClientController@postSettings')->middleware(['auth.key']);
+    Route::delete('/settings', 'ClientController@deleteSettings')->middleware(['auth.key']);
 });
 // override routes from Passport to allow api client access
 Route::group(['namespace' => 'Laravel\Passport\Http\Controllers'], function() {

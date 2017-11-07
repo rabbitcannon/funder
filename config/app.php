@@ -127,6 +127,7 @@ return [
     /*
   * Custom configuration - ideally, overridden by push from EOS MC
   */
+    'api_key' => env( 'API_KEY', ''),
     'sciplay_url' => env( 'SCIPLAY_URL', ''),
     'sciplay_api_version' => env('SCIPLAY_API_VERSION',''),
     'sciplay_api_key' => env('SCIPLAY_API_KEY',''),

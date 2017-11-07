@@ -25,6 +25,12 @@ class ClientController extends Controller
      *   operationId="acceptConfiguration",
      *   tags={"eos"},
      * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
+     * @SWG\Parameter(
      *     name="body",
      *     in="body",
      *     description="Service Configuration",
@@ -88,6 +94,12 @@ class ClientController extends Controller
      *   summary="REQUIRED API FOR SERVICES: Return settings pack schema",
      *   operationId="settingsSchema",
      *   tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="string")
@@ -113,6 +125,12 @@ class ClientController extends Controller
      *   summary="REQUIRED API FOR SERVICES: Return settings",
      *   operationId="getSettings",
      *   tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="string")
@@ -132,6 +150,12 @@ class ClientController extends Controller
      *   summary="REQUIRED API FOR SERVICES: Accept settings",
      *   operationId="postSettings",
      *   tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
      * @SWG\Parameter(
      *   in="body",
      *   name="body",
@@ -165,6 +189,12 @@ class ClientController extends Controller
      *   summary="REQUIRED API FOR SERVICES: Delete settings",
      *   operationId="deleteSettings",
      *   tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
      * @SWG\Response(response=200, description="successful"),
      * @SWG\Response(response=500, description="internal server error")
      * )
