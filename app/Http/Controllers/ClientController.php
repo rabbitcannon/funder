@@ -11,13 +11,10 @@ use Predis\ClientException;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
 // of endpoint configuration to the service. We can configure peer service endpoints
-// either in our .env file (puppet-generated) or by receiving an /api/configure post
+// either in our .env file or by receiving an /api/configure post
 // from EOS-MC. The latter is the preferred method.
 class ClientController extends Controller
 {
-
-    private static $service_name = 'Boogers'; // the official name of my service
-
     /**
      * @SWG\Post(
      *   path="/api/configure",
@@ -56,7 +53,10 @@ class ClientController extends Controller
     public function configure( Request $request )
     {
         $service = $request->all();
-        if ( $service['name'] == self::$service_name ) {
+        // our service name should be defined in .env (SERVICE_NAME)
+        // it should match what's being sent to us by eos-mc
+        $service_name = config( 'app.service_name' );
+        if ( $service['name'] == $service_name ) {
         // found our own configuration. Pick out some fields.
             if ( !isset($service['outbound']) || !is_array($service['outbound']) ) {
                 return response()->json( ['status' => 'error', 'message' => 'No connections'], 500 );
