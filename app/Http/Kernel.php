@@ -59,5 +59,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'client' => CheckClientCredentials::class,
         'auth.key' => \App\Http\Middleware\ApiKeyCheckMiddleware::class,
+        'eos' => \App\Http\Middleware\EOSAuthBinding::class,
     ];
 }

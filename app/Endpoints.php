@@ -52,6 +52,23 @@ class Endpoints
                 'oauth_token' => null],
         ];
 
+        $services = config('app.known_services');
+        foreach( $services as $name => $options ) {
+            if( ($name != "Bonusing Engine") && $name != "SciPlay" ) {
+                $service = json_decode( Redis::get( $name ), true );
+                $endpoint = ['name' => $name,
+                    'url' => $service['url'],
+                    'auth' => 'none'];
+                if( isset($service['client_id']) && isset($service['client_secret']) ) {
+                    $endpoint['auth'] = 'oauth';
+                    $endpoint['client_id'] = $service['client_id'];
+                    $endpoint['client_secret'] = $service['client_secret'];
+                }
+                $endpoints[] = $endpoint;
+            }
+        }
+
+
         return $endpoints;
     }
 

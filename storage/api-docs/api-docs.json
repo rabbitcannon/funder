@@ -4,7 +4,7 @@
         "title": "Boogers API",
         "version": "1.0.0"
     },
-    "basePath": "/api",
+    "basePath": "/",
     "consumes": [
         "application/json"
     ],
@@ -12,13 +12,207 @@
         "application/json"
     ],
     "paths": {
-        "/gumdrops": {
+        "/api/configure": {
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Accept configuration push from eos-mc service",
+                "operationId": "acceptConfiguration",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Service Configuration",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ServiceConfig"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "$ref": "#/definitions/ServiceConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error",
+                        "schema": {
+                            "$ref": "#/definitions/ServiceConfigResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/schema": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Return settings pack schema",
+                "operationId": "settingsSchema",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/api/settings": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Return settings",
+                "operationId": "getSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Accept settings",
+                "operationId": "postSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Settings JSON Data",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Delete settings",
+                "operationId": "deleteSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/oauth/token": {
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "GET AN ACCESS TOKEN: You must know the client credentials id and secret.",
+                "operationId": "getClientCredentialsToken",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Client Authorization",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OauthGrantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "$ref": "#/definitions/OauthGrantResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        },
+        "/api/gumdrops": {
             "get": {
                 "tags": [
                     "gumdrops"
                 ],
                 "summary": "Get all the gumdrops",
                 "operationId": "getAllGumdrops",
+                "parameters": [
+                    {
+                        "name": "transaction_id",
+                        "in": "query",
+                        "description": "GUID",
+                        "required": false,
+                        "type": "string"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "successful",
@@ -32,13 +226,20 @@
                     "500": {
                         "description": "System error"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "oauth2": [
+                            ""
+                        ]
+                    }
+                ]
             },
             "post": {
                 "tags": [
                     "gumdrops"
                 ],
-                "summary": "Add a new gumdrop",
+                "summary": "Add a new gumdrop for a player",
                 "operationId": "createGumdrop",
                 "parameters": [
                     {
@@ -47,8 +248,22 @@
                         "description": "Gumdrop Parameters.",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/GumdropAndUser"
+                            "$ref": "#/definitions/Gumdrop"
                         }
+                    },
+                    {
+                        "name": "transaction_id",
+                        "in": "query",
+                        "description": "GUID",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Auth",
+                        "in": "header",
+                        "description": "SciPlay Auth Header.",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -64,23 +279,44 @@
                     "500": {
                         "description": "System error"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "oauth2": [
+                            ""
+                        ]
+                    }
+                ]
             }
         },
-        "/users/{id}/gumdrops": {
+        "/api/players/{id}/gumdrops": {
             "get": {
                 "tags": [
-                    "users"
+                    "players"
                 ],
-                "summary": "Get gumdrops for a user",
-                "operationId": "getUserGumdrops",
+                "summary": "Get gumdrops for a player",
+                "operationId": "getPlayerGumdrops",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "User Id",
+                        "description": "Player Registrar Id",
                         "required": true,
-                        "type": "integer"
+                        "type": "string"
+                    },
+                    {
+                        "name": "transaction_id",
+                        "in": "query",
+                        "description": "GUID",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Auth",
+                        "in": "header",
+                        "description": "SciPlay Auth Header.",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -94,15 +330,25 @@
                         }
                     },
                     "404": {
-                        "description": "User not found"
+                        "description": "Player not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized player"
                     },
                     "500": {
                         "description": "System error"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "oauth2": [
+                            ""
+                        ]
+                    }
+                ]
             }
         },
-        "/gumdrops/{id}": {
+        "/api/gumdrops/{id}": {
             "put": {
                 "tags": [
                     "gumdrops"
@@ -116,6 +362,20 @@
                         "description": "Gumdrop Id",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "name": "transaction_id",
+                        "in": "query",
+                        "description": "GUID",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Auth",
+                        "in": "header",
+                        "description": "SciPlay Auth Header.",
+                        "required": false,
+                        "type": "string"
                     },
                     {
                         "name": "body",
@@ -137,10 +397,20 @@
                     "404": {
                         "description": "Gumdrop not found"
                     },
+                    "401": {
+                        "description": "Unauthorized player"
+                    },
                     "500": {
                         "description": "System error"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "oauth2": [
+                            ""
+                        ]
+                    }
+                ]
             },
             "delete": {
                 "tags": [
@@ -155,6 +425,20 @@
                         "description": "Gumdrop Id",
                         "required": true,
                         "type": "integer"
+                    },
+                    {
+                        "name": "transaction_id",
+                        "in": "query",
+                        "description": "GUID",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "X-Auth",
+                        "in": "header",
+                        "description": "SciPlay Auth Header.",
+                        "required": false,
+                        "type": "string"
                     }
                 ],
                 "responses": {
@@ -164,8 +448,62 @@
                     "404": {
                         "description": "Gumdrop not found"
                     },
+                    "401": {
+                        "description": "Unauthorized player"
+                    },
                     "500": {
                         "description": "System error"
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": [
+                            ""
+                        ]
+                    }
+                ]
+            }
+        },
+        "/api/probe": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Execute peer probe",
+                "operationId": "probe",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ProbeResults"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/api/version": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Respond with version number",
+                "operationId": "version",
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string",
+                            "example": "v1.0.1"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
                     }
                 }
             }
@@ -199,31 +537,205 @@
                 "name": "Gumdrop"
             }
         },
-        "GumdropAndUser": {
+        "OauthGrantRequest": {
             "required": [
-                "name",
-                "color"
+                "grant_type",
+                "client_id",
+                "client_secret",
+                "scope"
             ],
             "properties": {
-                "user_id": {
-                    "description": "The user to link to the gumdrop.",
-                    "format": "int64",
-                    "example": 3
-                },
-                "name": {
-                    "description": "Unique name of the gumdrop.",
+                "grant_type": {
+                    "description": "Grant type",
                     "format": "string",
-                    "example": "Billy"
+                    "example": "client_credentials"
                 },
-                "color": {
-                    "description": "The gumdrop color.",
-                    "format": "string",
-                    "example": "blue"
+                "client_id": {
+                    "description": "ID of the credentials client",
+                    "type": "string",
+                    "example": "2"
+                },
+                "client_secret": {
+                    "description": "credentials client secret",
+                    "type": "string",
+                    "example": "random-string"
+                },
+                "scope": {
+                    "description": "requested scopes",
+                    "type": "string",
+                    "example": "manage-keys view-credentials"
                 }
             },
             "type": "object",
             "xml": {
-                "name": "GumdropAndUser"
+                "name": "OauthGrantRequest"
+            }
+        },
+        "OauthGrantResponse": {
+            "required": [
+                "access_token",
+                "refresh_token",
+                "expires_in"
+            ],
+            "properties": {
+                "access_token": {
+                    "description": "use as Bearer token",
+                    "format": "string",
+                    "example": "long-string"
+                },
+                "refresh_token": {
+                    "description": "use to refresh expired token",
+                    "type": "string",
+                    "example": "long-string"
+                },
+                "expires_in": {
+                    "description": "seconds until expiration",
+                    "type": "number",
+                    "example": "445632"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "OauthGrantResponse"
+            }
+        },
+        "ServiceConfig": {
+            "required": [
+                "name",
+                "inbound",
+                "outbound"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of the service",
+                    "format": "string",
+                    "example": "Bonusing Manager"
+                },
+                "inbound": {
+                    "description": "All known connections to this service",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ConnectionConfig"
+                    }
+                },
+                "outbound": {
+                    "description": "All known connections from this service",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ConnectionConfig"
+                    }
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ServiceConfig"
+            }
+        },
+        "ServiceConfigResponse": {
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "description": "Status return, ok or error",
+                    "format": "string",
+                    "example": "ok"
+                },
+                "config": {
+                    "description": "Summary of consumed configuration",
+                    "type": "string",
+                    "example": "{json string}"
+                },
+                "message": {
+                    "description": "Any error message",
+                    "type": "string",
+                    "example": "config failure"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ServiceConfigResponse"
+            }
+        },
+        "ConnectionConfig": {
+            "required": [
+                "name",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of the service",
+                    "format": "string",
+                    "example": "Bonusing Engine"
+                },
+                "url": {
+                    "description": "URL of the service.",
+                    "format": "string",
+                    "example": "https://bonusing.pawtest.gamelogic.com"
+                },
+                "client_id": {
+                    "description": "Oauth client ID.",
+                    "format": "string",
+                    "example": 3
+                },
+                "client_secret": {
+                    "description": "Oauth client secret.",
+                    "format": "string",
+                    "example": "34fcssec3w"
+                },
+                "client_callback": {
+                    "description": "Oauth client redirect url.",
+                    "format": "string",
+                    "example": "http://my.client/callback"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ConnectionConfig"
+            }
+        },
+        "ProbeResults": {
+            "required": [
+                "name",
+                "status",
+                "message"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of peer service",
+                    "type": "string",
+                    "example": "LPS Issuer"
+                },
+                "elapsed_time": {
+                    "description": "Probe roundtrip time in seconds",
+                    "type": "float",
+                    "example": 0.94
+                },
+                "status": {
+                    "description": "Probe result status, ok or some error",
+                    "type": "string",
+                    "example": "failure"
+                },
+                "message": {
+                    "description": "Probe result message",
+                    "type": "string",
+                    "example": "Not Authorized"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ProbeResults"
+            }
+        }
+    },
+    "securityDefinitions": {
+        "oauth2": {
+            "type": "oauth2",
+            "description": "OAuth2 Client Grant",
+            "flow": "application",
+            "tokenUrl": "/oauth/token",
+            "scopes": {
+                "scope": ""
             }
         }
     }

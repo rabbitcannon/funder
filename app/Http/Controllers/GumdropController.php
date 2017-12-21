@@ -6,7 +6,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Gumdrop;
 use App\User;
+use App\AuthPlayer;
+use App\Player;
+use App\AuthAgent;
 use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Log;
+use App\CheckProcessorService;
 
 class GumdropController extends Controller
 {
@@ -16,7 +21,7 @@ class GumdropController extends Controller
         // you may place in your .env: L5_SWAGGER_API_AUTH_TOKEN="Bearer <my-bearer-token>"
         // for the simplest way to authorize the API
         // use the /oauth/token call to get the bearer token, see EOS API group
-        $this->middleware('client');
+        $this->middleware(['client','eos']);
     }
 
     /**
@@ -26,6 +31,13 @@ class GumdropController extends Controller
      *   operationId="getAllGumdrops",
      *   tags={"gumdrops"},
      *   security={{"oauth2": {""}}},
+     * @SWG\Parameter(
+     *     in="query",
+     *     name="transaction_id",
+     *     description="GUID",
+     *     type="string",
+     *     required=false,
+     *   ),
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="array",
@@ -37,13 +49,15 @@ class GumdropController extends Controller
     public function index()
     {
         // index returns all the whole gumdrops in the world
-        return response()->json(Gumdrop::all());
+        $cp = new CheckProcessorService();
+        $cp->send();
+        return response()->json(Gumdrop::with('players')->get());
     }
 
     /**
      * @SWG\Post(
      *   path="/api/gumdrops",
-     *   summary="Add a new gumdrop",
+     *   summary="Add a new gumdrop for a player",
      *   operationId="createGumdrop",
      *   tags={"gumdrops"},
      *   security={{"oauth2": {""}}},
@@ -52,7 +66,21 @@ class GumdropController extends Controller
      *     in="body",
      *     description="Gumdrop Parameters.",
      *     required=true,
-     *     @SWG\Schema(ref="#/definitions/GumdropAndUser")
+     *     @SWG\Schema(ref="#/definitions/Gumdrop")
+     *   ),
+     * @SWG\Parameter(
+     *     in="query",
+     *     name="transaction_id",
+     *     description="GUID",
+     *     type="string",
+     *     required=false,
+     *   ),
+     * @SWG\Parameter(
+     *     name="X-Auth",
+     *     in="header",
+     *     description="SciPlay Auth Header.",
+     *     required=false,
+     *     type="string"
      *   ),
      *   @SWG\Response(response=200, description="successful"),
      *   @SWG\Response(response=400, description="Validation error"),
@@ -61,60 +89,87 @@ class GumdropController extends Controller
      *  )
      **/
 
-    public function store(Request $request)
+    public function store(Request $request, AuthPlayer $auth_player)
     {
         // do some validation
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
 
-        // store me a new gumdrop for some user.
-        $user_id = $request->get( 'user_id' );
+        // store me a new gumdrop for some player.
+        if( ! $auth_player ) {
+            return response()->json(['status' => 'No player in X-Auth'],500);
+        }
+
         $name = $request->get( 'name' );
         $color = $request->get( 'color' );
-        // now I need to create the new Gumdrop, save it, and link it to my user.
+        // now I need to create the new Gumdrop, save it, and link it to my player.
         // I could do this here, but then my API route is the only way to access
         // this 'transaction' -- it's better to use a static model method.
-        $success = Gumdrop::createNewGumdropForUser([
+        $success = Gumdrop::createNewGumdropForPlayer([
             'name' => $name,
             'color' => $color,
-            'user_id' => $user_id]);
+            'registrar_id' => $auth_player->registrar_id]);
 
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }
 
     /**
      * @SWG\Get(
-     *   path="/api/users/{id}/gumdrops",
-     *   summary="Get gumdrops for a user",
-     *   operationId="getUserGumdrops",
-     *   tags={"users"},
+     *   path="/api/players/{id}/gumdrops",
+     *   summary="Get gumdrops for a player",
+     *   operationId="getPlayerGumdrops",
+     *   tags={"players"},
      *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *   in="path",
      *   name="id",
-     *   description="User Id",
+     *   description="Player Registrar Id",
      *   required=true,
-     *   type="integer",
+     *   type="string",
+     *   ),
+     * @SWG\Parameter(
+     *     in="query",
+     *     name="transaction_id",
+     *     description="GUID",
+     *     type="string",
+     *     required=false,
+     *   ),
+     * @SWG\Parameter(
+     *     name="X-Auth",
+     *     in="header",
+     *     description="SciPlay Auth Header.",
+     *     required=false,
+     *     type="string"
      *   ),
      * @SWG\Response(response=200, description="successful",
      *     @SWG\Schema(
      *       type="array",
      *       @SWG\Items(ref="#/definitions/Gumdrop"))
      *   ),
-     * @SWG\Response(response=404, description="User not found"),
+     * @SWG\Response(response=404, description="Player not found"),
+     * @SWG\Response(response=401, description="Unauthorized player"),
      * @SWG\Response(response=500, description="System error")
      *  )
      **/
-    public function gumdropsForUser(Request $request, $user_id)
+    public function gumdropsForPlayer(Request $request,
+                                    $registrar_id,
+                                    AuthPlayer $auth_player,
+                                    AuthAgent $auth_agent)
     {
-        // awesomely, I get $user_id from my route.
-        // another way I can do this is to inject the user:
-        // public function gumdropsForUser(Request $request, User $user)
-        // that way the route actually does this findOrFail.
-        // be aware that doesn't work for phpunit if you drop the middleware, though.
-        $user = User::findOrFail($user_id);
+        // I will receive the registrar_id (player identifier) from my route.
+        // if this matches 'me' (the AuthPlayer) it's fine -- otherwise we
+        // need an agent auth to go look at other players gumdrops.
+         $player = Player::fetchPlayer($registrar_id);
+         $authorized = false;
+         if( $auth_player->valid() && ($auth_player->registrar_id == $registrar_id))
+         { $authorized = true; }
+         if( $auth_agent->valid() )
+         { $authorized = true; }
+         if( ! $authorized )
+         { return response()->json(['status' => 'Unauthorized player'],401); }
+
         // now go find all his gumdrops
-        $my_gumdrops = $user->gumdrops()->get();
+        $my_gumdrops = $player->gumdrops()->get();
         return response()->json($my_gumdrops);
     }
 
@@ -133,6 +188,20 @@ class GumdropController extends Controller
      *   type="integer",
      *   ),
      * @SWG\Parameter(
+     *     in="query",
+     *     name="transaction_id",
+     *     description="GUID",
+     *     type="string",
+     *     required=false,
+     *   ),
+     * @SWG\Parameter(
+     *     name="X-Auth",
+     *     in="header",
+     *     description="SciPlay Auth Header.",
+     *     required=false,
+     *     type="string"
+     *   ),
+     * @SWG\Parameter(
      *     name="body",
      *     in="body",
      *     description="Gumdrop Parameters.",
@@ -142,16 +211,32 @@ class GumdropController extends Controller
      *   @SWG\Response(response=200, description="successful"),
      *   @SWG\Response(response=400, description="Validation error"),
      *   @SWG\Response(response=404, description="Gumdrop not found"),
+     *   @SWG\Response(response=401, description="Unauthorized player"),
      *   @SWG\Response(response=500, description="System error")
      *  )
      **/
-    public function update(Request $request, $id)
+    public function update(Request $request,
+                           $id,
+                           AuthPlayer $auth_player,
+                           AuthAgent $auth_agent)
     {
         // do some validation
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
         // that's my little gumdrop
         $gumdrop = Gumdrop::findOrFail($id);
+        // now are we allowed to alter this? either it needs to belong
+        // to me, or it needs to have agent auth.
+        $owner = $gumdrop->players()->first();
+        $authorized = false;
+        if( $owner && $auth_player->valid() && ($auth_player->registrar_id == $owner->registrar_id))
+        { $authorized = true; }
+        if( $auth_agent->valid() )
+        { $authorized = true; }
+        if( ! $authorized )
+        { return response()->json(['status' => 'Unauthorized player'],401); }
+
+
         $name = $request->get('gumdrop_name');
         $color = $request->get('gumdrop_color');
         $gumdrop->update( ['name' => $name, 'color' => $color ] );
@@ -172,15 +257,42 @@ class GumdropController extends Controller
      *   required=true,
      *   type="integer",
      *   ),
+     * @SWG\Parameter(
+     *     in="query",
+     *     name="transaction_id",
+     *     description="GUID",
+     *     type="string",
+     *     required=false,
+     *   ),
+     * @SWG\Parameter(
+     *     name="X-Auth",
+     *     in="header",
+     *     description="SciPlay Auth Header.",
+     *     required=false,
+     *     type="string"
+     *   ),
      *   @SWG\Response(response=200, description="successful"),
      *   @SWG\Response(response=404, description="Gumdrop not found"),
+     *   @SWG\Response(response=401, description="Unauthorized player"),
      *   @SWG\Response(response=500, description="System error")
      *  )
      **/
-    public function destroy($id)
+    public function destroy($id,
+                            AuthPlayer $auth_player,
+                            AuthAgent $auth_agent)
     {
-        // goodbye my little gumdrop
-        $gumdrop = Gumdrop::find($id);
+        $gumdrop = Gumdrop::findOrFail($id);
+        // now do we allow this? Either it needs to be my gumdrop, or
+        // we need agent auth
+        $owner = $gumdrop->players()->first();
+        $authorized = false;
+        if( $owner && $auth_player->valid() && ($auth_player->registrar_id == $owner->registrar_id))
+        { $authorized = true; }
+        if( $auth_agent->valid() )
+        { $authorized = true; }
+        if( ! $authorized )
+        { return response()->json(['status' => 'Unauthorized player'],401); }
+
         $gumdrop->delete();
         return response()->json([]);
     }

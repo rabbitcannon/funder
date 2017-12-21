@@ -129,6 +129,8 @@ return [
   */
     'api_key' => env( 'API_KEY', ''),
     'service_name' => env( 'SERVICE_NAME', 'EOS Base Service'),
+    'eos_log_inbound' => env( 'EOS_LOG_INBOUND', false),
+    'eos_log_outbound' => env('EOS_LOG_OUTBOUND', false),
     'sciplay_url' => env( 'SCIPLAY_URL', ''),
     'sciplay_api_version' => env('SCIPLAY_API_VERSION',''),
     'sciplay_api_key' => env('SCIPLAY_API_KEY',''),
@@ -136,8 +138,18 @@ return [
     'bonusing_url' => env('BONUSING_URL',''),
     'bonusing_client_id' => env( 'BONUSING_CLIENT_ID',''),
     'bonusing_client_secret' => env( 'BONUSING_CLIENT_SECRET',''),
-
-
+    'known_services' => [
+        'Bonusing Engine' => ['pingable' => true, 'configurable' => true],
+        'Bonusing Manager' => ['pingable' => true, 'configurable' => true],
+        'LPS Issuer' => ['pingable' => true, 'configurable' => true],
+        'SciPlay' => ['pingable' => true, 'configurable' => false],
+        'EOS Lore' => ['pingable' => true, 'configurable' => true],
+        'Winners Service' => ['pingable' => false, 'configurable' => false],
+        'Game Consumer Service' => ['pingable' => false, 'configurable' => false],
+        'EOS Wallet' => ['pingable' => true, 'configurable' => true],
+        'Check Processor' => ['pingable' => true, 'configurable' => true],
+        'EOS Base Service' => ['pingable' => true, 'configurable' => true]
+        ],
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
