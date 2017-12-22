@@ -76,7 +76,7 @@ class ClientController extends Controller
                 if( isset($connection['client_secret']) )
                 { $redis_array[ 'client_secret' ] = $connection[ 'client_secret' ]; }
 
-                Redis::set( $connection['name'], json_encode( $redis_array ) );
+                Redis::set( 'endpoint.'.str_slug($connection['name']), json_encode( $redis_array ) );
                 $config .= $connection['name'] . ' as ' . $connection['url'] . "; ";
             }
 

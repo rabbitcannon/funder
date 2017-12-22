@@ -13,15 +13,15 @@ class Endpoints
     // the values from our config() based on .env tags.
     public static function GetEndpoints() {
 
-        // SciPlay and Bonusing are given as examples here. SciPlay's API is protected
+        // SciPlay and Bonusing are special cases, being older services. SciPlay's API is protected
         // with an apikey/apisecret, while Bonusing uses an OAuth2 client id/secret.
         // These keys are provided by EOS-MC along with the target URL; if we've been
-        // configured, they can be pulled out of Redis. Otherwise, we depend on the .env
+        // configured, they can be pulled out of Redis. Otherwise, we depend on the older .env mechanisms
         $sciplay_url = config( 'app.sciplay_url' );
         $sciplay_key = config( 'app.sciplay_api_key' );
         $sciplay_secret = config( 'app.sciplay_api_secret' );
 
-        $sciplay = json_decode( Redis::get( 'SciPlay' ), true);
+        $sciplay = json_decode( Redis::get( 'endpoint.'.str_slug('SciPlay') ), true);
         if($sciplay && isset($sciplay['url']) && $sciplay['url'] != '')
         { $sciplay_url = $sciplay['url']; }
 
@@ -35,7 +35,7 @@ class Endpoints
         $bonusing_client_id = config( 'app.bonusing_client_id');
         $bonusing_client_secret = config( 'app.bonusing_client_secret');
 
-        $bonusing = json_decode( Redis::get( 'Bonusing Engine' ), true );
+        $bonusing = json_decode( Redis::get( 'endpoint. '.str_slug('Bonusing Engine') ), true );
         if($bonusing && isset($bonusing['url']) && $bonusing['url'] != '')
         { $bonusing_url = $bonusing['url']; }
         if($bonusing && isset($bonusing['client_id']) && $bonusing['client_id'] != '')
@@ -43,7 +43,7 @@ class Endpoints
         if($bonusing && isset($bonusing['client_secret']) && $bonusing['client_secret'] != '')
         { $bonusing_client_secret = $bonusing['client_secret']; }
 
-        // roll up and return our best knowledge of URL endpoints, from either .env or Redis
+        // add these first two services to $endpoints
         $endpoints = [
             ['name' => 'SciPlay', 'url' => $sciplay_url, 'auth' => 'apikey',
                 'api_version' => '1', 'api_key' => $sciplay_key, 'api_secret' => $sciplay_secret],
@@ -52,10 +52,11 @@ class Endpoints
                 'oauth_token' => null],
         ];
 
+        // all other services will exclusively be configured from eos-mc
         $services = config('app.known_services');
         foreach( $services as $name => $options ) {
             if( ($name != "Bonusing Engine") && $name != "SciPlay" ) {
-                $service = json_decode( Redis::get( $name ), true );
+                $service = json_decode( Redis::get( 'endpoint.'.str_slug($name) ), true );
                 $endpoint = ['name' => $name,
                     'url' => $service['url'],
                     'auth' => 'none'];

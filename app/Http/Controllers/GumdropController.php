@@ -50,7 +50,7 @@ class GumdropController extends Controller
     {
         // index returns all the whole gumdrops in the world
         $cp = new CheckProcessorService();
-        $cp->send();
+        $cp->test();
         return response()->json(Gumdrop::with('players')->get());
     }
 

@@ -4,6 +4,11 @@ namespace App;
 
 use Illuminate\Support\Facades\Log;
 use App\Endpoints;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\TransferStats;
+use GuzzleHttp\Middleware;
 
 
 class EOSService
@@ -12,42 +17,146 @@ class EOSService
     public static $auth_header;
     public $service_name;
     public $service_url;
-    public $auth_type;
-    public $client_id;
-    public $client_secret;
+    private $auth_type;
+    private $client_id;
+    private $client_secret;
+    private $guzzle_client;
+    private $guzzle_options;
 
-    public function __construct( $name )
+    public function __construct($name)
     {
         $this->service_name = $name;
         $endpoints = Endpoints::GetEndpoints();
-        foreach( $endpoints as $endpoint ) {
-            if( $endpoint['name'] == $name ) {
+        foreach ($endpoints as $endpoint) {
+            if ($endpoint['name'] == $name) {
                 $this->service_url = $endpoint['url'];
                 $this->auth_type = $endpoint['auth'];
-                $this->client_id = $endpoint['client_id'];
-                $this->client_secret = $endpoint['client_secret'];
+                $this->client_id = isset($endpoint['client_id']) ? $endpoint['client_id'] : '';
+                $this->client_secret = isset($endpoint['client_secret']) ? $endpoint['client_secret'] : '';
+                break;
             }
         }
+        $this->guzzle_client = new Client([
+            'timeout' => 8.0,
+        ]);
+        $this->guzzle_options = [
+            'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json']
+        ];
+
+
     }
 
-    // todo: 'send' is a generic send stub. What is really needed is
-    // a facade for post, put, get, delete corresponding to Guzzle calls.
-    // this just shows that we're trying to use the right URL and passing
-    // along the TID and SPAT.
-    public function send()
+
+    // a facade for post, put, get, delete corresponding to Guzzle calls. These are identical to Guzzle except that we leave out
+    // the URL (since we are service-specific). Rather than throwing exceptions, any errors will be returned in the status_code
+    //
+    public function get($options)
     {
-        if( ! self::$transaction_id )
-        { self::$transaction_id = uniqid(''); }
-        if( config( 'app.eos_log_outbound' ) ) {
-            $token_value = json_decode(self::$auth_header,true);
+        return $this->send_request($this->guzzle_client, 'GET', $this->service_url, null, $options, false);
+    }
+
+    public function post($data, $options)
+    {
+        return $this->send_request($this->guzzle_client, 'POST', $this->service_url, $data, $options, false);
+    }
+
+    public function put($data, $options)
+    {
+        return $this->send_request($this->guzzle_client, 'PUT', $this->service_url, $data, $options, false);
+    }
+
+    public function delete($options)
+    {
+        return $this->send_request($this->guzzle_client, 'DELETE', $this->service_url, null, $options, false);
+    }
+
+    // don't actually send, just log to show we have the right service parameters.
+    public function test()
+    {
+        $this->assign_transaction_id();
+        $this->log();
+    }
+
+    private function log()
+    {
+        if (config('app.eos_log_outbound')) {
+            $token_value = json_decode(self::$auth_header, true);
             $player = isset($token_value['player']['registrar_id']) ?
                 $token_value['player']['registrar_id'] : null;
             $agent = isset($token_value['agent']['agent_id']) ?
                 $token_value['agent']['agent_id'] : null;
-            Log::info('OUT: '.$this->service_url.' TID:'.self::$transaction_id.
-                ($player ? ' Player '.$player : '').
-                ($agent ? ' Agent '.$agent : ''));
+            Log::info('OUT: ' . $this->service_url . ' TID:' . self::$transaction_id .
+                ($player ? ' Player ' . $player : '') .
+                ($agent ? ' Agent ' . $agent : ''));
         }
+    }
+
+    private function assign_transaction_id()
+    {
+        if (!self::$transaction_id) {
+            self::$transaction_id = uniqid('');
+        }
+    }
+
+
+    private function send_request($client, $method, $url, $data, &$options, $debug_headers)
+    {
+        // prep the tap middleware if we want to use it for debugging.
+        $clientHandler = $client->getConfig('handler');
+        $tapMiddleware = Middleware::tap(function ($request) {
+            foreach ($request->getHeaders() as $name => $values) {
+                Log::info($name . ': ' . implode(', ', $values));
+            }
+        });
+
+        // collect the response time stats
+        $options['on_stats'] = function (TransferStats $stats) use (&$time) {
+            $time = $stats->getTransferTime();
+        };
+
+        $time = null;
+        $body = null;
+        $status_code = 500;
+        if ($debug_headers) {
+            $options = array_merge($options, ['handler' => $tapMiddleware($clientHandler)]);
+        }
+
+        try {
+            switch ($method) {
+                case "get":
+                    $response = $client->get($url, $options);
+                    break;
+                case "post":
+                    $response = $client->post($url,
+                        array_merge($options, ['body' => json_encode($data)]));
+                    break;
+                case "put":
+                    $response = $client->put($url,
+                        array_merge($options, ['body' => json_encode($data)]));
+                    break;
+                case "delete":
+                    $response = $client->delete($url, $options);
+                    break;
+                default:
+                    $response = $client->get($url, $options);
+            }
+            $body = json_decode($response->getBody());
+            $status_code = $response->getStatusCode();
+        } catch (RequestException $e) {
+            if ($e->hasResponse()) {
+                $exception = (string)$e->getResponse()->getBody();
+                $body = json_decode($exception);
+                $status_code = $e->getCode();
+            } else {
+                Log::error('Guzzle Client Exception for service: ' . $this->service_url . ': ' . $e->getMessage());
+                $body = $e->getMessage();
+            }
+        } catch (BadResponseException $e) {
+            Log::error('Guzzle Server Exception for service: ' . $this->service_url . ': ' . $e->getMessage());
+            $body = $e->getMessage();
+        }
+
+        return ['status_code' => $status_code, 'body' => $body, 'time' => $time];
     }
 
 }
