@@ -105,10 +105,14 @@ class GumdropController extends Controller
         // now I need to create the new Gumdrop, save it, and link it to my player.
         // I could do this here, but then my API route is the only way to access
         // this 'transaction' -- it's better to use a static model method.
+        try
+        { $player = Player::fetchPlayer( $auth_player->registrar_id ); }
+        catch ( \Exception $e )
+        { return response()->json(['status' => 'Failed'], 500); }
+
         $success = Gumdrop::createNewGumdropForPlayer([
             'name' => $name,
-            'color' => $color,
-            'registrar_id' => $auth_player->registrar_id]);
+            'color' => $color], $player);
 
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }

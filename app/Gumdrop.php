@@ -26,24 +26,28 @@ class Gumdrop extends Model
     protected $hidden = ['pivot'];
 
     /**
-     * @param $values - ['name', 'color', 'registrar_id']
+     * @param $values - ['name', 'color']
+     * @param $player - the Player to attach to
      * @return bool - true if success.
      */
-    static function createNewGumdropForPlayer( $values )
+    static function createNewGumdropForPlayer( $values, Player $player )
     {
         try {
-            $gumdrop = new Gumdrop(['name' => $values['name'], 'color' => $values['color']]);
+            $gumdrop = new Gumdrop( $values );
             $gumdrop->save();
-            $player = Player::fetchPlayer($values['registrar_id']);
             $player->gumdrops()->attach($gumdrop);
         } catch ( \Exception $e ) {
+            // this isn't always a good idea; sometimes it may be better to
+            // just allow exceptions to be caught by the controller, or to
+            // re-throw a new one. This approach simplifies the controller.
             return false;
         }
         return true;
     }
 
     // the concept of several players sharing a gumdrop is questionable
-    // but we are, in fact, modeling it as many to many
+    // but we are, in fact, modeling it as many to many. belongsToMany
+    // is the correct indicator for a pivot table e.g. gumdrop-player
     public function players()
     {
         return $this->belongsToMany('App\Player');

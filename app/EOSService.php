@@ -74,10 +74,10 @@ class EOSService
     public function test()
     {
         $this->assign_transaction_id();
-        $this->log();
+        $this->log('TEST');
     }
 
-    private function log()
+    private function log( $method, $elapsed_time = null )
     {
         if (config('app.eos_log_outbound')) {
             $token_value = json_decode(self::$auth_header, true);
@@ -85,9 +85,10 @@ class EOSService
                 $token_value['player']['registrar_id'] : null;
             $agent = isset($token_value['agent']['agent_id']) ?
                 $token_value['agent']['agent_id'] : null;
-            Log::info('OUT: ' . $this->service_url . ' TID:' . self::$transaction_id .
+            Log::info('OUT('.$method.'): ' . $this->service_url . ' TID:' . self::$transaction_id .
                 ($player ? ' Player ' . $player : '') .
-                ($agent ? ' Agent ' . $agent : ''));
+                ($agent ? ' Agent ' . $agent : '') .
+                ($elapsed_time ? ' in '.$elapsed_time.' sec' : ''));
         }
     }
 
@@ -142,20 +143,21 @@ class EOSService
             }
             $body = json_decode($response->getBody());
             $status_code = $response->getStatusCode();
+        } catch (BadResponseException $e) {
+            Log::error('Guzzle Server Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
+            $body = $e->getMessage();
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $exception = (string)$e->getResponse()->getBody();
                 $body = json_decode($exception);
                 $status_code = $e->getCode();
             } else {
-                Log::error('Guzzle Client Exception for service: ' . $this->service_url . ': ' . $e->getMessage());
+                Log::error('Guzzle Client Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
                 $body = $e->getMessage();
             }
-        } catch (BadResponseException $e) {
-            Log::error('Guzzle Server Exception for service: ' . $this->service_url . ': ' . $e->getMessage());
-            $body = $e->getMessage();
         }
 
+        $this->log($method, $time);
         return ['status_code' => $status_code, 'body' => $body, 'time' => $time];
     }
 

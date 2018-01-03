@@ -49,7 +49,7 @@ class EOSAuthBinding
         $request->route()->setParameter("App\Agent", $agent);
 
         if( config( 'app.eos_log_inbound' ) ) {
-            Log::info('IN: '.$request->path().' TID:'.$tid.
+            Log::info('IN('.$request->method().'): '.$request->path().' TID:'.$tid.
                 ($player->registrar_id ? ' Player '.$player->registrar_id : '').
                 ($agent->agent_id ? ' Agent '.$agent->agent_id : ''));
         }

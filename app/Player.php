@@ -64,6 +64,7 @@ class Player extends Model
         return $player;
     }
 
+    // a player may have zero or more gumdrops via gumdrop-player pivot
     public function gumdrops()
     {
         return $this->belongsToMany('App\Gumdrop');
