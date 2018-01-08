@@ -3,6 +3,9 @@
 namespace App;
 
 use Illuminate\Support\Facades\Redis;
+use App\SettingsSchema;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class Endpoints
 {
@@ -21,27 +24,9 @@ class Endpoints
         $sciplay_key = config( 'app.sciplay_api_key' );
         $sciplay_secret = config( 'app.sciplay_api_secret' );
 
-        $sciplay = json_decode( Redis::get( 'endpoint.'.str_slug('SciPlay') ), true);
-        if($sciplay && isset($sciplay['url']) && $sciplay['url'] != '')
-        { $sciplay_url = $sciplay['url']; }
-
-        if($sciplay && isset($sciplay['api_key']) && $sciplay['api_key'] != '')
-        { $sciplay_key = $sciplay['api_key']; }
-
-        if($sciplay && isset($sciplay['api_secret']) && $sciplay['api_secret'] != '')
-        { $sciplay_secret = $sciplay['api_secret']; }
-
         $bonusing_url =  config( 'app.bonusing_url' );
         $bonusing_client_id = config( 'app.bonusing_client_id');
         $bonusing_client_secret = config( 'app.bonusing_client_secret');
-
-        $bonusing = json_decode( Redis::get( 'endpoint. '.str_slug('Bonusing Engine') ), true );
-        if($bonusing && isset($bonusing['url']) && $bonusing['url'] != '')
-        { $bonusing_url = $bonusing['url']; }
-        if($bonusing && isset($bonusing['client_id']) && $bonusing['client_id'] != '')
-        { $bonusing_client_id = $bonusing['client_id']; }
-        if($bonusing && isset($bonusing['client_secret']) && $bonusing['client_secret'] != '')
-        { $bonusing_client_secret = $bonusing['client_secret']; }
 
         // add these first two services to $endpoints
         $endpoints = [
@@ -52,24 +37,33 @@ class Endpoints
                 'oauth_token' => null],
         ];
 
-        // all other services will exclusively be configured from eos-mc
+        // all other services will exclusively be configured from eos-mc.
+        // if Bonusing or SciPlay are configured, they will replace the above.
         $services = config('app.known_services');
         foreach( $services as $name => $options ) {
-            if( ($name != "Bonusing Engine") && $name != "SciPlay" ) {
-                $service = json_decode( Redis::get( 'endpoint.'.str_slug($name) ), true );
-                $endpoint = ['name' => $name,
-                    'url' => $service['url'],
-                    'auth' => 'none'];
-                if( isset($service['client_id']) && isset($service['client_secret']) ) {
-                    $endpoint['auth'] = 'oauth';
-                    $endpoint['client_id'] = $service['client_id'];
-                    $endpoint['client_secret'] = $service['client_secret'];
+            $service_name = str_slug($name);
+            $service = SettingsSchema::fetch('Connections.outbound.'.$service_name);
+            if( $service && is_array($service) ) {
+                $endpoint = [
+                    'name' => $service['serviceName'],
+                    'url' => $service['serviceUrl'],
+                    'auth' => isset($service['authentication']) ? $service['authentication'] : 'none' ];
+                if (isset($service['clientid']) && isset($service['clientsecret'])) {
+                    $endpoint['client_id'] = $service['clientid'];
+                    $endpoint['client_secret'] = $service['clientsecret'];
+                }
+                if (isset($service['apikey']) && isset($service['apisecret'])) {
+                    $endpoint['api_key'] = $service['apikey'];
+                    $endpoint['api_secret'] = $service['apisecret'];
+                }
+                // delete any duplicate (e.g. replace old SciPlay/Bonusing)
+                foreach( $endpoints as $ix => $ep) {
+                    if( isset($endpoints[$ix]) && ($endpoints[$ix]['name'] == $endpoint['name']) )
+                    { unset( $endpoints[$ix] ); }
                 }
                 $endpoints[] = $endpoint;
             }
         }
-
-
         return $endpoints;
     }
 

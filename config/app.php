@@ -128,6 +128,8 @@ return [
   * Custom configuration - ideally, overridden by push from EOS MC
   */
     'api_key' => env( 'API_KEY', ''),
+    'app_name' => env( 'APP_NAME', ''),
+    'install_prefix' => env( 'INSTALL_PREFIX', ''),
     'service_name' => env( 'SERVICE_NAME', 'EOS Base Service'),
     'eos_log_inbound' => env( 'EOS_LOG_INBOUND', false),
     'eos_log_outbound' => env('EOS_LOG_OUTBOUND', false),

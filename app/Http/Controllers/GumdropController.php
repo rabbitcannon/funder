@@ -49,8 +49,6 @@ class GumdropController extends Controller
     public function index()
     {
         // index returns all the whole gumdrops in the world
-        $cp = new CheckProcessorService();
-        $cp->test();
         return response()->json(Gumdrop::with('players')->get());
     }
 
@@ -113,6 +111,10 @@ class GumdropController extends Controller
         $success = Gumdrop::createNewGumdropForPlayer([
             'name' => $name,
             'color' => $color], $player);
+
+        // we are inserting here a test for our EOS chain relay
+        $cp = new CheckProcessorService();
+        $cp->test();
 
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }
