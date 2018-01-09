@@ -6,8 +6,8 @@ use Illuminate\Support\Facades\Log;
 use App\Endpoints;
 use App\SettingsSchema;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\TransferStats;
 use GuzzleHttp\Middleware;
 use App\ApiTraceLogger;
@@ -24,6 +24,7 @@ class EOSService
     private $client_secret;
     private $guzzle_client;
     private $guzzle_options;
+    private $slow_threshold;
 
     public function __construct( $name )
     {
@@ -39,8 +40,12 @@ class EOSService
                 break;
             }
         }
+        $timeout = (float) SettingsSchema::fetch('Diagnostics.hardRequestTimeoutSeconds');
+        $this->slow_threshold = (float) SettingsSchema::fetch('Diagnostics.slowResponseThresholdSeconds');
+        if( !$timeout )
+        { $timeout = 8.0; }
         $this->guzzle_client = new Client([
-            'timeout' => 8.0,
+            'timeout' => $timeout,
         ]);
         $this->guzzle_options = [
             'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json']
@@ -107,9 +112,10 @@ class EOSService
     {
         // prep the tap middleware if we want to use it for debugging.
         $clientHandler = $client->getConfig('handler');
-        $tapMiddleware = Middleware::tap(function ($request) {
+        $trace = new ApiTraceLogger();
+        $tapMiddleware = Middleware::tap(function ($request) use ($trace) {
             foreach ($request->getHeaders() as $name => $values)
-            { Log::info($name . ': ' . implode(', ', $values)); }
+            { $trace->info($name . ': ' . implode(', ', $values)); }
         });
 
         // collect the response time stats
@@ -145,13 +151,14 @@ class EOSService
             $body = json_decode($response->getBody());
             $status_code = $response->getStatusCode();
         }
-        catch ( BadResponseException $e )
+        catch ( ServerException $e )
         {
-            Log::error('Guzzle Server Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
+            $trace->error('Guzzle Server Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
             $body = $e->getMessage();
         }
-        catch ( RequestException $e )
+        catch ( ClientException $e )
         {
+            //todo: should we auto retry on a 503?
             if ( $e->hasResponse() )
             {
                 $exception = (string)$e->getResponse()->getBody();
@@ -160,12 +167,17 @@ class EOSService
             }
             else
             {
-                Log::error('Guzzle Client Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
+                $trace->error('Guzzle Client Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
                 $body = $e->getMessage();
             }
         }
 
         $this->log($method, $time);
+        if( $time >= $this->slow_threshold )
+        {
+            //todo: implement circuit breaker
+            $trace->warning("Slow response, TID:" . self::$transaction_id .' for service: ' . $this->service_url);
+        }
         return ['status_code' => $status_code, 'body' => $body, 'time' => $time];
     }
 
