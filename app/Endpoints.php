@@ -14,8 +14,8 @@ class Endpoints
     // ourselves up with .env file config, this is appropriate; but when we go fully to eos-mc configuration, this
     // needs to be more generic. For now, we prefer any Redis values (from eos-mc), but if they don't exist, we get
     // the values from our config() based on .env tags.
-    public static function GetEndpoints() {
-
+    public static function GetEndpoints()
+    {
         // SciPlay and Bonusing are special cases, being older services. SciPlay's API is protected
         // with an apikey/apisecret, while Bonusing uses an OAuth2 client id/secret.
         // These keys are provided by EOS-MC along with the target URL; if we've been
@@ -40,24 +40,29 @@ class Endpoints
         // all other services will exclusively be configured from eos-mc.
         // if Bonusing or SciPlay are configured, they will replace the above.
         $services = config('app.known_services');
-        foreach( $services as $name => $options ) {
+        foreach( $services as $name => $options )
+        {
             $service_name = str_slug($name);
             $service = SettingsSchema::fetch('Connections.outbound.'.$service_name);
-            if( $service && is_array($service) ) {
+            if( is_array($service) )
+            {
                 $endpoint = [
                     'name' => $service['serviceName'],
                     'url' => $service['serviceUrl'],
                     'auth' => isset($service['authentication']) ? $service['authentication'] : 'none' ];
-                if (isset($service['clientid']) && isset($service['clientsecret'])) {
+                if (isset($service['clientid']) && isset($service['clientsecret']))
+                {
                     $endpoint['client_id'] = $service['clientid'];
                     $endpoint['client_secret'] = $service['clientsecret'];
                 }
-                if (isset($service['apikey']) && isset($service['apisecret'])) {
+                if (isset($service['apikey']) && isset($service['apisecret']))
+                {
                     $endpoint['api_key'] = $service['apikey'];
                     $endpoint['api_secret'] = $service['apisecret'];
                 }
                 // delete any duplicate (e.g. replace old SciPlay/Bonusing)
-                foreach( $endpoints as $ix => $ep) {
+                foreach( $endpoints as $ix => $ep)
+                {
                     if( isset($endpoints[$ix]) && ($endpoints[$ix]['name'] == $endpoint['name']) )
                     { unset( $endpoints[$ix] ); }
                 }

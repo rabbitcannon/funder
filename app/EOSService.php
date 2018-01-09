@@ -4,11 +4,13 @@ namespace App;
 
 use Illuminate\Support\Facades\Log;
 use App\Endpoints;
+use App\SettingsSchema;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\TransferStats;
 use GuzzleHttp\Middleware;
+use App\ApiTraceLogger;
 
 
 class EOSService
@@ -23,12 +25,13 @@ class EOSService
     private $guzzle_client;
     private $guzzle_options;
 
-    public function __construct($name)
+    public function __construct( $name )
     {
         $this->service_name = $name;
         $endpoints = Endpoints::GetEndpoints();
-        foreach ($endpoints as $endpoint) {
-            if ($endpoint['name'] == $name) {
+        foreach( $endpoints as $endpoint ) {
+            if( $endpoint['name'] == $name )
+            {
                 $this->service_url = $endpoint['url'];
                 $this->auth_type = $endpoint['auth'];
                 $this->client_id = isset($endpoint['client_id']) ? $endpoint['client_id'] : '';
@@ -42,30 +45,28 @@ class EOSService
         $this->guzzle_options = [
             'headers' => ['Content-Type' => 'application/json', 'Accept' => 'application/json']
         ];
-
-
     }
 
 
     // a facade for post, put, get, delete corresponding to Guzzle calls. These are identical to Guzzle except that we leave out
     // the URL (since we are service-specific). Rather than throwing exceptions, any errors will be returned in the status_code
     //
-    public function get($options)
+    public function get( $options )
     {
         return $this->send_request($this->guzzle_client, 'GET', $this->service_url, null, $options, false);
     }
 
-    public function post($data, $options)
+    public function post( $data, $options )
     {
         return $this->send_request($this->guzzle_client, 'POST', $this->service_url, $data, $options, false);
     }
 
-    public function put($data, $options)
+    public function put( $data, $options )
     {
         return $this->send_request($this->guzzle_client, 'PUT', $this->service_url, $data, $options, false);
     }
 
-    public function delete($options)
+    public function delete( $options )
     {
         return $this->send_request($this->guzzle_client, 'DELETE', $this->service_url, null, $options, false);
     }
@@ -79,13 +80,16 @@ class EOSService
 
     private function log( $method, $elapsed_time = null )
     {
-        if (config('app.eos_log_outbound')) {
+        $do_logging = SettingsSchema::fetch('Diagnostics.logOutbound') == "yes";
+        if( $do_logging )
+        {
+            $trace = new ApiTraceLogger();
             $token_value = json_decode(self::$auth_header, true);
             $player = isset($token_value['player']['registrar_id']) ?
                 $token_value['player']['registrar_id'] : null;
             $agent = isset($token_value['agent']['agent_id']) ?
                 $token_value['agent']['agent_id'] : null;
-            Log::info('OUT('.$method.'): ' . $this->service_url . ' TID:' . self::$transaction_id .
+            $trace->info('OUT('.$method.'): ' . $this->service_url . ' TID:' . self::$transaction_id .
                 ($player ? ' Player ' . $player : '') .
                 ($agent ? ' Agent ' . $agent : '') .
                 ($elapsed_time ? ' in '.$elapsed_time.' sec' : ''));
@@ -94,9 +98,8 @@ class EOSService
 
     private function assign_transaction_id()
     {
-        if (!self::$transaction_id) {
-            self::$transaction_id = uniqid('');
-        }
+        if( !self::$transaction_id )
+        { self::$transaction_id = uniqid(config('app.install_prefix')); }
     }
 
 
@@ -105,25 +108,23 @@ class EOSService
         // prep the tap middleware if we want to use it for debugging.
         $clientHandler = $client->getConfig('handler');
         $tapMiddleware = Middleware::tap(function ($request) {
-            foreach ($request->getHeaders() as $name => $values) {
-                Log::info($name . ': ' . implode(', ', $values));
-            }
+            foreach ($request->getHeaders() as $name => $values)
+            { Log::info($name . ': ' . implode(', ', $values)); }
         });
 
         // collect the response time stats
-        $options['on_stats'] = function (TransferStats $stats) use (&$time) {
-            $time = $stats->getTransferTime();
-        };
+        $options['on_stats'] = function (TransferStats $stats) use (&$time)
+        { $time = $stats->getTransferTime(); };
 
         $time = null;
         $body = null;
         $status_code = 500;
-        if ($debug_headers) {
-            $options = array_merge($options, ['handler' => $tapMiddleware($clientHandler)]);
-        }
+        if ($debug_headers)
+        { $options = array_merge($options, ['handler' => $tapMiddleware($clientHandler)]); }
 
         try {
-            switch ($method) {
+            switch ($method)
+            {
                 case "get":
                     $response = $client->get($url, $options);
                     break;
@@ -143,15 +144,22 @@ class EOSService
             }
             $body = json_decode($response->getBody());
             $status_code = $response->getStatusCode();
-        } catch (BadResponseException $e) {
+        }
+        catch ( BadResponseException $e )
+        {
             Log::error('Guzzle Server Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
             $body = $e->getMessage();
-        } catch (RequestException $e) {
-            if ($e->hasResponse()) {
+        }
+        catch ( RequestException $e )
+        {
+            if ( $e->hasResponse() )
+            {
                 $exception = (string)$e->getResponse()->getBody();
                 $body = json_decode($exception);
                 $status_code = $e->getCode();
-            } else {
+            }
+            else
+            {
                 Log::error('Guzzle Client Exception, TID:' . self::$transaction_id .' for service: ' . $this->service_url . ': ' . $e->getMessage());
                 $body = $e->getMessage();
             }

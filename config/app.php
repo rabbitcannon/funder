@@ -191,6 +191,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
+        CSUNMetaLab\MultipleLogs\Providers\LoggingServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -255,7 +256,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        'AuditLog' => CSUNMetaLab\MultipleLogs\Facades\AuditLog::class,
+        'AuthLog' => CSUNMetaLab\MultipleLogs\Facades\AuthLog::class,
     ],
 
 ];

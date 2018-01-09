@@ -8,12 +8,14 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 /**
+ * Change the title to your own service name!
+ *
  * @SWG\Swagger(
  *   basePath="/",
  *   consumes={"application/json"},
  *   produces={"application/json"},
  *   @SWG\Info(
- *     title="Boogers API",
+ *     title="Base Service API",
  *     version="1.0.0"
  *   ),
  *   @SWG\SecurityScheme(

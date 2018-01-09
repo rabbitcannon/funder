@@ -17,7 +17,7 @@ class ApiKeyCheckMiddleware
     {
         $presented = $request->get('apikey');
         if(!$presented || $presented != config('app.api_key'))
-        { return response('api key needed', 401); }
+        { return response('apikey value needed', 401); }
         return $next($request);
     }
 }

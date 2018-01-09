@@ -11,6 +11,7 @@ class AuthPlayer
     public $registrar_id;
     public $state;
     // registrar_id is the only required input; null is an invalid player
+    //todo: what other playercard fields should be here?
     public function __construct( $inputs )
     {
         $this->registrar_id = $inputs['registrar_id'];

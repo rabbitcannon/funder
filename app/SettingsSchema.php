@@ -20,6 +20,9 @@ class SettingsSchema
 
         $connections = config('eos_connections');
         $this->mergeSchema($connections);
+
+        $diagnostics = config('eos_diagnostics');
+        $this->mergeSchema($diagnostics);
     }
 
     // if your service brings in a component, e.g. from Composer, which wants to extend the
@@ -27,7 +30,7 @@ class SettingsSchema
     // schema (SettingsSchema::$schema), perhaps in a ServiceProvider::boot(). The top level
     // tags must be unique.
     //
-    public function mergeSchema($component_schema)
+    public function mergeSchema( $component_schema )
     {
         $this->schema = array_merge($this->schema, $component_schema);
     }
@@ -40,17 +43,18 @@ class SettingsSchema
     //
     // Normally settings are retrieved from Redis using our known installation/service key.
     //
-    public static function fetch($tag)
+    public static function fetch( $tag )
     {
         /*todo: much better implementation */
 
         $settings = self::getRawSettings();
 
         $selected = self::modelElementsPrefixedBy($settings, 'global.'.$tag);
+        Log::info("fetch: ".json_encode($selected,true));
         if( count($selected) == 0 )
         { return null; }
-        else if( (count($selected) == 1) && !is_array($selected[0]) ) // simple scalar leaf
-        { return $selected[0]; }
+        else if( !is_array($selected) ) // simple scalar leaf
+        { return $selected; }
         else
         {
             $selected_array = self::array_explode_recursive($selected, 'global.'.$tag);
@@ -65,7 +69,8 @@ class SettingsSchema
     private static function modelElementsPrefixedBy( $settings_model, $prefix )
     {
         $result = [];
-        foreach( $settings_model as $tag => $value ) {
+        foreach( $settings_model as $tag => $value )
+        {
             if( substr($tag,0,strlen($prefix)) == $prefix )
             { $result[$tag] = $value; }
         }
@@ -106,7 +111,8 @@ class SettingsSchema
 
             $base_tag =  $prefix . $tag_atoms[0];
             $new_prefix = $base_tag . '.'; // new prefix is global.notify.c in case we need to recurse
-            if( isset($tag_atoms[1]) ) {
+            if( isset($tag_atoms[1]) )
+            {
                 // we identify that we have sub-tags, so recursion needed
                 if( $new_prefix == $matching_prefix )
                 { continue; } // we already handled this prefix, skip through it
@@ -114,7 +120,9 @@ class SettingsSchema
                 // collect all the tags with this prefix and process recursively
                 $subarray = self::modelElementsPrefixedBy( $settings_model,$new_prefix );
                 $settings_output[$tag_atoms[0]] = self::array_explode_recursive($subarray, $new_prefix);
-            } else {
+            }
+            else
+            {
                 // this is a leaf tag. just set its value.
                 $settings_output[$tag_atoms[0]] = $value;
             }
@@ -129,10 +137,12 @@ class SettingsSchema
         $install_prefix = config( 'app.install_prefix');
         //todo: a nested DB cache should backup Redis
         $settingsJson = Redis::get( $install_prefix . ':' . $app_name . ':settings');
-        if( $settingsJson ) {
-            try {
-                $settings = json_decode($settingsJson, true);
-            } catch( \Exception $e ) {
+        if( $settingsJson )
+        {
+            try
+            { $settings = json_decode($settingsJson, true); }
+            catch( \Exception $e )
+            {
                 error_log('Invalid Settings: '. $settingsJson );
                 $settings = [];
             }
