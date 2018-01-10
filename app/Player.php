@@ -38,7 +38,7 @@ class Player extends Model
      * could enter two events simultaneously and cause a duplicate key error. We will retry on failure but just once so that
      * we don't spin in the event that the db is down.
      * 
-     * @param unknown $playerdata
+     * @param $registrar_id
      * @return \App\Player
      */
     public static function fetchPlayer( $registrar_id )
@@ -64,7 +64,10 @@ class Player extends Model
         return $player;
     }
 
-    // a player may have zero or more gumdrops via gumdrop-player pivot
+    /**
+     * a player may have zero or more gumdrops via gumdrop-player pivot
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     **/
     public function gumdrops()
     {
         return $this->belongsToMany('App\Gumdrop');

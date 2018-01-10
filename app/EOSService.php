@@ -26,24 +26,28 @@ class EOSService
     private $guzzle_options;
     private $slow_threshold;
 
+    /**
+     * EOSService constructor.
+     * @param $name - must match one in config('app.known_services')
+     */
     public function __construct( $name )
     {
         $this->service_name = $name;
-        $endpoints = Endpoints::GetEndpoints();
-        foreach( $endpoints as $endpoint ) {
-            if( $endpoint['name'] == $name )
-            {
-                $this->service_url = $endpoint['url'];
-                $this->auth_type = $endpoint['auth'];
-                $this->client_id = isset($endpoint['client_id']) ? $endpoint['client_id'] : '';
-                $this->client_secret = isset($endpoint['client_secret']) ? $endpoint['client_secret'] : '';
-                break;
-            }
+        $endpoint = Endpoints::GetEndpoint( $this->service_name );
+
+        if( $endpoint )
+        {
+            $this->service_url = $endpoint['url'];
+            $this->auth_type = $endpoint['auth'];
+            $this->client_id = isset($endpoint['client_id']) ? $endpoint['client_id'] : '';
+            $this->client_secret = isset($endpoint['client_secret']) ? $endpoint['client_secret'] : '';
         }
+        else
+        { Log::error("Cannot find specified service endpoint for $name - check eos-mc connections!"); }
+
         $timeout = (float) SettingsSchema::fetch('Diagnostics.hardRequestTimeoutSeconds');
         $this->slow_threshold = (float) SettingsSchema::fetch('Diagnostics.slowResponseThresholdSeconds');
-        if( !$timeout )
-        { $timeout = 8.0; }
+
         $this->guzzle_client = new Client([
             'timeout' => $timeout,
         ]);
@@ -52,28 +56,60 @@ class EOSService
         ];
     }
 
-
-    // a facade for post, put, get, delete corresponding to Guzzle calls. These are identical to Guzzle except that we leave out
-    // the URL (since we are service-specific). Rather than throwing exceptions, any errors will be returned in the status_code
-    //
-    public function get( $options )
+    // append the $uri to our service url, tolerant of missing leading /
+    private function extended_url( $uri )
     {
-        return $this->send_request($this->guzzle_client, 'GET', $this->service_url, null, $options, false);
+        $full_url = $this->service_url;
+        if( $uri && ($uri != '') && (substr(0,1,$uri) != '/') )
+        { $full_url .= '/' . $uri; }
+        else
+        { $full_url .= $uri; }
+        return $full_url;
     }
 
-    public function post( $data, $options )
+    /**
+     * facades for post, put, get, delete corresponding to Guzzle calls. These are identical to Guzzle except that we leave out
+     * the base URL (since we are service-specific). Rather than throwing exceptions, any errors will be returned in the status_code
+     *
+     * @param $uri - e.g. '/api/myobject/2'
+     * @param $options - any Guzzle options
+     * @return array ['status_code', 'body', 'response_time']
+     */
+    public function get( $uri, $options )
     {
-        return $this->send_request($this->guzzle_client, 'POST', $this->service_url, $data, $options, false);
+        return $this->send_request($this->guzzle_client, 'GET', $this->extended_url($uri), null, $options, false);
     }
 
-    public function put( $data, $options )
+    /**
+     * @param $uri- e.g. '/api/myobject/2'
+     * @param $data - data to be json_encoded
+     * @param $options - any Guzzle options
+     * @return array ['status_code', 'body', 'response_time']
+     */
+    public function post( $uri, $data, $options )
     {
-        return $this->send_request($this->guzzle_client, 'PUT', $this->service_url, $data, $options, false);
+        return $this->send_request($this->guzzle_client, 'POST', $this->extended_url($uri), $data, $options, false);
     }
 
-    public function delete( $options )
+    /**
+     * @param $uri- e.g. '/api/myobject/2'
+     * @param $data - data to be json_encoded
+     * @param $options - any Guzzle options
+     * @return array ['status_code', 'body', 'response_time']
+     */
+    public function put( $uri, $data, $options )
     {
-        return $this->send_request($this->guzzle_client, 'DELETE', $this->service_url, null, $options, false);
+        return $this->send_request($this->guzzle_client, 'PUT', $this->extended_url($uri), $data, $options, false);
+    }
+
+    /**
+     * @param $uri- e.g. '/api/myobject/2'
+     * @param $options - any Guzzle options
+     * @return array ['status_code', 'body', 'response_time']
+     */
+    public function delete( $uri, $options )
+    {
+        return $this->send_request($this->guzzle_client, 'DELETE', $this->extended_url($uri), null, $options, false);
     }
 
     // don't actually send, just log to show we have the right service parameters.
@@ -83,6 +119,10 @@ class EOSService
         $this->log('TEST');
     }
 
+    /**
+     * @param $method - GET/PUT/POST/DELETE
+     * @param null $elapsed_time
+     */
     private function log( $method, $elapsed_time = null )
     {
         $do_logging = SettingsSchema::fetch('Diagnostics.logOutbound') == "yes";
@@ -90,24 +130,38 @@ class EOSService
         {
             $trace = new ApiTraceLogger();
             $token_value = json_decode(self::$auth_header, true);
-            $player = isset($token_value['player']['registrar_id']) ?
+            $player_id = isset($token_value['player']['registrar_id']) ?
                 $token_value['player']['registrar_id'] : null;
-            $agent = isset($token_value['agent']['agent_id']) ?
+            $agent_id = isset($token_value['agent']['agent_id']) ?
                 $token_value['agent']['agent_id'] : null;
             $trace->info('OUT('.$method.'): ' . $this->service_url . ' TID:' . self::$transaction_id .
-                ($player ? ' Player ' . $player : '') .
-                ($agent ? ' Agent ' . $agent : '') .
+                ($player_id ? ' Player ' . $player_id : '') .
+                ($agent_id ? ' Agent ' . $agent_id : '') .
                 ($elapsed_time ? ' in '.$elapsed_time.' sec' : ''));
         }
     }
 
+    /**
+     * TID will look like "mrb:qa:GUID-STRING"
+     * or for prod "mrb::GUID-STRING"
+     * we will pass through any TID we have received in middleware.
+     */
     private function assign_transaction_id()
     {
-        if( !self::$transaction_id )
+        if( ! self::$transaction_id )
         { self::$transaction_id = uniqid(config('app.install_prefix')); }
     }
 
-
+    /**
+     * The internal Guzzle wrapper implementation.
+     * @param $client - our Guzzle client
+     * @param $method - GET, PUT, POST, DELETE
+     * @param $url - fully qualified URL
+     * @param $data - any body data, will be json_encoded
+     * @param $options - correspond to Guzzle options
+     * @param $debug_headers - set true for detailed trace - use with caution
+     * @return array ['status_code', 'body', 'response_time']
+     */
     private function send_request($client, $method, $url, $data, &$options, $debug_headers)
     {
         // prep the tap middleware if we want to use it for debugging.
@@ -120,9 +174,9 @@ class EOSService
 
         // collect the response time stats
         $options['on_stats'] = function (TransferStats $stats) use (&$time)
-        { $time = $stats->getTransferTime(); };
+        { $elapsed = $stats->getTransferTime(); };
 
-        $time = null;
+        $elapsed = null;
         $body = null;
         $status_code = 500;
         if ($debug_headers)
@@ -172,13 +226,14 @@ class EOSService
             }
         }
 
-        $this->log($method, $time);
-        if( $time >= $this->slow_threshold )
+        $this->log($method, $elapsed);
+        if( $elapsed >= $this->slow_threshold )
         {
             //todo: implement circuit breaker
-            $trace->warning("Slow response, TID:" . self::$transaction_id .' for service: ' . $this->service_url);
+            $trace->warning("Slow response, TID:" . self::$transaction_id .
+                ' for service: ' . $this->service_url . ': '. $elapsed . ' secs');
         }
-        return ['status_code' => $status_code, 'body' => $body, 'time' => $time];
+        return ['status_code' => $status_code, 'body' => $body, 'response_time' => $elapsed];
     }
 
 }

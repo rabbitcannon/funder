@@ -10,8 +10,13 @@ class AuthPlayer
     public $email;
     public $registrar_id;
     public $state;
-    // registrar_id is the only required input; null is an invalid player
+
     //todo: what other playercard fields should be here?
+
+    /**
+     * AuthPlayer constructor.
+     * @param $inputs - registrar_id is the only required input; null is an invalid player
+     */
     public function __construct( $inputs )
     {
         $this->registrar_id = $inputs['registrar_id'];
@@ -21,6 +26,9 @@ class AuthPlayer
         $this->state = isset($inputs['state']) ? $inputs['state'] : 0;
     }
 
+    /**
+     * @return bool
+     */
     public function valid() {
         return $this->registrar_id != null;
     }

@@ -10,10 +10,15 @@ use Illuminate\Support\Facades\Storage;
 class Endpoints
 {
 
-    // This currently requires a priori knowledge of the endpoints we are expected to receive. While we're propping
-    // ourselves up with .env file config, this is appropriate; but when we go fully to eos-mc configuration, this
-    // needs to be more generic. For now, we prefer any Redis values (from eos-mc), but if they don't exist, we get
-    // the values from our config() based on .env tags.
+    /**
+     * This currently requires a priori knowledge of the endpoints we are expected to receive. While we're propping
+     * ourselves up with .env file config, this is appropriate; but when we go fully to eos-mc configuration, this
+     * needs to be more generic. For now, we prefer any Redis values (from eos-mc), but if they don't exist, we get
+     * the values from our config() based on .env tags.
+     *
+     * @return array of arrays (['name','url','auth','api_version','api_secret',
+     *    'api_key', 'client_id', 'client_secret', 'oauth_token'])
+     */
     public static function GetEndpoints()
     {
         // SciPlay and Bonusing are special cases, being older services. SciPlay's API is protected
@@ -72,4 +77,20 @@ class Endpoints
         return $endpoints;
     }
 
+    /**
+     * Return just the specified endpoint, by name
+     *  must match name in config('app.known_services')
+     * @param $service_name
+     * @return mixed|null -  array['name','url','auth','api_version','api_secret',
+     *    'api_key', 'client_id', 'client_secret', 'oauth_token']
+     */
+    public static function GetEndpoint( $service_name )
+    {
+        $endpoints = Endpoints::GetEndpoints();
+        foreach( $endpoints as $endpoint ) {
+            if( $endpoint['name'] == $service_name )
+            { return $endpoint; }
+        }
+        return null;
+    }
 }

@@ -9,7 +9,11 @@ class AuthAgent
     public $lastname;
     public $email;
     public $agent_id;
-    // agent_id is the only required input; null is an invalid agent
+
+    /**
+     * AuthAgent constructor.
+     * @param $inputs - agent_id is the only required input; null is an invalid agent
+     */
     public function __construct( $inputs )
     {
         $this->agent_id = $inputs['agent_id'];
@@ -18,6 +22,9 @@ class AuthAgent
         $this->email = isset($inputs['email']) ? $inputs['email'] : '';
     }
 
+    /**
+     * @return bool
+     */
     public function valid() {
         return $this->agent_id != null;
     }

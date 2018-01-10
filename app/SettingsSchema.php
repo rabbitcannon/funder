@@ -10,39 +10,46 @@ use App\Endpoints;
 
 class SettingsSchema
 {
-    // Remove this comment and change this to your own service schema.
-    // This schema is provided as an example only.
     public $schema;
 
     function __construct()
     {
+        // Remove this comment and change this to your own service schema.
+        // This schema is provided as an example only.
         $this->schema = config('eos_sample_settings');
 
+        // include the required eos_connections schema
         $connections = config('eos_connections');
         $this->mergeSchema($connections);
 
+        // include the required eos_diagnostics schema
         $diagnostics = config('eos_diagnostics');
         $this->mergeSchema($diagnostics);
     }
 
-    // if your service brings in a component, e.g. from Composer, which wants to extend the
+    /**
+     * if your service brings in a component, e.g. from Composer, which wants to extend the
     // configuration schema, it must merge its schema's top-level tag (group) with the master
     // schema (SettingsSchema::$schema), perhaps in a ServiceProvider::boot(). The top level
     // tags must be unique.
-    //
+     * @param $component_schema - generally from config('my_schema_php')
+     */
     public function mergeSchema( $component_schema )
     {
         $this->schema = array_merge($this->schema, $component_schema);
     }
 
-    // SettingsSchema::fetch('ns.games') should intelligently fetch an array of all
-    // games in 'ns.games' along with any defined in 'global.games' - as well as checking
-    // for any timestamp overrides such as '@1568473883.ns.games' or '@1568473883.global.games'.
-    // Likewise a simple scalar such as 'ns.notify.playerid', if not present, should fall back
-    // to the value of 'global.notify.playerid', or if neither is present, any defined default.
-    //
-    // Normally settings are retrieved from Redis using our known installation/service key.
-    //
+    /**
+     * SettingsSchema::fetch('ns.games') should intelligently fetch an array of all
+     * games in 'ns.games' along with any defined in 'global.games'.
+     * Likewise a simple scalar such as 'ns.notify.playerid', if not present, should fall back
+     * to the value of 'global.notify.playerid', or if neither is present, any defined default.
+     *
+     * Normally settings are retrieved from Redis using our known installation/service key.
+     *
+     * @param $tag
+     * @return array|mixed|null
+     */
     public static function fetch( $tag )
     {
         /*todo: much better implementation */
@@ -63,9 +70,15 @@ class SettingsSchema
         }
     }
 
-    // return the input array filtered to just elements where the tags are prefixed
-    // by the indicated string, e.g. for prefix 'global.games.pb' any elements with tags
-    // such as 'global.games.pb.name, global.games.pb.desc' would be included.
+    /**
+     * return the input array filtered to just elements where the tags are prefixed
+     * by the indicated string, e.g. for prefix 'global.games.pb' any elements with tags
+     * such as 'global.games.pb.name, global.games.pb.desc' would be included.
+     *
+     * @param $settings_model
+     * @param $prefix
+     * @return array
+     */
     private static function modelElementsPrefixedBy( $settings_model, $prefix )
     {
         $result = [];
@@ -77,23 +90,30 @@ class SettingsSchema
         return $result;
     }
 
-    // convert from flat settings array:
-    //  global.a => foo
-    //  global.b => 3
-    //  global.notify.c => bar
-    //  global.notify.d => d1
-    //  global.games.pb.name => pball
-    //  global.games.pb.desc => desc
-    //  ns.notify.c => nsbar
-    // to an equivalent nested array:
-    // [global => [a=>foo, b=>3,
-    //   notify=>[c=>bar,d=>d1],
-    //   games=>[pb=>[name=>pball,desc=>desc]],
-    //  ns => [notify=>[c=>nsbar]]
-    // if the $settings_model is the subarray we are working on, say
-    // [global.notify.c => bar,global.notify.d => d1]
-    // and the $prefix is the level, e.g. global.notify.
-    // that should return [c=>bar,d=>d1]
+
+    /**
+     * convert from flat settings array:
+     *  global.a => foo
+     *  global.b => 3
+     *  global.notify.c => bar
+     *  global.notify.d => d1
+     *  global.games.pb.name => pball
+     *  global.games.pb.desc => desc
+     *  ns.notify.c => nsbar
+     * to an equivalent nested array:
+     *  [global => [a=>foo, b=>3,
+     *    notify=>[c=>bar,d=>d1],
+     *    games=>[pb=>[name=>pball,desc=>desc]],
+     *   ns => [notify=>[c=>nsbar]]
+     * if the $settings_model is the subarray we are working on, say
+     *   [global.notify.c => bar,global.notify.d => d1]
+     * and the $prefix is the level, e.g. global.notify.
+     * that should return [c=>bar,d=>d1]
+     *
+     * @param $settings_model
+     * @param $prefix
+     * @return array|null
+     */
     private static function array_explode_recursive( $settings_model, $prefix )
     {
         if(!$settings_model)
@@ -130,6 +150,10 @@ class SettingsSchema
         return( $settings_output );
     }
 
+    /**
+     * return all the settings as an array
+     * @return array|mixed
+     */
     public static function getRawSettings()
     {
         $settings = [];
@@ -150,6 +174,11 @@ class SettingsSchema
         return $settings;
     }
 
+    /**
+     * validate and save the presented settings pack
+     * @param $settingsJson
+     * @param $error
+     */
     public static function putRawSettings( $settingsJson, &$error )
     {
         $new_settings = [];
@@ -181,11 +210,12 @@ class SettingsSchema
             Redis::set( $install_prefix . ':' . $app_name . ':endpoint:' . $name,
                 json_encode($endpoint,true) );
         }
-        // test
-        Endpoints::GetEndpoints();
         return;
     }
 
+    /*
+     * delete the settings for this service
+     */
     public static function clearRawSettings()
     {
         $install_prefix = config( 'app.install_prefix');

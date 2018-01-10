@@ -15,7 +15,8 @@ use App\CheckProcessorService;
 
 //
 // This entire controller, along with the Gumdrop and probably User model,
-// should be removed in your service. It is provided as an example only.
+// as well as corresponding migrations, should be removed in your service.
+// It is provided as an example only.
 //
 class GumdropController extends Controller
 {
