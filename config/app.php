@@ -127,7 +127,11 @@ return [
     /*
   * Custom configuration - ideally, overridden by push from EOS MC
   */
+    'run' => strtolower( env( 'RUN', 'zzz' ) ),
+    'install_prefix' => strtolower( env( 'RUN', 'zzz' ) ) .
+        ':' . env('APP_ENV', '') . ':',
     'api_key' => env( 'API_KEY', ''),
+    'app_name' => env( 'APP_NAME', ''),
     'service_name' => env( 'SERVICE_NAME', 'EOS Base Service'),
     'eos_log_inbound' => env( 'EOS_LOG_INBOUND', false),
     'eos_log_outbound' => env('EOS_LOG_OUTBOUND', false),
@@ -189,6 +193,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
+        CSUNMetaLab\MultipleLogs\Providers\LoggingServiceProvider::class,
 
         /*
          * Package Service Providers...
@@ -253,7 +258,8 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+        'AuditLog' => CSUNMetaLab\MultipleLogs\Facades\AuditLog::class,
+        'AuthLog' => CSUNMetaLab\MultipleLogs\Facades\AuthLog::class,
     ],
 
 ];

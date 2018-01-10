@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Player;
 
+// this class/file is for example only, and should be removed
 /**
  * @SWG\Definition(required={"name","color"}, type="object", @SWG\Xml(name="Gumdrop"))
  * @SWG\Property(format="int64", property="id", example=21, description="The gumdrop identifier.")
@@ -45,9 +46,12 @@ class Gumdrop extends Model
         return true;
     }
 
-    // the concept of several players sharing a gumdrop is questionable
-    // but we are, in fact, modeling it as many to many. belongsToMany
-    // is the correct indicator for a pivot table e.g. gumdrop-player
+    /**
+     * the concept of several players sharing a gumdrop is questionable
+     * but we are, in fact, modeling it as many to many. belongsToMany
+     * is the correct indicator for a pivot table e.g. gumdrop-player
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function players()
     {
         return $this->belongsToMany('App\Player');

@@ -15,78 +15,6 @@ use Predis\ClientException;
 // from EOS-MC. The latter is the preferred method.
 class ClientController extends Controller
 {
-    /**
-     * @SWG\Post(
-     *   path="/api/configure",
-     *   summary="REQUIRED API FOR SERVICES: Accept configuration push from eos-mc service",
-     *   operationId="acceptConfiguration",
-     *   tags={"eos"},
-     * @SWG\Parameter(
-     *     name="apikey",
-     *     in="query",
-     *     type="string",
-     *     description="required api key"
-     *  ),
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
-     *     description="Service Configuration",
-     *     required=true,
-     *     @SWG\Schema(ref="#/definitions/ServiceConfig")
-     *   ),
-     *   @SWG\Response(response=200, description="successful",
-     *     @SWG\Schema(ref="#/definitions/ServiceConfigResponse")),
-     *   @SWG\Response(response=500, description="System error",
-     *     @SWG\Schema(ref="#/definitions/ServiceConfigResponse"))
-     *  )
-     **/
-    // accept an endpoints configuration set from EOS-MC. Put each endpoint into Redis, keyed by
-    // the target service name.
-    // Some services need keys/secrets to access their API's. SciPlay uses an api_key and
-    // api_secret to hash content. Bonusing uses an OAuth2 client_id and client_secret.
-    // These are delivered by EOS-MC along with the endpoint; it's up to you to use them
-    // appropriately.
-    // See the 'Endpoints' model for a mechanism to obtain the current endpoint configuration
-    // on demand.
-    // NOTE: for now, this configuration system is separate from the /settings API.
-    // In the future we may integrate these mechanisms
-    public function configure( Request $request )
-    {
-        $service = $request->all();
-        // our service name should be defined in .env (SERVICE_NAME)
-        // it should match what's being sent to us by eos-mc
-        $service_name = config( 'app.service_name' );
-        if ( $service['name'] == $service_name ) {
-        // found our own configuration. Pick out some fields.
-            if ( !isset($service['outbound']) || !is_array($service['outbound']) ) {
-                return response()->json( ['status' => 'error', 'message' => 'No connections'], 500 );
-            }
-            $urls = [];
-            $config = "";
-            $status = "ok";
-            foreach ( $service['outbound'] as $connection ) {
-                // we always get url, we might also get api_key and/or api_secret
-                $redis_array = [ 'url' => $connection['url'] ];
-                if( isset($connection[ 'api_key' ]) )
-                { $redis_array[ 'api_key' ] = $connection[ 'api_key' ]; }
-                if( isset($connection['api_secret']) )
-                { $redis_array[ 'api_secret' ] = $connection[ 'api_secret' ]; }
-                if( isset($connection[ 'client_id' ]) )
-                { $redis_array[ 'client_id' ] = $connection[ 'client_id' ]; }
-                if( isset($connection['client_secret']) )
-                { $redis_array[ 'client_secret' ] = $connection[ 'client_secret' ]; }
-
-                Redis::set( 'endpoint.'.str_slug($connection['name']), json_encode( $redis_array ) );
-                $config .= $connection['name'] . ' as ' . $connection['url'] . "; ";
-            }
-
-
-            Log::info( 'Service configured: '.$config );
-
-            return response()->json( ['status' => $status, 'config' => $config] );
-        }
-        return response()->json( ['status' => 'error', 'message' => 'Not my config, expecting '.self::$service_name], 500 );
-    }
 
     /**
      * @SWG\Get(
@@ -109,13 +37,15 @@ class ClientController extends Controller
      **/
     public function settingsSchema(Request $request)
     {
-        // sample of extending a schema
+        $settings_schema = new SettingsSchema();
+        $schema = $settings_schema->schema;
+        // here is one place you could merge schemas, e.g.
         // $component = ["Gumdrops" => ["type"=>"group","fields"=> [
         //    "gumdropSize" => ["type"=>"enum","valid"=>["small","medium","large"],"value"=>"medium"],
         //    "gumdropColor" => ["type"=>"text","value"=>"red"]
         // ]]];
-        // SettingsSchema::mergeSchema($component);
-        $schema = SettingsSchema::$schema;
+        // $settings_schema->mergeSchema($component);
+
         return response()->json($schema);
     }
 

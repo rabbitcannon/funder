@@ -13,6 +13,11 @@ use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Log;
 use App\CheckProcessorService;
 
+//
+// This entire controller, along with the Gumdrop and probably User model,
+// as well as corresponding migrations, should be removed in your service.
+// It is provided as an example only.
+//
 class GumdropController extends Controller
 {
     public function __construct()
@@ -21,6 +26,10 @@ class GumdropController extends Controller
         // you may place in your .env: L5_SWAGGER_API_AUTH_TOKEN="Bearer <my-bearer-token>"
         // for the simplest way to authorize the API
         // use the /oauth/token call to get the bearer token, see EOS API group
+        // all EOS services *must* use the 'eos' middleware group to provide
+        // transaction tracing and player/agent identification.
+        // for security, the 'client' middleware (oauth2) is strongly recommended
+        // but simple API key 'auth.key' may be used in some cases
         $this->middleware(['client','eos']);
     }
 
@@ -49,8 +58,6 @@ class GumdropController extends Controller
     public function index()
     {
         // index returns all the whole gumdrops in the world
-        $cp = new CheckProcessorService();
-        $cp->test();
         return response()->json(Gumdrop::with('players')->get());
     }
 
@@ -114,12 +121,20 @@ class GumdropController extends Controller
             'name' => $name,
             'color' => $color], $player);
 
+        // we are inserting here a test for our EOS chain relay
+        $cp = new CheckProcessorService();
+        $cp->test();
+
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }
 
     /**
+     * Note that we pass registrar_id (player id) in the route, but we
+     * don't strictly need to. Player and/or Agent could be identified by
+     * the X-Auth header.
+     *
      * @SWG\Get(
-     *   path="/api/players/{id}/gumdrops",
+     *   path="/api/players/{registrar_id}/gumdrops",
      *   summary="Get gumdrops for a player",
      *   operationId="getPlayerGumdrops",
      *   tags={"players"},
