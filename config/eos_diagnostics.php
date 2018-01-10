@@ -3,8 +3,8 @@
 return [
     "Diagnostics" => ["type" =>"group","fields"=>[
 
-        "logInbound" => ["type"=>"enum","value"=>"yes","valid"=>["yes","no"]],
-        "logOutbound" => ["type"=>"enum","value"=>"yes","valid"=>["yes","no"]],
+        "logInbound" => ["type"=>"boolean","value"=>true],
+        "logOutbound" => ["type"=>"boolean","value"=>true],
         "hardRequestTimeoutSeconds" => ["type"=>"number","value"=>"20","valid"=>["min"=>0,"max"=>600]],
         "slowResponseThresholdSeconds" => ["type"=>"number","value"=>"8","valid"=>["min"=>0,"max"=>100]],
         "circuitBreakAfterCountSlowResponses" => ["type"=>"number","value"=>"4","valid"=>["min"=>1,"max"=>100]],

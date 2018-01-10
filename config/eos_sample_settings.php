@@ -5,8 +5,9 @@
 return [
     "Sample" => ["type" =>"group","fields"=>[
         "color" => ["type"=>"enum","valid"=>["red","green","blue"]],
-        "boolean" => ["type"=>"enum","value"=>"yes","valid"=>["yes","no"]],
+        "boolean" => ["type"=>"boolean","value"=>true],
         "number" => ["type"=>"number","valid"=>["min"=>0,"max"=>100]],
+        "float" => ["type"=>"number","decimal"=>true,"valid"=>["min"=>"0.0","max"=>"10.0"]],
         "messages" => ["type"=>"group","fields"=> [
                 "loginmessage" => ["type"=>"text","value"=>"Please Login"],
                 "registermessage" => ["type"=>"text","value"=>"New Account Register"],
