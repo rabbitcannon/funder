@@ -50,7 +50,7 @@ class EOSAuthBinding
         }
         $request->route()->setParameter("App\Agent", $agent);
 
-        $do_logging = SettingsSchema::fetch('Diagnostics.logInbound') == "yes";
+        $do_logging = SettingsSchema::fetch('Diagnostics.logInbound');
         if( $do_logging ) {
             $trace = new ApiTraceLogger();
             $trace->info('IN('.$request->method().'): '.$request->path().' TID:'.$tid.

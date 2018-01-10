@@ -125,7 +125,7 @@ class EOSService
      */
     private function log( $method, $elapsed_time = null )
     {
-        $do_logging = SettingsSchema::fetch('Diagnostics.logOutbound') == "yes";
+        $do_logging = SettingsSchema::fetch('Diagnostics.logOutbound');
         if( $do_logging )
         {
             $trace = new ApiTraceLogger();
