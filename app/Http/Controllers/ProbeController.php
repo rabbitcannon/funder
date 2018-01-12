@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use App\Endpoints;
 use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
-use Exception;
 
 // this controller is common to all EOS services, and allows us to report general health
 // back to EOS-MC. A 'ping' via /api/version just returns the current software version (tag).
@@ -85,7 +84,10 @@ class ProbeController extends Controller
      *   ),
      *   @SWG\Response(response=500, description="internal server error")
      * )
-     **/
+     *
+     * @param Request $request
+     * @return bool|string
+     */
     public function version(Request $request)
     {
         // 'git describe' only works if we have a tag; for DEV releases, we can add a little

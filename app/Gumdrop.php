@@ -7,6 +7,7 @@ use App\Player;
 
 // this class/file is for example only, and should be removed
 /**
+ * @mixin \Eloquent
  * @SWG\Definition(required={"name","color"}, type="object", @SWG\Xml(name="Gumdrop"))
  * @SWG\Property(format="int64", property="id", example=21, description="The gumdrop identifier.")
  * @SWG\Property(format="string", property="name", example="Bobby", description="Unique name of the gumdrop.")

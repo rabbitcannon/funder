@@ -2,10 +2,6 @@
 
 namespace App;
 
-use Illuminate\Support\Facades\Redis;
-use App\SettingsSchema;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class Endpoints
 {
@@ -65,6 +61,9 @@ class Endpoints
                     $endpoint['api_key'] = $service['apikey'];
                     $endpoint['api_secret'] = $service['apisecret'];
                 }
+                if (isset($service['oauthtoken']))
+                { $endpoint['oauth_token'] = $service['oauthtoken']; }
+
                 // delete any duplicate (e.g. replace old SciPlay/Bonusing)
                 foreach( $endpoints as $ix => $ep)
                 {

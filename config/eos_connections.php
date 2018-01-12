@@ -10,6 +10,7 @@ return [
             "authentication" => ["type"=>"enum","valid"=>["oauth","apikey","none"]],
             "clientid"=>["type"=>"text","sample"=>"20"],
             "clientsecret"=>["type"=>"text","sample"=>"x35Y33Ab..."],
+            "oauthtoken"=>["type"=>"text"],
             "apikey"=>["type"=>"text","sample"=>"t5E3Wx..."],
             "apisecret"=>["type"=>"text","sample"=>"GG4rEw2X..."],
             "apiversion"=>["type"=>"text","sample"=>"1"]

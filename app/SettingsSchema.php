@@ -56,8 +56,7 @@ class SettingsSchema
 
         $settings = self::getRawSettings();
 
-        $selected = self::modelElementsPrefixedBy($settings, 'global.'.$tag);
-        Log::info("fetch: ".json_encode($selected,true));
+        $selected = self::modelElementsPrefixedBy($settings, 'global.'.$tag);;
         if( count($selected) == 0 )
         { return null; }
         else if( !is_array($selected) ) // simple scalar leaf
@@ -68,6 +67,25 @@ class SettingsSchema
             // a selection glitch leaves this nested with array tag ""
             return $selected_array[""];
         }
+    }
+
+    /**
+     * SettingsSchema::place('ns.games.powerball.display','Powerball') will
+     * alter the value of this one scalar tag in active settings. It currently
+     * will not alter groups. This is handy for caching values determined at
+     * run-time
+     *
+     * @param $tag
+     * @param $value
+     */
+    public static function place( $tag, $value )
+    {
+        $settings = self::getRawSettings();
+        $settings['global.'.$tag] = $value;
+        $error = null;
+        self::putRawSettings(json_encode($settings,true),$error);
+        if( $error )
+        { Log::error("place:".$tag." ERROR SAVING"); }
     }
 
     /**

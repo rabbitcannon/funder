@@ -3,14 +3,12 @@
 namespace App;
 
 use Illuminate\Support\Facades\Log;
-use App\Endpoints;
-use App\SettingsSchema;
+use Illuminate\Support\Facades\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\TransferStats;
 use GuzzleHttp\Middleware;
-use App\ApiTraceLogger;
 
 
 class EOSService
@@ -22,6 +20,7 @@ class EOSService
     private $auth_type;
     private $client_id;
     private $client_secret;
+    private $oauth_token;
     private $guzzle_client;
     private $guzzle_options;
     private $slow_threshold;
@@ -41,6 +40,7 @@ class EOSService
             $this->auth_type = $endpoint['auth'];
             $this->client_id = isset($endpoint['client_id']) ? $endpoint['client_id'] : '';
             $this->client_secret = isset($endpoint['client_secret']) ? $endpoint['client_secret'] : '';
+            $this->oauth_token = isset($endpoint['oauth_token']) ? $endpoint['oauth_token'] : null;
         }
         else
         { Log::error("Cannot find specified service endpoint for $name - check eos-mc connections!"); }
@@ -60,7 +60,7 @@ class EOSService
     private function extended_url( $uri )
     {
         $full_url = $this->service_url;
-        if( $uri && ($uri != '') && (substr(0,1,$uri) != '/') )
+        if( $uri && ($uri != '') && (substr($uri,0,1) != '/') )
         { $full_url .= '/' . $uri; }
         else
         { $full_url .= $uri; }
@@ -75,7 +75,7 @@ class EOSService
      * @param $options - any Guzzle options
      * @return array ['status_code', 'body', 'response_time']
      */
-    public function get( $uri, $options )
+    public function get( $uri, $options = null )
     {
         return $this->send_request($this->guzzle_client, 'GET', $this->extended_url($uri), null, $options, false);
     }
@@ -86,7 +86,7 @@ class EOSService
      * @param $options - any Guzzle options
      * @return array ['status_code', 'body', 'response_time']
      */
-    public function post( $uri, $data, $options )
+    public function post( $uri, $data, $options = null )
     {
         return $this->send_request($this->guzzle_client, 'POST', $this->extended_url($uri), $data, $options, false);
     }
@@ -97,7 +97,7 @@ class EOSService
      * @param $options - any Guzzle options
      * @return array ['status_code', 'body', 'response_time']
      */
-    public function put( $uri, $data, $options )
+    public function put( $uri, $data, $options = null )
     {
         return $this->send_request($this->guzzle_client, 'PUT', $this->extended_url($uri), $data, $options, false);
     }
@@ -107,7 +107,7 @@ class EOSService
      * @param $options - any Guzzle options
      * @return array ['status_code', 'body', 'response_time']
      */
-    public function delete( $uri, $options )
+    public function delete( $uri, $options = null )
     {
         return $this->send_request($this->guzzle_client, 'DELETE', $this->extended_url($uri), null, $options, false);
     }
@@ -162,7 +162,7 @@ class EOSService
      * @param $debug_headers - set true for detailed trace - use with caution
      * @return array ['status_code', 'body', 'response_time']
      */
-    private function send_request($client, $method, $url, $data, &$options, $debug_headers)
+    private function send_request(Client $client, $method, $url, $data, &$options, $debug_headers)
     {
         // prep the tap middleware if we want to use it for debugging.
         $clientHandler = $client->getConfig('handler');
@@ -172,13 +172,45 @@ class EOSService
             { $trace->info($name . ': ' . implode(', ', $values)); }
         });
 
+        // see if we need to obtain a token
+        if( ($this->auth_type == 'oauth') && ( ! $this->oauth_token) )
+        {
+            if( ! $this->oauth_client_credentials_grant() )
+            { ['status_code' => 401, 'body' => "Client Credentials Grant Failure - bad OAuth2 Id/Secret?", 'response_time' => 0]; }
+            else // cache this token
+            { SettingsSchema::place('Connections.outbound.'.str_slug($this->service_name).'.oauthtoken',$this->oauth_token); }
+        }
+
         // collect the response time stats
-        $options['on_stats'] = function (TransferStats $stats) use (&$time)
+        $options['on_stats'] = function (TransferStats $stats) use (&$elapsed)
         { $elapsed = $stats->getTransferTime(); };
 
         $elapsed = null;
         $body = null;
         $status_code = 500;
+
+        // attach the oauth bearer token if needed
+        if( $this->auth_type == 'oauth')
+        { $options['headers'] = ["Authorization" => "Bearer ".$this->oauth_token]; }
+
+        // attach the transaction_id to the query string
+        if( self::$transaction_id )
+        {
+            $options['query'] = isset($options['query']) ?
+                array_merge( $options['query'],
+                ['transaction_id' => self::$transaction_id] ) :
+                ['transaction_id' => self::$transaction_id];
+        }
+
+        // attach the SPAT (X-Auth header) if present
+        if( self::$auth_header )
+        {
+            $options['headers'] = isset($options['headers']) ?
+                array_merge( $options['headers'],
+                    ['X-Auth' => self::$auth_header] ) :
+                    ['X-Auth' => self::$auth_header];
+        }
+
         if ($debug_headers)
         { $options = array_merge($options, ['handler' => $tapMiddleware($clientHandler)]); }
 
@@ -236,6 +268,41 @@ class EOSService
         return ['status_code' => $status_code, 'body' => $body, 'response_time' => $elapsed];
     }
 
+    // this will initiate a client credentials grant from an OAuth2 service endpoint
+    // we will update the endpoint to add the resulting oauth token
+    public function oauth_client_credentials_grant()
+    {
+        $http = new Client([
+            'headers' => ['Content-Type' => 'application/json',
+                'Accept' => 'application/json']
+        ]);
+        $trace = new ApiTraceLogger();
+        $client_url = $this->service_url;
+        $client_id = $this->client_id;
+        $client_secret = $this->client_secret;
+
+        // Our actual list of scopes/roles will come back when we fetch user details.
+        try {
+            $response = $http->post($client_url . '/oauth/token', [
+                'json' => [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $client_id,
+                    'client_secret' => $client_secret,
+                    'scope' => '*'
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $trace->error('Client credentials failed: ' . $e->getMessage());
+            return false;
+        }
+        $result = json_decode((string)$response->getBody(), true);
+
+        // store our access token associated with the endpoint
+        $this->oauth_token = $result['access_token'];
+        $trace->info("Token obtained for " . $this->service_name);
+        return true;
+    }
+
 }
 
 class CheckProcessorService extends EOSService
@@ -243,6 +310,16 @@ class CheckProcessorService extends EOSService
     public function __construct( )
     {
         parent::__construct('Check Processor');
+    }
+    // basic API send methods are inherited, but here we can
+    // add any other custom service methods.
+}
+
+class EosWalletService extends EOSService
+{
+    public function __construct( )
+    {
+        parent::__construct('EOS Wallet');
     }
     // basic API send methods are inherited, but here we can
     // add any other custom service methods.

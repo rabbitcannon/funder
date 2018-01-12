@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Gumdrop;
-use App\User;
 use App\AuthPlayer;
 use App\Player;
 use App\AuthAgent;
-use Illuminate\Validation\Validator;
-use Illuminate\Support\Facades\Log;
-use App\CheckProcessorService;
+use App\EosWalletService;
 
 //
 // This entire controller, along with the Gumdrop and probably User model,
@@ -94,8 +91,11 @@ class GumdropController extends Controller
      *   @SWG\Response(response=404, description="User not found"),
      *   @SWG\Response(response=500, description="System error")
      *  )
-     **/
-
+     *
+     * @param Request $request
+     * @param AuthPlayer $auth_player
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request, AuthPlayer $auth_player)
     {
         // do some validation
@@ -122,8 +122,9 @@ class GumdropController extends Controller
             'color' => $color], $player);
 
         // we are inserting here a test for our EOS chain relay
-        $cp = new CheckProcessorService();
-        $cp->test();
+        $svc = new EosWalletService();
+        $response = $svc->get('api/accounts');
+        Log::info(json_encode($response));
 
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
     }
@@ -169,7 +170,14 @@ class GumdropController extends Controller
      * @SWG\Response(response=401, description="Unauthorized player"),
      * @SWG\Response(response=500, description="System error")
      *  )
-     **/
+     *
+     *
+     * @param Request $request
+     * @param $registrar_id
+     * @param AuthPlayer $auth_player
+     * @param AuthAgent $auth_agent
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function gumdropsForPlayer(Request $request,
                                     $registrar_id,
                                     AuthPlayer $auth_player,
@@ -233,7 +241,13 @@ class GumdropController extends Controller
      *   @SWG\Response(response=401, description="Unauthorized player"),
      *   @SWG\Response(response=500, description="System error")
      *  )
-     **/
+     *
+     * @param Request $request
+     * @param $id
+     * @param AuthPlayer $auth_player
+     * @param AuthAgent $auth_agent
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request,
                            $id,
                            AuthPlayer $auth_player,
@@ -295,7 +309,12 @@ class GumdropController extends Controller
      *   @SWG\Response(response=401, description="Unauthorized player"),
      *   @SWG\Response(response=500, description="System error")
      *  )
-     **/
+     *
+     * @param $id
+     * @param AuthPlayer $auth_player
+     * @param AuthAgent $auth_agent
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy($id,
                             AuthPlayer $auth_player,
                             AuthAgent $auth_agent)
