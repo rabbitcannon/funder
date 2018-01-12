@@ -32,8 +32,7 @@ class ProbeController extends Controller
      *   ),
      *   @SWG\Response(response=500, description="internal server error")
      * )
-     **/
-    /**
+     *
      * Probe all peer services using /api/probe and appropriate authentication
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
