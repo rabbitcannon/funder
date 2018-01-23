@@ -45,18 +45,18 @@ class Player extends Model
     {
         $player = Player::byRegistrar( $registrar_id )->first();
         if( ! $player )
+        {
+            try
             {
-                try
-                {
-                  $player = new Player();
-                  $player->registrar_id = $registrar_id;
-                  $player->save();
-                }
-                catch( Exception $e )
-                {
-                  $player = Player::byRegistrar( $registrar_id )->first();
-                }
+              $player = new Player();
+              $player->registrar_id = $registrar_id;
+              $player->save();
             }
+            catch( Exception $e )
+            {
+              $player = Player::byRegistrar( $registrar_id )->first();
+            }
+        }
 
         if( ! $player )  //must not have been a duplicate issue.
         { throw $e; }

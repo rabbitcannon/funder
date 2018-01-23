@@ -22,7 +22,7 @@ Route::group(['namespace'=>'App\Http\Controllers'],function() {
     });
 
     Route::resource('gumdrops', 'GumdropController');
-    Route::get('/players/{registrar_id}/gumdrops', 'GumdropController@gumdropsForPlayer');
+    Route::get('/players/gumdrops', 'GumdropController@gumdropsForPlayer');
 
     /**
      * These generic routes are required for ALL EOS services

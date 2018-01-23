@@ -132,21 +132,14 @@ class GumdropController extends Controller
     /**
      * Note that we pass registrar_id (player id) in the route, but we
      * don't strictly need to. Player and/or Agent could be identified by
-     * the X-Auth header.
+     * the X-Auth-Spat header.
      *
      * @SWG\Get(
-     *   path="/api/players/{registrar_id}/gumdrops",
+     *   path="/api/players/gumdrops",
      *   summary="Get gumdrops for a player",
      *   operationId="getPlayerGumdrops",
      *   tags={"players"},
      *   security={{"oauth2": {""}}},
-     * @SWG\Parameter(
-     *   in="path",
-     *   name="id",
-     *   description="Player Registrar Id",
-     *   required=true,
-     *   type="string",
-     *   ),
      * @SWG\Parameter(
      *     in="query",
      *     name="transaction_id",
@@ -155,10 +148,10 @@ class GumdropController extends Controller
      *     required=false,
      *   ),
      * @SWG\Parameter(
-     *     name="X-Auth",
+     *     name="X-Auth-Spat",
      *     in="header",
-     *     description="SciPlay Auth Header.",
-     *     required=false,
+     *     description="SciPlay Authentication Header.",
+     *     required=true,
      *     type="string"
      *   ),
      * @SWG\Response(response=200, description="successful",
@@ -173,30 +166,17 @@ class GumdropController extends Controller
      *
      *
      * @param Request $request
-     * @param $registrar_id
      * @param AuthPlayer $auth_player
      * @param AuthAgent $auth_agent
      * @return \Illuminate\Http\JsonResponse
      */
-    public function gumdropsForPlayer(Request $request,
-                                    $registrar_id,
-                                    AuthPlayer $auth_player,
-                                    AuthAgent $auth_agent)
+    public function gumdropsForPlayer( Request $request )
     {
-        // I will receive the registrar_id (player identifier) from my route.
-        // if this matches 'me' (the AuthPlayer) it's fine -- otherwise we
-        // need an agent auth to go look at other players gumdrops.
-         $player = Player::fetchPlayer($registrar_id);
-         $authorized = false;
-         if( $auth_player->valid() && ($auth_player->registrar_id == $registrar_id))
-         { $authorized = true; }
-         if( $auth_agent->valid() )
-         { $authorized = true; }
-         if( ! $authorized )
-         { return response()->json(['status' => 'Unauthorized player'],401); }
+        // Get the authenticated player.
+        $auth_player = AuthPlayer::fetchOrFail();
 
         // now go find all his gumdrops
-        $my_gumdrops = $player->gumdrops()->get();
+        $my_gumdrops = $auth_player->player->gumdrops()->get();
         return response()->json($my_gumdrops);
     }
 

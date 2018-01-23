@@ -16,10 +16,10 @@ class CreatePlayersTable extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->string('registrar_id')->unique()->index();
-            $table->string('first_name')->default('');
-            $table->string('last_name')->default('');
-            $table->string('email')->default('');
+            $table->string('registrar_id',32)->unique()->index();
+            $table->string('first_name',64)->default('');
+            $table->string('last_name',64)->default('');
+            $table->string('email',128)->default('');
         });
     }
 

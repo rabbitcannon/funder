@@ -9,6 +9,7 @@ use App\ApiTraceLogger;
 use App\AuthPlayer;
 use App\AuthAgent;
 use App\EOSService;
+use App\Player;
 
 class EOSAuthBinding
 {
@@ -36,25 +37,16 @@ class EOSAuthBinding
         // save the X-Auth header for relay to other services
         EOSService::$auth_header = $x_auth;
 
-        if (isset($token_value['player']) && isset($token_value['player']['registrar_id'])) {
-            $player = new AuthPlayer($token_value['player']);
-        } else {
-            $player = new AuthPlayer(['registrar_id' => null]);
-        }
-        $request->route()->setParameter("App\Player", $player);
-
         if (isset($token_value['agent']) && isset($token_value['agent']['agent_id'])) {
             $agent = new AuthAgent($token_value['agent']);
         } else {
             $agent = new AuthAgent(['agent_id' => null]);
         }
-        $request->route()->setParameter("App\Agent", $agent);
 
         $do_logging = SettingsSchema::fetch('Diagnostics.logInbound');
         if( $do_logging ) {
             $trace = new ApiTraceLogger();
             $trace->info('IN('.$request->method().'): '.$request->path().' TID:'.$tid.
-                ($player->registrar_id ? ' Player '.$player->registrar_id : '').
                 ($agent->agent_id ? ' Agent '.$agent->agent_id : ''));
         }
 
