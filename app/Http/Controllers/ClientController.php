@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\SettingsSchema;
 use Predis\ClientException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
 // of endpoint configuration to the service. We can configure peer service endpoints
@@ -135,6 +138,109 @@ class ClientController extends Controller
         return response()->json( ['Status' => 'Ok', 'message' =>"Settings deleted."] );
     }
 
+    /**
+     * @SWG\Get(
+     *     path="/api/oauth/clients",
+     *     summary="GET OAUTH CLIENTS: only used by eos-mc.",
+     *     operationId="getOauthClients",
+     *     tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
+     *  @SWG\Response(response=200, description="successful",
+     *      @SWG\Schema(
+     *       type="array",
+     *       @SWG\Items(ref="#/definitions/OauthClientResponse"))
+     *   ),
+     *   @SWG\Response(response=500, description="System error")
+     * )
+     */
+    public function getOauthClients(Request $request)
+    {
+        // note that this method ASSUMES that Laravel Passport has been installed
+        $clients = DB::table('oauth_clients')->get();
+        $result = [];
+        foreach( $clients as $client )
+        {
+            if( ! $client->revoked )
+            {
+                $result[] = [
+                    'id' => $client->id,
+                    'name' => $client->name,
+                    'secret' => $client->secret,
+                    'redirect' => $client->redirect
+                ];
+            }
+        }
+        return response()->json($result, 200);
+    }
+
+    /**
+     * @SWG\Post(
+     *     path="/api/oauth/clients",
+     *     summary="CREATE OAUTH CLIENT: only used by eos-mc.",
+     *     operationId="createOauthClient",
+     *     tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="Client Data",
+     *     required=true,
+     *     @SWG\Schema(ref="#/definitions/OauthClientData")
+     *   ),
+     *   @SWG\Response(response=200, description="successful",
+     *      @SWG\Schema(ref="#/definitions/OauthClientResponse")),
+     *   @SWG\Response(response=500, description="System error")
+     * )
+     */
+    public function createOauthClient(Request $request)
+    {
+        $validator = Validator::make( $request->all(), [
+            'name' => 'required|max:255',
+            'redirect' => 'required|url']);
+        if( $validator->fails() )
+        {
+            return response()->json( ['error' => 'VALIDATION',
+                'message' => $validator->errors()->messages()] , 400 );
+        }
+        $client_data = $request->all();
+        $clients = DB::table('oauth_clients')->get();
+        $exists = false;
+        foreach( $clients as &$client )
+        {
+            if( $client->redirect == $client_data['redirect'] )
+            {
+                $exists = true;
+                $client_data['name'] = $client->name;
+                $client_data['id'] = $client->id;
+                $client_data['secret'] = $client->secret;
+            }
+        }
+        if( ! $exists )
+        {
+            $client_data['secret'] = str_random( 40 );
+
+            $client_data['id'] = DB::table( 'oauth_clients' )->insertGetId( [
+                'user_id' => null,
+                'name' => $client_data['name'],
+                'secret' => $client_data['secret'],
+                'redirect' => $client_data['redirect'],
+                'personal_access_client' => false,
+                'password_client' => false,
+                'revoked' => false ] );
+            // any exception goes to handler
+        }
+        return response()->json($client_data);
+    }
 }
 
 /**
@@ -161,6 +267,7 @@ class ClientController extends Controller
  **/
 class OauthPassport {}
 
+
 /**
  * strictly for Swagger doc
  * @SWG\Definition(required={"grant_type","client_id","client_secret","scope"}, type="object", @SWG\Xml(name="OauthGrantRequest"))
@@ -178,6 +285,22 @@ class OauthGrantRequest {}
  * @SWG\Property(type="number", property="expires_in", example="445632", description="seconds until expiration")
  **/
 class OauthGrantResponse {}
+/**
+ * strictly for Swagger doc
+ * @SWG\Definition(required={"id","name","secret","redirect",}, type="object", @SWG\Xml(name="OauthClientResponse"))
+ * @SWG\Property(format="number", property="id", example="3", description="client Id")
+ * @SWG\Property(format="string", property="name", example="eos-wallet", description="name of client")
+ * @SWG\Property(type="string", property="secret", example="long-string", description="client Secret")
+ * @SWG\Property(type="string", property="redirect", example="http:url", description="client redirect url")
+ **/
+class OauthClientResponse {}
+/**
+ * strictly for Swagger doc
+ * @SWG\Definition(required={"name","redirect",}, type="object", @SWG\Xml(name="OauthClientData"))
+ * @SWG\Property(format="string", property="name", example="eos-wallet", description="name of client")
+ * @SWG\Property(type="string", property="redirect", example="http:url", description="client redirect url")
+ **/
+class OauthClientData {}
 
 /**
  * strictly for Swagger doc

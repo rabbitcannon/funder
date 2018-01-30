@@ -34,9 +34,6 @@ Route::group(['namespace'=>'App\Http\Controllers'],function() {
     Route::get('/settings', 'ClientController@getSettings')->middleware(['auth.key']);
     Route::post('/settings', 'ClientController@postSettings')->middleware(['auth.key']);
     Route::delete('/settings', 'ClientController@deleteSettings')->middleware(['auth.key']);
-});
-// override routes from Passport to allow api client access
-Route::group(['namespace' => 'Laravel\Passport\Http\Controllers'], function() {
-    Route::get('/oauth/clients','ClientController@forUser')->middleware(['auth.basic']);
-    Route::post('/oauth/clients', 'ClientController@store')->middleware(['auth.basic']);
+    Route::get('/oauth/clients','ClientController@getOauthClients')->middleware(['auth.key']);
+    Route::post('/oauth/clients', 'ClientController@createOauthClient')->middleware(['auth.key']);
 });

@@ -176,7 +176,7 @@ class EOSService
         if( ($this->auth_type == 'oauth') && ( ! $this->oauth_token) )
         {
             if( ! $this->oauth_client_credentials_grant() )
-            { ['status_code' => 401, 'body' => "Client Credentials Grant Failure - bad OAuth2 Id/Secret?", 'response_time' => 0]; }
+            { return ['status_code' => 401, 'body' => "Client Credentials Grant Failure - bad OAuth2 Id/Secret?", 'response_time' => 0]; }
             else // cache this token
             { SettingsSchema::place('Connections.outbound.'.str_slug($this->service_name).'.oauthtoken',$this->oauth_token); }
         }
