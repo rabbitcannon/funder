@@ -2,10 +2,8 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Carbon\Carbon;
+use Exception;
 
 use App\SettingsSchema;
 use App\SettingPack;
@@ -18,11 +16,72 @@ class SettingTest extends ApiTestCase
      *
      * @return void
      */
+    public function test_we_can_validate_schema()
+    {
+      print( 'test_we_can_validate_schema' . PHP_EOL );
+      try 
+      {
+          SettingsSchema::validate();
+      }
+      catch (Exception $e)
+      {
+          $this->assertTrue(false, "Unexpected exception {$e->getMessage()}");
+      }
+    }
+    
+    public function test_we_can_fail_schema_scalar()
+    {
+      print( 'test_we_can_fail_schema_scalar' . PHP_EOL );
+      try
+      {
+        SettingsSchema::validate( ['scalar_element' => ['type' => 'number', 'bogus' => ''] ]);
+        $this->fail("Expected exception not thrown");
+      }
+      catch (Exception $e)
+      {
+        print( 'Expected Exception: ' . $e->getMessage() . PHP_EOL );
+      }
+    }
+    
+    public function test_we_can_fail_schema_groups()
+    {
+      print( 'test_we_can_fail_schema_groups' . PHP_EOL );
+      try
+      {
+        SettingsSchema::validate( [
+             'schema' => ['type' => 'group',
+                 'fields' => [
+                     'services' => ['type' => 'multigroup', 'extensible' => true,
+                             'fields' => [
+                                 'name' => ['type' => 'text', 'sample' => 'Micro Service'],
+                                 'class' => ['type' => 'text', 'sample' => 'App\MyClass'],
+                                 'connections' => ['type' => 'group',
+                                       'fields' => [
+                                           'outbound' => ['type' => 'group',
+                                               'fields' => [
+                                                   "url" => ["type"=>"text","sample"=>"http://path.to.service"],
+                                                   "authentication" => ["type"=>"bogus","valid"=>["oauth","apikey","none"]],
+                                                   "clientid"=>["type"=>"text","sample"=>"20"],
+                                               ],
+                                           ],
+                                       ], 
+                                 ], 
+                             ], 
+                     ],
+                 ]
+             ] ] );
+        $this->fail("Expected exception not thrown");
+      }
+      catch (Exception $e)
+      {
+        print( 'Expected Exception: ' . $e->getMessage() . PHP_EOL);
+      }
+    }
+    
     public function test_we_can_get_schema()
     {
       print( 'test_we_can_get_schema' . PHP_EOL );
       $schema = SettingsSchema::get();
-      print( json_encode($schema) . PHP_EOL );
       $this->assertTrue(true);
     }
     
@@ -30,7 +89,6 @@ class SettingTest extends ApiTestCase
     {
       print( 'test_we_can_get_default_values' . PHP_EOL );
       $settings = SettingsSchema::getSchemaDefaults();
-      print( json_encode($settings) . PHP_EOL );
       $this->assertTrue( TRUE );
     }
     
