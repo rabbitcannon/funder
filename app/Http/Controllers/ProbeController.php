@@ -7,8 +7,9 @@
  */
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
-use App\Endpoints;
+use App\Setting;
 use GuzzleHttp\Client;
 use GuzzleHttp\TransferStats;
 use Exception;
@@ -49,10 +50,11 @@ class ProbeController extends Controller
         ]);
         $response = [];
         $time = null;
-        // grab all the endpoint services we know about
-        $endpoints = Endpoints::GetEndpoints();
-        foreach($endpoints as $service) {
-            $path = $service['url'] . '/api/version';
+        // grab all the  services we know about
+        $services = Setting::get('eos.services');
+        foreach($services as $service) 
+        {
+            $path = $service['connections']['outbound']['url'] . '/api/version';
             try {
                 $http->get($path, [
                     'on_stats' => function (TransferStats $stats) use (&$time) {
@@ -70,7 +72,6 @@ class ProbeController extends Controller
         }
 
         return response()->json($response);
-
     }
 
     /**

@@ -4,82 +4,61 @@
 //
 namespace App;
 
-use Illuminate\Support\Facades\Redis;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class SettingsSchema
 {
-    // Remove this comment and change this to your own service schema.
-    // This schema is provided as an example only.
-    public static $schema = [
-        "Sample" => ["type" =>"group","fields"=>[
-            "color" => ["type"=>"text","value"=>"red"],
-            "count" => ["type"=>"number","value"=>1,"valid"=>["min"=>1,"max"=>10]],
-            "notify" => ["type"=>"group","fields"=> [
-                "playerid" => ["type"=>"text"],
-                "by" => ["type"=>"enum","valid"=>["email","push","messagecenter"],"value"=>"email"]
-                ]
-            ],
-            "games" => ["type"=>"multigroup","extensible"=>true,"fields"=> [
-                "name" => ["type"=>"text","valid"=>["sample"=>"Powerball"]],
-                "desc" => ["type"=>"text","valid"=>["sample"=>"A multi-state draw game"]],
-                "effective" => ["type"=>"text","valid"=>["regex"=>"\d{4}-\d{2}-\d{2}","sample"=>"YYYY-MM-DD"]]]
-            ]
-        ]
-        ]
-    ];
-
-    // if your service brings in a component, e.g. from Composer, which wants to extend the
-    // configuration schema, it must merge its schema's top-level tag (group) with the master
-    // schema (SettingsSchema::$schema), perhaps in a ServiceProvider::boot(). The top level
-    // tags must be unique.
-    //
-    public static function mergeSchema($component_schema)
+    /**
+     * Returns the full application schema including all schemas loaded by installed components. Additional
+     * namespaces are loaded into the schema via the schema key in the config/setting.php file.
+     */
+    public static function get()
     {
-        self::$schema = array_merge(self::$schema, $component_schema);
+       $namespaces = config( 'setting.schema.namespaces' );
+       $schema = [];
+       foreach( $namespaces as $namespace )
+       { $schema[ $namespace ] = config( "$namespace.schema" ); }
+       return $schema;
     }
-
-    // SettingsSchema::fetch('ns.games') should intelligently fetch an array of all
-    // games in 'ns.games' along with any defined in 'global.games' - as well as checking
-    // for any timestamp overrides such as '@1568473883.ns.games' or '@1568473883.global.games'.
-    // Likewise a simple scalar such as 'ns.notify.playerid', if not present, should fall back
-    // to the value of 'global.notify.playerid', or if neither is present, any defined default.
-    //
-    public static function fetch($tag)
+    
+    /**
+     * Convert the schema into a Settings array using the 'value' tags for each leaf element. Base types (text, number, enum)
+     * use the value. Nested elements such as group and multigroup require that we descend the tree.
+     * 
+     * If the full schema has been loaded it can be passed. Otherwise we use the static get method to fetch the schema. This 
+     * argument is used to recurse the schema tree and as a side effect allows for any portion of a schema to be converted to
+     * its default settings. 
+     * 
+     * @param array $schema
+     */
+    public static function getSchemaDefaults( Array &$schema = [] )
     {
-        /*todo: implementation */
-    }
+      $schema = empty( $schema ) ? self::get() : $schema;
+      $response = [];
+      foreach( $schema as $key => $node )
+      {
+        if( empty( $node['type'] ) )
+        { throw new Exception("Setting $key is missing required type field."); }
+        
+        switch ( $node['type'] )
+        {
+          case 'number':
+          case 'text':
+          case 'enum':
+          case 'multigroup':
+                       $response[$key] = isset($node['value']) ? $node['value'] : NULL;
+                       break;
+          
+          case 'group':
+                       $response[$key] = empty( $node['fields'] ) ? [] : self::getSchemaDefaults( $node['fields'] );
+                       break;
 
-    public static function getRawSettings()
-    {
-        $settings = [];
-        $settingsJson = Redis::get( 'settings' );
-        if( $settingsJson ) {
-            try {
-                $settings = json_decode($settingsJson, true);
-            } catch( \Exception $e ) {
-                error_log('Invalid Settings: '. $settingsJson );
-                $settings = [];
-            }
+          default:
+                       throw new Exception("Setting $key has invalid type: {$node['type']}");
         }
-        return $settings;
+      }
+      return $response;
     }
-
-    public static function putRawSettings( $settingsJson, &$error )
-    {
-        $new_settings = [];
-        try
-        { $new_settings = json_decode( $settingsJson, true ); }
-        catch( \Exception $e )
-        { $error = 'Bad JSON detected, settings not updated'; }
-
-        $settingsJson = json_encode( $new_settings );
-        Redis::set( 'settings', $settingsJson );
-        return;
-    }
-
-    public static function clearRawSettings()
-    {
-        Redis::del( 'settings' );
-        return;
-    }
+    
 }

@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\SettingsSchema;
+use App\Setting;
 use Predis\ClientException;
+use function GuzzleHttp\json_decode;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
 // of endpoint configuration to the service. We can configure peer service endpoints
@@ -109,14 +111,8 @@ class ClientController extends Controller
      **/
     public function settingsSchema(Request $request)
     {
-        // sample of extending a schema
-        // $component = ["Gumdrops" => ["type"=>"group","fields"=> [
-        //    "gumdropSize" => ["type"=>"enum","valid"=>["small","medium","large"],"value"=>"medium"],
-        //    "gumdropColor" => ["type"=>"text","value"=>"red"]
-        // ]]];
-        // SettingsSchema::mergeSchema($component);
-        $schema = SettingsSchema::$schema;
-        return response()->json($schema);
+        $schema = SettingsSchema::get();
+        return response()->json( $schema );
     }
 
     /**
@@ -140,7 +136,7 @@ class ClientController extends Controller
      **/
     public function getSettings(Request $request)
     {
-        $settings = SettingsSchema::getRawSettings();
+        $settings = Setting::getCurrent();
         return response()->json( $settings );
     }
 
@@ -173,14 +169,11 @@ class ClientController extends Controller
      **/
     public function postSettings(Request $request)
     {
-        // decode the new settings
-        $error = null;
-        SettingsSchema::putRawSettings( $request->getContent(), $error );
-
-        if($error)
-        { return response()->json( ['Status' => 'Error', 'message' => 'Bad JSON detected, not updated'], 500 ); }
-
-        return response()->json( ['Status' => 'Ok'] );
+        // For input validation use getContent() not $request->all(). We don't want to infect the 
+        // json settings with query parameters like "apikey". Guzzle json_decode throws an 
+        // InvalidArgumentException on error, which will get picked up by the handler.
+        Setting::storeCurrent( json_decode( $request->getContent() ) );
+        return response()->json( [] );
     }
 
     /**
@@ -201,8 +194,7 @@ class ClientController extends Controller
      **/
     public function deleteSettings(Request $request)
     {
-        SettingsSchema::clearRawSettings();
-        return response()->json( ['Status' => 'Ok', 'message' =>"Settings deleted."] );
+        return response()->json( ['Status' => 'Fail', 'message' =>"Not Supported"] );
     }
 
 }
