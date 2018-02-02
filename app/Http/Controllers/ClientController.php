@@ -194,7 +194,8 @@ class ClientController extends Controller
      **/
     public function deleteSettings(Request $request)
     {
-        return response()->json( ['Status' => 'Fail', 'message' =>"Not Supported"] );
+        Setting::storeCurrent( [] );  //empty array resets the dynamic content
+        return response()->json( [] );
     }
 
 }
