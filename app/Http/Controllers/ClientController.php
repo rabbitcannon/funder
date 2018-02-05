@@ -3,21 +3,92 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\SettingsSchema;
+use App\Setting;
 use Predis\ClientException;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use function GuzzleHttp\json_decode;
 
 // this controller, or some variant of it, is included in any EOS service to allow push
 // of endpoint configuration to the service. We can configure peer service endpoints
-// either in our .env file or by receiving an /api/configure post
+// either in our .env file (puppet-generated) or by receiving an /api/configure post
 // from EOS-MC. The latter is the preferred method.
 class ClientController extends Controller
 {
+
+    private static $service_name = 'Boogers'; // the official name of my service
+
+    /**
+     * @SWG\Post(
+     *   path="/api/configure",
+     *   summary="REQUIRED API FOR SERVICES: Accept configuration push from eos-mc service",
+     *   operationId="acceptConfiguration",
+     *   tags={"eos"},
+     * @SWG\Parameter(
+     *     name="apikey",
+     *     in="query",
+     *     type="string",
+     *     description="required api key"
+     *  ),
+     * @SWG\Parameter(
+     *     name="body",
+     *     in="body",
+     *     description="Service Configuration",
+     *     required=true,
+     *     @SWG\Schema(ref="#/definitions/ServiceConfig")
+     *   ),
+     *   @SWG\Response(response=200, description="successful",
+     *     @SWG\Schema(ref="#/definitions/ServiceConfigResponse")),
+     *   @SWG\Response(response=500, description="System error",
+     *     @SWG\Schema(ref="#/definitions/ServiceConfigResponse"))
+     *  )
+     **/
+    // accept an endpoints configuration set from EOS-MC. Put each endpoint into Redis, keyed by
+    // the target service name.
+    // Some services need keys/secrets to access their API's. SciPlay uses an api_key and
+    // api_secret to hash content. Bonusing uses an OAuth2 client_id and client_secret.
+    // These are delivered by EOS-MC along with the endpoint; it's up to you to use them
+    // appropriately.
+    // See the 'Endpoints' model for a mechanism to obtain the current endpoint configuration
+    // on demand.
+    // NOTE: for now, this configuration system is separate from the /settings API.
+    // In the future we may integrate these mechanisms
+    public function configure( Request $request )
+    {
+        $service = $request->all();
+        if ( $service['name'] == self::$service_name ) {
+        // found our own configuration. Pick out some fields.
+            if ( !isset($service['outbound']) || !is_array($service['outbound']) ) {
+                return response()->json( ['status' => 'error', 'message' => 'No connections'], 500 );
+            }
+            $urls = [];
+            $config = "";
+            $status = "ok";
+            foreach ( $service['outbound'] as $connection ) {
+                // we always get url, we might also get api_key and/or api_secret
+                $redis_array = [ 'url' => $connection['url'] ];
+                if( isset($connection[ 'api_key' ]) )
+                { $redis_array[ 'api_key' ] = $connection[ 'api_key' ]; }
+                if( isset($connection['api_secret']) )
+                { $redis_array[ 'api_secret' ] = $connection[ 'api_secret' ]; }
+                if( isset($connection[ 'client_id' ]) )
+                { $redis_array[ 'client_id' ] = $connection[ 'client_id' ]; }
+                if( isset($connection['client_secret']) )
+                { $redis_array[ 'client_secret' ] = $connection[ 'client_secret' ]; }
+
+                Redis::set( $connection['name'], json_encode( $redis_array ) );
+                $config .= $connection['name'] . ' as ' . $connection['url'] . "; ";
+            }
+
+
+            Log::info( 'Service configured: '.$config );
+
+            return response()->json( ['status' => $status, 'config' => $config] );
+        }
+        return response()->json( ['status' => 'error', 'message' => 'Not my config, expecting '.self::$service_name], 500 );
+    }
 
     /**
      * @SWG\Get(
@@ -40,16 +111,8 @@ class ClientController extends Controller
      **/
     public function settingsSchema(Request $request)
     {
-        $settings_schema = new SettingsSchema();
-        $schema = $settings_schema->schema;
-        // here is one place you could merge schemas, e.g.
-        // $component = ["Gumdrops" => ["type"=>"group","fields"=> [
-        //    "gumdropSize" => ["type"=>"enum","valid"=>["small","medium","large"],"value"=>"medium"],
-        //    "gumdropColor" => ["type"=>"text","value"=>"red"]
-        // ]]];
-        // $settings_schema->mergeSchema($component);
-
-        return response()->json($schema);
+        $schema = SettingsSchema::get();
+        return response()->json( $schema );
     }
 
     /**
@@ -73,7 +136,7 @@ class ClientController extends Controller
      **/
     public function getSettings(Request $request)
     {
-        $settings = SettingsSchema::getRawSettings();
+        $settings = Setting::getCurrent();
         return response()->json( $settings );
     }
 
@@ -106,14 +169,11 @@ class ClientController extends Controller
      **/
     public function postSettings(Request $request)
     {
-        // decode the new settings
-        $error = null;
-        SettingsSchema::putRawSettings( $request->getContent(), $error );
-
-        if($error)
-        { return response()->json( ['Status' => 'Error', 'message' => 'Bad JSON detected, not updated'], 500 ); }
-
-        return response()->json( ['Status' => 'Ok'] );
+        // For input validation use getContent() not $request->all(). We don't want to infect the 
+        // json settings with query parameters like "apikey". Guzzle json_decode throws an 
+        // InvalidArgumentException on error, which will get picked up by the handler.
+        Setting::storeCurrent( json_decode( $request->getContent() ) );
+        return response()->json( [] );
     }
 
     /**
@@ -134,113 +194,10 @@ class ClientController extends Controller
      **/
     public function deleteSettings(Request $request)
     {
-        SettingsSchema::clearRawSettings();
-        return response()->json( ['Status' => 'Ok', 'message' =>"Settings deleted."] );
+        Setting::storeCurrent( [] );  //empty array resets the dynamic content
+        return response()->json( [] );
     }
 
-    /**
-     * @SWG\Get(
-     *     path="/api/oauth/clients",
-     *     summary="GET OAUTH CLIENTS: only used by eos-mc.",
-     *     operationId="getOauthClients",
-     *     tags={"eos"},
-     * @SWG\Parameter(
-     *     name="apikey",
-     *     in="query",
-     *     type="string",
-     *     description="required api key"
-     *  ),
-     *  @SWG\Response(response=200, description="successful",
-     *      @SWG\Schema(
-     *       type="array",
-     *       @SWG\Items(ref="#/definitions/OauthClientResponse"))
-     *   ),
-     *   @SWG\Response(response=500, description="System error")
-     * )
-     */
-    public function getOauthClients(Request $request)
-    {
-        // note that this method ASSUMES that Laravel Passport has been installed
-        $clients = DB::table('oauth_clients')->get();
-        $result = [];
-        foreach( $clients as $client )
-        {
-            if( ! $client->revoked )
-            {
-                $result[] = [
-                    'id' => $client->id,
-                    'name' => $client->name,
-                    'secret' => $client->secret,
-                    'redirect' => $client->redirect
-                ];
-            }
-        }
-        return response()->json($result, 200);
-    }
-
-    /**
-     * @SWG\Post(
-     *     path="/api/oauth/clients",
-     *     summary="CREATE OAUTH CLIENT: only used by eos-mc.",
-     *     operationId="createOauthClient",
-     *     tags={"eos"},
-     * @SWG\Parameter(
-     *     name="apikey",
-     *     in="query",
-     *     type="string",
-     *     description="required api key"
-     *  ),
-     * @SWG\Parameter(
-     *     name="body",
-     *     in="body",
-     *     description="Client Data",
-     *     required=true,
-     *     @SWG\Schema(ref="#/definitions/OauthClientData")
-     *   ),
-     *   @SWG\Response(response=200, description="successful",
-     *      @SWG\Schema(ref="#/definitions/OauthClientResponse")),
-     *   @SWG\Response(response=500, description="System error")
-     * )
-     */
-    public function createOauthClient(Request $request)
-    {
-        $validator = Validator::make( $request->all(), [
-            'name' => 'required|max:255',
-            'redirect' => 'required|url']);
-        if( $validator->fails() )
-        {
-            return response()->json( ['error' => 'VALIDATION',
-                'message' => $validator->errors()->messages()] , 400 );
-        }
-        $client_data = $request->all();
-        $clients = DB::table('oauth_clients')->get();
-        $exists = false;
-        foreach( $clients as &$client )
-        {
-            if( $client->redirect == $client_data['redirect'] )
-            {
-                $exists = true;
-                $client_data['name'] = $client->name;
-                $client_data['id'] = $client->id;
-                $client_data['secret'] = $client->secret;
-            }
-        }
-        if( ! $exists )
-        {
-            $client_data['secret'] = str_random( 40 );
-
-            $client_data['id'] = DB::table( 'oauth_clients' )->insertGetId( [
-                'user_id' => null,
-                'name' => $client_data['name'],
-                'secret' => $client_data['secret'],
-                'redirect' => $client_data['redirect'],
-                'personal_access_client' => false,
-                'password_client' => false,
-                'revoked' => false ] );
-            // any exception goes to handler
-        }
-        return response()->json($client_data);
-    }
 }
 
 /**
@@ -267,7 +224,6 @@ class ClientController extends Controller
  **/
 class OauthPassport {}
 
-
 /**
  * strictly for Swagger doc
  * @SWG\Definition(required={"grant_type","client_id","client_secret","scope"}, type="object", @SWG\Xml(name="OauthGrantRequest"))
@@ -285,22 +241,6 @@ class OauthGrantRequest {}
  * @SWG\Property(type="number", property="expires_in", example="445632", description="seconds until expiration")
  **/
 class OauthGrantResponse {}
-/**
- * strictly for Swagger doc
- * @SWG\Definition(required={"id","name","secret","redirect",}, type="object", @SWG\Xml(name="OauthClientResponse"))
- * @SWG\Property(format="number", property="id", example="3", description="client Id")
- * @SWG\Property(format="string", property="name", example="eos-wallet", description="name of client")
- * @SWG\Property(type="string", property="secret", example="long-string", description="client Secret")
- * @SWG\Property(type="string", property="redirect", example="http:url", description="client redirect url")
- **/
-class OauthClientResponse {}
-/**
- * strictly for Swagger doc
- * @SWG\Definition(required={"name","redirect",}, type="object", @SWG\Xml(name="OauthClientData"))
- * @SWG\Property(format="string", property="name", example="eos-wallet", description="name of client")
- * @SWG\Property(type="string", property="redirect", example="http:url", description="client redirect url")
- **/
-class OauthClientData {}
 
 /**
  * strictly for Swagger doc

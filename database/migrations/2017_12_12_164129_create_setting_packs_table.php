@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateSettingPacksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,12 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('setting_packs', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name', 32);
-            $table->string('email', 64)->unique();
-            $table->string('password', 32);
-            $table->rememberToken();
             $table->timestamps();
+            $table->timestamp('quantum_start')->useCurrent();
+            $table->timestamp('quantum_end')->useCurrent();
+            $table->mediumText('pack');
         });
     }
 
@@ -30,6 +29,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('setting_packs');
     }
 }
