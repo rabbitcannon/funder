@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Setting;
+
 
 class Endpoints
 {
@@ -44,12 +46,13 @@ class Endpoints
         foreach( $services as $name => $options )
         {
             $service_name = str_slug($name);
-            $service = SettingsSchema::fetch('Connections.outbound.'.$service_name);
+            $name = Setting::get( 'eos.services.'.$service_name.'.name' );
+            $service = Setting::get('eos.services.'.$service_name.'.connections.outbound');
             if( is_array($service) )
             {
                 $endpoint = [
-                    'name' => $service['serviceName'],
-                    'url' => $service['serviceUrl'],
+                    'name' => $name,
+                    'url' => $service['url'],
                     'auth' => isset($service['authentication']) ? $service['authentication'] : 'none' ];
                 if (isset($service['clientid']) && isset($service['clientsecret']))
                 {

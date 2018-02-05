@@ -27,7 +27,7 @@ class GumdropController extends Controller
         // transaction tracing and player/agent identification.
         // for security, the 'client' middleware (oauth2) is strongly recommended
         // but simple API key 'auth.key' may be used in some cases
-        $this->middleware(['client','eos']);
+        $this->middleware(['eos']);
     }
 
     /**

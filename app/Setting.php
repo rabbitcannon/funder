@@ -48,8 +48,8 @@ class Setting
      * Update the value of a single key in the current Pack. We also clear the cache to force a reload of
      * the changed settings
      * 
-     * @param unknown $setting
-     * @param unknown $value
+     * @param string $setting
+     * @param mixed $value
      */
     public static function set( $setting, $value )
     {

@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
+use App\Setting;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
@@ -45,8 +47,8 @@ class EOSService
         else
         { Log::error("Cannot find specified service endpoint for $name - check eos-mc connections!"); }
 
-        $timeout = (float) SettingsSchema::fetch('Diagnostics.hardRequestTimeoutSeconds');
-        $this->slow_threshold = (float) SettingsSchema::fetch('Diagnostics.slowResponseThresholdSeconds');
+        $timeout = (float) Setting::get('eos.diagnostics.hardRequestTimeoutSeconds');
+        $this->slow_threshold = (float) Setting::get('eos.diagnostics.slowResponseThresholdSeconds');
 
         $this->guzzle_client = new Client([
             'timeout' => $timeout,
@@ -125,7 +127,7 @@ class EOSService
      */
     private function log( $method, $elapsed_time = null )
     {
-        $do_logging = SettingsSchema::fetch('Diagnostics.logOutbound');
+        $do_logging = Setting::get('eos.diagnostics.logOutbound');
         if( $do_logging )
         {
             $trace = new ApiTraceLogger();
@@ -178,7 +180,7 @@ class EOSService
             if( ! $this->oauth_client_credentials_grant() )
             { return ['status_code' => 401, 'body' => "Client Credentials Grant Failure - bad OAuth2 Id/Secret?", 'response_time' => 0]; }
             else // cache this token
-            { SettingsSchema::place('Connections.outbound.'.str_slug($this->service_name).'.oauthtoken',$this->oauth_token); }
+            { Setting::set('eos.services.'.str_slug($this->service_name).'connections.outbound.oauthtoken',$this->oauth_token); }
         }
 
         // collect the response time stats
@@ -291,7 +293,7 @@ class EOSService
                     'scope' => '*'
                 ]
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $trace->error('Client credentials failed: ' . $e->getMessage());
             return false;
         }

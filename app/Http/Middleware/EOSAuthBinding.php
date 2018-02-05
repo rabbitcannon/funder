@@ -3,13 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\Log;
-use App\SettingsSchema;
+use App\Setting;
 use App\ApiTraceLogger;
-use App\AuthPlayer;
 use App\AuthAgent;
 use App\EOSService;
-use App\Player;
 
 class EOSAuthBinding
 {
@@ -43,7 +40,7 @@ class EOSAuthBinding
             $agent = new AuthAgent(['agent_id' => null]);
         }
 
-        $do_logging = SettingsSchema::fetch('Diagnostics.logInbound');
+        $do_logging = Setting::get('eos.diagnostics.logInbound');
         if( $do_logging ) {
             $trace = new ApiTraceLogger();
             $trace->info('IN('.$request->method().'): '.$request->path().' TID:'.$tid.

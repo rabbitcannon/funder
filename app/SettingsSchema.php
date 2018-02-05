@@ -47,6 +47,7 @@ class SettingsSchema
                 case 'number':
                 case 'text':
                 case 'enum':
+                case 'boolean':
                 case 'multigroup':
                              $response[$key] = isset($node['value']) ? $node['value'] : NULL;
                              break;
@@ -95,6 +96,7 @@ class SettingsSchema
                 case 'number':
                 case 'enum':
                 case 'text':
+                case 'boolean':
                             self::validateScalar( "$tag.$key", $element );
                             break;
                             
