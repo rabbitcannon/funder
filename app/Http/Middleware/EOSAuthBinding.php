@@ -11,13 +11,13 @@ use App\EOSService;
 class EOSAuthBinding
 {
     /**
-     * Middleware to decode an EOS custom X-Auth header, which contains
+     * Middleware to decode an EOS custom X-Auth-Spat header, which contains
      * a JSON representation of a player, an agent, or both; these will be
      * constructed into AuthPlayer/AuthAgent model objects for injection into
      * the controller method.
      * A registrar_id is required for a Player; an agent_id is required for an Agent.
      *
-     * Note that the X-Auth header is not explicitly required by this middleware.
+     * Note that the X-Auth-Spat header is not explicitly required by this middleware.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
@@ -25,13 +25,13 @@ class EOSAuthBinding
      */
     public function handle($request, Closure $next)
     {
-        // save any incoming transaction id
-        $tid = $request->query('transaction_id');
-        EOSService::$transaction_id = $tid;
+        // save any incoming correlation id
+        $cid = $request->query('correlation_id');
+        EOSService::$correlation_id = $cid;
 
-        $x_auth = $request->header('X-Auth');
+        $x_auth = $request->header('X-Auth-Spat');
         $token_value = json_decode($x_auth,true);
-        // save the X-Auth header for relay to other services
+        // save the X-Auth-Spat header for relay to other services
         EOSService::$auth_header = $x_auth;
 
         if (isset($token_value['agent']) && isset($token_value['agent']['agent_id'])) {
@@ -43,7 +43,7 @@ class EOSAuthBinding
         $do_logging = Setting::get('eos.diagnostics.logInbound');
         if( $do_logging ) {
             $trace = new ApiTraceLogger();
-            $trace->info('IN('.$request->method().'): '.$request->path().' TID:'.$tid.
+            $trace->info('IN('.$request->method().'): '.$request->path().' CID:'.$cid.
                 ($agent->agent_id ? ' Agent '.$agent->agent_id : ''));
         }
 

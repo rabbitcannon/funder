@@ -15,7 +15,7 @@ use GuzzleHttp\Middleware;
 
 class EOSService
 {
-    public static $transaction_id;
+    public static $correlation_id;
     public static $auth_header;
     public $service_name;
     public $service_url;
@@ -117,7 +117,7 @@ class EOSService
     // don't actually send, just log to show we have the right service parameters.
     public function test()
     {
-        $this->assign_transaction_id();
+        $this->assign_correlation_id();
         $this->log('TEST');
     }
 
@@ -136,7 +136,7 @@ class EOSService
                 $token_value['player']['registrar_id'] : null;
             $agent_id = isset($token_value['agent']['agent_id']) ?
                 $token_value['agent']['agent_id'] : null;
-            $trace->info('OUT('.$method.'): ' . $this->service_url . ' TID:' . self::$transaction_id .
+            $trace->info('OUT('.$method.'): ' . $this->service_url . ' CID:' . self::$correlation_id .
                 ($player_id ? ' Player ' . $player_id : '') .
                 ($agent_id ? ' Agent ' . $agent_id : '') .
                 ($elapsed_time ? ' in '.$elapsed_time.' sec' : ''));
@@ -144,14 +144,14 @@ class EOSService
     }
 
     /**
-     * TID will look like "mrb:qa:GUID-STRING"
+     * CID will look like "mrb:qa:GUID-STRING"
      * or for prod "mrb::GUID-STRING"
-     * we will pass through any TID we have received in middleware.
+     * we will pass through any CID we have received in middleware.
      */
-    private function assign_transaction_id()
+    private function assign_correlation_id()
     {
-        if( ! self::$transaction_id )
-        { self::$transaction_id = uniqid(config('app.install_prefix')); }
+        if( ! self::$correlation_id )
+        { self::$correlation_id = uniqid(config('app.install_prefix')); }
     }
 
     /**
@@ -195,22 +195,22 @@ class EOSService
         if( $this->auth_type == 'oauth')
         { $options['headers'] = ["Authorization" => "Bearer ".$this->oauth_token]; }
 
-        // attach the transaction_id to the query string
-        if( self::$transaction_id )
+        // attach the correlation_id to the query string
+        if( self::$correlation_id )
         {
             $options['query'] = isset($options['query']) ?
                 array_merge( $options['query'],
-                ['transaction_id' => self::$transaction_id] ) :
-                ['transaction_id' => self::$transaction_id];
+                ['correlation_id' => self::$correlation_id] ) :
+                ['correlation_id' => self::$correlation_id];
         }
 
-        // attach the SPAT (X-Auth header) if present
+        // attach the SPAT (X-Auth-Spat header) if present
         if( self::$auth_header )
         {
             $options['headers'] = isset($options['headers']) ?
                 array_merge( $options['headers'],
-                    ['X-Auth' => self::$auth_header] ) :
-                    ['X-Auth' => self::$auth_header];
+                    ['X-Auth-Spat' => self::$auth_header] ) :
+                    ['X-Auth-Spat' => self::$auth_header];
         }
 
         if ($debug_headers)
@@ -264,7 +264,7 @@ class EOSService
         if( $elapsed >= $this->slow_threshold )
         {
             //todo: implement circuit breaker
-            $trace->warning("Slow response, TID:" . self::$transaction_id .
+            $trace->warning("Slow response, TID:" . self::$correlation_id .
                 ' for service: ' . $this->service_url . ': '. $elapsed . ' secs');
         }
         return ['status_code' => $status_code, 'body' => $body, 'response_time' => $elapsed];

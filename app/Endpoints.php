@@ -3,7 +3,8 @@
 namespace App;
 
 use App\Setting;
-
+use App\ApiTraceLogger;
+use Illuminate\Support\Facades\Log;
 
 class Endpoints
 {
@@ -45,36 +46,45 @@ class Endpoints
         $services = config('app.known_services');
         foreach( $services as $name => $options )
         {
+            $trace = new ApiTraceLogger();
             $service_name = str_slug($name);
-            $name = Setting::get( 'eos.services.'.$service_name.'.name' );
-            $service = Setting::get('eos.services.'.$service_name.'.connections.outbound');
-            if( is_array($service) )
-            {
-                $endpoint = [
-                    'name' => $name,
-                    'url' => $service['url'],
-                    'auth' => isset($service['authentication']) ? $service['authentication'] : 'none' ];
-                if (isset($service['clientid']) && isset($service['clientsecret']))
-                {
-                    $endpoint['client_id'] = $service['clientid'];
-                    $endpoint['client_secret'] = $service['clientsecret'];
-                }
-                if (isset($service['apikey']) && isset($service['apisecret']))
-                {
-                    $endpoint['api_key'] = $service['apikey'];
-                    $endpoint['api_secret'] = $service['apisecret'];
-                }
-                if (isset($service['oauthtoken']))
-                { $endpoint['oauth_token'] = $service['oauthtoken']; }
 
-                // delete any duplicate (e.g. replace old SciPlay/Bonusing)
-                foreach( $endpoints as $ix => $ep)
-                {
-                    if( isset($endpoints[$ix]) && ($endpoints[$ix]['name'] == $endpoint['name']) )
-                    { unset( $endpoints[$ix] ); }
-                }
-                $endpoints[] = $endpoint;
+            $name = Setting::get( 'eos.services.' . $service_name . '.name' );
+            $service_prefix = 'eos.services.' . $service_name . '.connections.outbound.';
+
+            $endpoint = [
+                'name' => $name,
+                'url' => Setting::get( $service_prefix . 'url' ),
+                'auth' => Setting::get( $service_prefix . 'auth' ) ];
+
+            $client_id = Setting::get( $service_prefix . 'clientid' );
+            $client_secret = Setting::get( $service_prefix . 'clientsecret' );
+            if( isset( $client_id ) && isset( $client_secret ) )
+            {
+                $endpoint['client_id'] = $client_id;
+                $endpoint['client_secret'] = $client_secret;
             }
+            $api_key = Setting::get( $service_prefix . 'apikey' );
+            $api_secret = Setting::get( $service_prefix . 'apisecret' );
+            if( isset( $api_key ) && isset( $api_secret ) )
+            {
+                $endpoint['api_key'] = $api_key;
+                $endpoint['api_secret'] = $api_secret;
+            }
+            $oauth_token = Setting::get( $service_prefix . 'oauthtoken' );
+            if( isset( $oauth_token ) )
+            {
+                $endpoint['oauth_token'] = $oauth_token;
+            }
+
+            // delete any duplicate (e.g. replace old SciPlay/Bonusing)
+            foreach( $endpoints as $ix => $ep)
+            {
+                if( isset($endpoints[$ix]) && ($endpoints[$ix]['name'] == $endpoint['name']) )
+                { unset( $endpoints[$ix] ); }
+            }
+            $endpoints[] = $endpoint;
+
         }
         return $endpoints;
     }

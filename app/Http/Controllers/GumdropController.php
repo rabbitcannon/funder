@@ -27,7 +27,7 @@ class GumdropController extends Controller
         // transaction tracing and player/agent identification.
         // for security, the 'client' middleware (oauth2) is strongly recommended
         // but simple API key 'auth.key' may be used in some cases
-        $this->middleware(['eos']);
+        $this->middleware(['client','eos']);
     }
 
     /**
@@ -39,7 +39,7 @@ class GumdropController extends Controller
      *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *     in="query",
-     *     name="transaction_id",
+     *     name="correlation_id",
      *     description="GUID",
      *     type="string",
      *     required=false,
@@ -74,13 +74,13 @@ class GumdropController extends Controller
      *   ),
      * @SWG\Parameter(
      *     in="query",
-     *     name="transaction_id",
+     *     name="correlation_id",
      *     description="GUID",
      *     type="string",
      *     required=false,
      *   ),
      * @SWG\Parameter(
-     *     name="X-Auth",
+     *     name="X-Auth-Spat",
      *     in="header",
      *     description="SciPlay Auth Header.",
      *     required=false,
@@ -96,15 +96,16 @@ class GumdropController extends Controller
      * @param AuthPlayer $auth_player
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request, AuthPlayer $auth_player)
+    public function store(Request $request)
     {
         // do some validation
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
 
+        $auth_player = AuthPlayer::fetchOrFail();
         // store me a new gumdrop for some player.
         if( ! $auth_player ) {
-            return response()->json(['status' => 'No player in X-Auth'],500);
+            return response()->json(['status' => 'No player in X-Auth-Spat'],500);
         }
 
         $name = $request->get( 'name' );
@@ -142,7 +143,7 @@ class GumdropController extends Controller
      *   security={{"oauth2": {""}}},
      * @SWG\Parameter(
      *     in="query",
-     *     name="transaction_id",
+     *     name="correlation_id",
      *     description="GUID",
      *     type="string",
      *     required=false,
@@ -196,13 +197,13 @@ class GumdropController extends Controller
      *   ),
      * @SWG\Parameter(
      *     in="query",
-     *     name="transaction_id",
+     *     name="correlation_id",
      *     description="GUID",
      *     type="string",
      *     required=false,
      *   ),
      * @SWG\Parameter(
-     *     name="X-Auth",
+     *     name="X-Auth-Spat",
      *     in="header",
      *     description="SciPlay Auth Header.",
      *     required=false,
@@ -228,14 +229,13 @@ class GumdropController extends Controller
      * @param AuthAgent $auth_agent
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request,
-                           $id,
-                           AuthPlayer $auth_player,
-                           AuthAgent $auth_agent)
+    public function update(Request $request, $id)
     {
         // do some validation
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
+
+        $auth_player = AuthPlayer::fetchOrFail();
         // that's my little gumdrop
         $gumdrop = Gumdrop::findOrFail($id);
         // now are we allowed to alter this? either it needs to belong
@@ -244,8 +244,8 @@ class GumdropController extends Controller
         $authorized = false;
         if( $owner && $auth_player->valid() && ($auth_player->registrar_id == $owner->registrar_id))
         { $authorized = true; }
-        if( $auth_agent->valid() )
-        { $authorized = true; }
+
+        //todo: add $auth_agent check - set authorized if agent was given in SPAT
         if( ! $authorized )
         { return response()->json(['status' => 'Unauthorized player'],401); }
 
@@ -272,13 +272,13 @@ class GumdropController extends Controller
      *   ),
      * @SWG\Parameter(
      *     in="query",
-     *     name="transaction_id",
+     *     name="correlation_id",
      *     description="GUID",
      *     type="string",
      *     required=false,
      *   ),
      * @SWG\Parameter(
-     *     name="X-Auth",
+     *     name="X-Auth-Spat",
      *     in="header",
      *     description="SciPlay Auth Header.",
      *     required=false,
@@ -306,8 +306,7 @@ class GumdropController extends Controller
         $authorized = false;
         if( $owner && $auth_player->valid() && ($auth_player->registrar_id == $owner->registrar_id))
         { $authorized = true; }
-        if( $auth_agent->valid() )
-        { $authorized = true; }
+        //todo: add $auth_agent check - set authorized if agent was given in SPAT
         if( ! $authorized )
         { return response()->json(['status' => 'Unauthorized player'],401); }
 
