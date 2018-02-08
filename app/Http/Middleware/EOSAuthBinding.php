@@ -11,6 +11,7 @@ use App\EOSService;
 class EOSAuthBinding
 {
     /**
+     * 
      * Middleware to decode an EOS custom X-Auth-Spat header, which contains
      * a JSON representation of a player, an agent, or both; these will be
      * constructed into AuthPlayer/AuthAgent model objects for injection into
