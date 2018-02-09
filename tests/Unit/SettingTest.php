@@ -5,9 +5,9 @@ namespace Tests\Unit;
 use Carbon\Carbon;
 use Exception;
 
-use App\SettingsSchema;
-use App\SettingPack;
-use App\Setting;
+use Eos\Common\SettingsSchema;
+use Eos\Common\SettingPack;
+use Eos\Common\Setting;
 
 class SettingTest extends ApiTestCase
 {

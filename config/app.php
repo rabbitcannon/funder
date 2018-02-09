@@ -194,7 +194,7 @@ return [
         Illuminate\View\ViewServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
         CSUNMetaLab\MultipleLogs\Providers\LoggingServiceProvider::class,
-
+        Eos\Common\EosCommonServiceProvider::class,
         /*
          * Package Service Providers...
          */
