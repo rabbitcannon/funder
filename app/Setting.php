@@ -71,7 +71,7 @@ class Setting
      * Creating or updating a future SettingPack is done elsewhere as this requires knowledge of the 
      * effective timestamp of the future Pack. 
      * 
-     * @param unknown $setting_data - raw (non-encoded) settings
+     * @param array $setting_data - raw (non-encoded) settings
      */
     public static function storeCurrent( $setting_data )
     {

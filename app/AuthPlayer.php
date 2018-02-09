@@ -12,8 +12,9 @@ class AuthPlayer
 
     /**
      * AuthPlayer constructor.
-     *
-     * @param $player - registrar_id is the only required input; null is an invalid player
+     * @param array $player_data
+     * @throws AuthenticationException
+     * @throws \Exception
      */
     public function __construct( $player_data = [] )
     {
@@ -38,6 +39,8 @@ class AuthPlayer
    * data simply by passing attributes to a GET request.
    *
    * @return AuthPlayer
+   * @throws AuthenticationException
+   * @throws \Exception
    */
     public static function fetchOrFail()
     {
@@ -57,6 +60,7 @@ class AuthPlayer
    * array.
    *
    * @param $name
+   * @return Player|mixed|null
    */
     public function __get( $name )
     {
