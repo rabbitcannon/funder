@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Exception;
 use App\Gumdrop;
 use App\AuthPlayer;
 use App\Player;
@@ -93,7 +94,8 @@ class GumdropController extends Controller
      *  )
      *
      * @param Request $request
-     * @param AuthPlayer $auth_player
+     * @throws Exception
+     * @throws \Illuminate\Auth\AuthenticationException
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -167,9 +169,9 @@ class GumdropController extends Controller
      *
      *
      * @param Request $request
-     * @param AuthPlayer $auth_player
-     * @param AuthAgent $auth_agent
      * @return \Illuminate\Http\JsonResponse
+     * @throws Exception
+     * @throws \Illuminate\Auth\AuthenticationException
      */
     public function gumdropsForPlayer( Request $request )
     {
@@ -225,9 +227,9 @@ class GumdropController extends Controller
      *
      * @param Request $request
      * @param $id
-     * @param AuthPlayer $auth_player
-     * @param AuthAgent $auth_agent
      * @return \Illuminate\Http\JsonResponse
+     * @throws Exception
+     * @throws \Illuminate\Auth\AuthenticationException
      */
     public function update(Request $request, $id)
     {
@@ -291,14 +293,13 @@ class GumdropController extends Controller
      *  )
      *
      * @param $id
-     * @param AuthPlayer $auth_player
-     * @param AuthAgent $auth_agent
      * @return \Illuminate\Http\JsonResponse
+     * @throws Exception
+     * @throws \Illuminate\Auth\AuthenticationException
      */
-    public function destroy($id,
-                            AuthPlayer $auth_player,
-                            AuthAgent $auth_agent)
+    public function destroy($id)
     {
+        $auth_player = AuthPlayer::fetchOrFail();
         $gumdrop = Gumdrop::findOrFail($id);
         // now do we allow this? Either it needs to be my gumdrop, or
         // we need agent auth
@@ -310,7 +311,13 @@ class GumdropController extends Controller
         if( ! $authorized )
         { return response()->json(['status' => 'Unauthorized player'],401); }
 
-        $gumdrop->delete();
-        return response()->json([]);
+        try
+        {
+            $gumdrop->delete();
+        }
+        catch( Exception $e )
+        { return response()->json(['status' => 'Unable to delete'],500); }
+
+            return response()->json([]);
     }
 }
