@@ -58,6 +58,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
         'auth.key' => \App\Http\Middleware\ApiKeyCheckMiddleware::class,
-        'eos' => \App\Http\Middleware\EOSAuthBinding::class,
+        'eos' => \Eos\Common\Http\Middleware\EOSAuthBinding::class,
     ];
 }
