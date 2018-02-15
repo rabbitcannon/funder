@@ -27,6 +27,26 @@
 */
 class apischemaget {}
 /**
+ * @SWG\Get(
+ *   path="/api/settings",
+ *   summary="REQUIRED API FOR SERVICES: Return settings",
+ *   operationId="getSettings",
+ *   tags={"eos"},
+ * @SWG\Parameter(
+ *     name="apikey",
+ *     in="query",
+ *     type="string",
+ *     description="required api key"
+ *  ),
+ * @SWG\Response(response=200, description="successful",
+ *     @SWG\Schema(
+ *       type="string")
+ *   ),
+ * @SWG\Response(response=500, description="internal server error")
+ * )
+ **/
+class apisettingsget {}
+/**
 * @SWG\Post(
 *   path="/api/settings",
 *   summary="REQUIRED API FOR SERVICES: Accept settings",
