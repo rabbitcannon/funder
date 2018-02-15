@@ -6,10 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Gumdrop;
-use App\AuthPlayer;
+use Eos\Common\AuthPlayer;
 use App\Player;
-use App\AuthAgent;
-use App\EosWalletService;
+use App\EosWallet;
 
 //
 // This entire controller, along with the Gumdrop and probably User model,
@@ -125,7 +124,7 @@ class GumdropController extends Controller
             'color' => $color], $player);
 
         // we are inserting here a test for our EOS chain relay
-        $svc = new EosWalletService();
+        $svc = new EosWallet();
         $response = $svc->get('api/accounts');
         Log::info(json_encode($response));
 
