@@ -16,12 +16,12 @@ class Player extends Model
      *
      * @var array
      */
-    protected $fillable = [ 'registrar_id', 'first_name', 'last_name', 'email' ];
+    protected $fillable = [ 'registrar_id', 'first_name', 'last_name', 'email', 'player_state' ];
     
     protected $dates = [ 'created_at', 'updated_at' ];
 
     // don't return these in API calls
-    protected $hidden = ['pivot','created_at','updated_at','id','first_name','last_name','email'];
+    protected $hidden = ['pivot','created_at','updated_at','id','first_name','last_name','email','player_state'];
 
     /**
      * @param Builder $query

@@ -147,7 +147,7 @@ return [
         'Bonusing Manager' => ['pingable' => true, 'configurable' => true],
         'LPS Issuer' => ['pingable' => true, 'configurable' => true],
         'SciPlay' => ['pingable' => true, 'configurable' => false],
-        'EOS Lore' => ['pingable' => true, 'configurable' => true],
+        'SciPlayALC' => ['pingable' => false, 'configurable' => false],       'EOS Lore' => ['pingable' => true, 'configurable' => true],
         'Winners Service' => ['pingable' => false, 'configurable' => false],
         'Game Consumer Service' => ['pingable' => false, 'configurable' => false],
         'EOS Wallet' => ['pingable' => true, 'configurable' => true],

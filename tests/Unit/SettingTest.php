@@ -82,14 +82,14 @@ class SettingTest extends ApiTestCase
     {
       print( 'test_we_can_get_schema' . PHP_EOL );
       $schema = SettingsSchema::get();
-      $this->assertTrue(true);
+      $this->assertJson(json_encode($schema),['eos','gumdrop']);
     }
     
     public function test_we_can_get_default_values()
     {
       print( 'test_we_can_get_default_values' . PHP_EOL );
       $settings = SettingsSchema::getSchemaDefaults();
-      $this->assertTrue( TRUE );
+      $this->assertEquals($settings['gumdrop']['color'],'red');
     }
     
     public function test_we_can_get_effective_packs()
@@ -115,23 +115,23 @@ class SettingTest extends ApiTestCase
     {
       print( 'test_we_can_get_current_color' . PHP_EOL );
       $color = Setting::get('gumdrop.color');
-      $this->assertEquals('blue', $color);
-      $this->assertTrue( cache()->has( config('eos.run') . '_eos_settings' ) );
+      $this->assertEquals('red', $color);
+      $this->assertTrue( cache()->has( Setting::getCacheKey() ) );
     }
-    
+
     public function test_we_can_get_gumdrop_settings()
     {
-      print( 'test_we_can_get_current_color' . PHP_EOL );
-      $color = Setting::get('gumdrop');
-      $this->assertArrayHasKey('color', $color);
+        print( 'test_we_can_get_gumdrop_settings' . PHP_EOL );
+        $color = Setting::get('gumdrop');
+        $this->assertArrayHasKey('color', $color);
     }
-    
+
     public function test_we_can_change_gumdrop_setting()
     {
       print( 'test_we_can_change_gumdrop_setting' . PHP_EOL );
       Setting::set('gumdrop.color', 'green');
-      $color = Setting::get('gumdrop');
-      $this->assertArrayHasKey('color', $color);
+      $color = Setting::get('gumdrop.color');
+      $this->assertEquals('green', $color);
     }
 }
     

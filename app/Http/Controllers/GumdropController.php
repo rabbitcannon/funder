@@ -8,7 +8,7 @@ use Exception;
 use App\Gumdrop;
 use Eos\Common\AuthPlayer;
 use App\Player;
-use App\EosWallet;
+use App\EosWalletService;
 
 //
 // This entire controller, along with the Gumdrop and probably User model,
@@ -103,29 +103,25 @@ class GumdropController extends Controller
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
 
-        $auth_player = AuthPlayer::fetchOrFail();
+        // the standard way to fetch the player from SPAT
+        // this returns an App\Player or throws
+        $player = AuthPlayer::fetchOrFail()->player;
+
         // store me a new gumdrop for some player.
-        if( ! $auth_player ) {
-            return response()->json(['status' => 'No player in X-Auth-Spat'],500);
-        }
 
         $name = $request->get( 'name' );
         $color = $request->get( 'color' );
         // now I need to create the new Gumdrop, save it, and link it to my player.
         // I could do this here, but then my API route is the only way to access
         // this 'transaction' -- it's better to use a static model method.
-        try
-        { $player = Player::fetchPlayer( $auth_player->registrar_id ); }
-        catch ( \Exception $e )
-        { return response()->json(['status' => 'Failed'], 500); }
 
         $success = Gumdrop::createNewGumdropForPlayer([
             'name' => $name,
             'color' => $color], $player);
 
-        // we are inserting here a test for our EOS chain relay
-        $svc = new EosWallet();
-        $response = $svc->get('api/accounts');
+        // we are inserting here a test for a call to another EOS service
+        $svc = new EosWalletService();
+        $response = $svc->fetchAccounts();
         Log::info(json_encode($response));
 
         return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);

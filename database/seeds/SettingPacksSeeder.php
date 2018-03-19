@@ -2,7 +2,7 @@
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
-use App\SettingPack;
+use Eos\Common\SettingPack;
 
 class SettingPacksSeeder extends Seeder {
 
