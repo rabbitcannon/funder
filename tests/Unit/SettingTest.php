@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 use Eos\Common\SettingsSchema;
 use Eos\Common\SettingPack;
@@ -115,8 +116,10 @@ class SettingTest extends ApiTestCase
     {
       print( 'test_we_can_get_current_color' . PHP_EOL );
       $color = Setting::get('gumdrop.color');
-      $this->assertEquals('red', $color);
+      $this->assertEquals('blue', $color);
       $this->assertTrue( cache()->has( Setting::getCacheKey() ) );
+      $cached = json_decode( cache()->get( Setting::getCacheKey() ) );
+      $this->assertEquals('blue', $cached->gumdrop->color);
     }
 
     public function test_we_can_get_gumdrop_settings()
