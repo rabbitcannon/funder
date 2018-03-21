@@ -112,25 +112,27 @@ class GumdropController extends Controller
         $name = $request->get( 'name' );
         $color = $request->get( 'color' );
         // now I need to create the new Gumdrop, save it, and link it to my player.
-        // I could do this here, but then my API route is the only way to access
-        // this 'transaction' -- it's better to use a static model method.
-
-        $success = Gumdrop::createNewGumdropForPlayer([
+        // I could do this here, but then my API route is the only way to create
+        // gumdrops -- it's better to use a static model method.
+        // Note that this call may throw and return an exception.
+        $gumdrop = Gumdrop::createNewGumdropForPlayer([
             'name' => $name,
             'color' => $color], $player);
 
         // we are inserting here a test for a call to another EOS service
-        $svc = new EosWalletService();
-        $response = $svc->fetchAccounts();
-        Log::info(json_encode($response));
+        // skip this if we're doing unit testing
+        if( !app()->runningUnitTests() )
+        {
+            $svc = new EosWalletService();
+            $response = $svc->fetchAccounts();
+            Log::info( json_encode( $response ) );
+        }
 
-        return response()->json(['status' => $success ? 'Ok' : 'Failed'], $success ? 200 : 500);
+        return response()->json(['gumdrop' => $gumdrop], 200);
     }
 
     /**
-     * Note that we pass registrar_id (player id) in the route, but we
-     * don't strictly need to. Player and/or Agent could be identified by
-     * the X-Auth-Spat header.
+     *  Player and/or Agent are identified by the X-Auth-Spat header.
      *
      * @SWG\Get(
      *   path="/api/players/gumdrops",
@@ -221,20 +223,19 @@ class GumdropController extends Controller
      *  )
      *
      * @param Request $request
-     * @param $id
+     * @param $gumdrop
      * @return \Illuminate\Http\JsonResponse
      * @throws Exception
      * @throws \Illuminate\Auth\AuthenticationException
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Gumdrop $gumdrop)
     {
         // do some validation
         $this->validate( $request,
             ['name' => 'required', 'color' => 'required']);
 
         $auth_player = AuthPlayer::fetchOrFail();
-        // that's my little gumdrop
-        $gumdrop = Gumdrop::findOrFail($id);
+
         // now are we allowed to alter this? either it needs to belong
         // to me, or it needs to have agent auth.
         $owner = $gumdrop->players()->first();
@@ -247,8 +248,8 @@ class GumdropController extends Controller
         { return response()->json(['status' => 'Unauthorized player'],401); }
 
 
-        $name = $request->get('gumdrop_name');
-        $color = $request->get('gumdrop_color');
+        $name = $request->get('name');
+        $color = $request->get('color');
         $gumdrop->update( ['name' => $name, 'color' => $color ] );
         return response()->json( $gumdrop );
     }
@@ -287,15 +288,15 @@ class GumdropController extends Controller
      *   @SWG\Response(response=500, description="System error")
      *  )
      *
-     * @param $id
+     * @param $gumdrop
      * @return \Illuminate\Http\JsonResponse
      * @throws Exception
      * @throws \Illuminate\Auth\AuthenticationException
      */
-    public function destroy($id)
+    public function destroy(Gumdrop $gumdrop)
     {
         $auth_player = AuthPlayer::fetchOrFail();
-        $gumdrop = Gumdrop::findOrFail($id);
+
         // now do we allow this? Either it needs to be my gumdrop, or
         // we need agent auth
         $owner = $gumdrop->players()->first();
@@ -306,13 +307,10 @@ class GumdropController extends Controller
         if( ! $authorized )
         { return response()->json(['status' => 'Unauthorized player'],401); }
 
-        try
-        {
-            $gumdrop->delete();
-        }
-        catch( Exception $e )
-        { return response()->json(['status' => 'Unable to delete'],500); }
+        // this may throw - it's better just to let it, and have the Handler return
+        // the 500 response.
+        $gumdrop->delete();
 
-            return response()->json([]);
+        return response()->json([]);
     }
 }

@@ -28,23 +28,19 @@ class Gumdrop extends Model
     protected $hidden = ['pivot'];
 
     /**
+     * Attempt to create a Gumdrop and attach to the indicated player.
      * @param $values - ['name', 'color']
      * @param $player - the Player to attach to
-     * @return bool - true if success.
+     * @return Gumdrop - if successful.
+     * @throws \Exception
      */
     static function createNewGumdropForPlayer( $values, Player $player )
     {
-        try {
-            $gumdrop = new Gumdrop( $values );
-            $gumdrop->save();
-            $player->gumdrops()->attach($gumdrop);
-        } catch ( \Exception $e ) {
-            // this isn't always a good idea; sometimes it may be better to
-            // just allow exceptions to be caught by the controller, or to
-            // re-throw a new one. This approach simplifies the controller.
-            return false;
-        }
-        return true;
+        $gumdrop = new Gumdrop( $values );
+        $gumdrop->save();
+        $player->gumdrops()->attach($gumdrop);
+
+        return $gumdrop;
     }
 
     /**

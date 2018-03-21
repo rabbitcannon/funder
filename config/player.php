@@ -13,7 +13,6 @@ return [
     */
 
     "required" => [
-        "email"
     ]
 
 ];
