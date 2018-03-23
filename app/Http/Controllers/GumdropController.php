@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Eos\Common\Exceptions\EosException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -123,9 +124,14 @@ class GumdropController extends Controller
         // skip this if we're doing unit testing
         if( !app()->runningUnitTests() )
         {
-            $svc = new EosWalletService();
-            $response = $svc->fetchAccounts();
-            Log::info( json_encode( $response ) );
+            try
+            {
+                $svc = new EosWalletService();
+                $response = $svc->fetchAccounts();
+                Log::info( json_encode( $response ) );
+            }
+            catch (EosException $e)
+            { /* no op - if no WalletService configured, just continue */ }
         }
 
         return response()->json(['gumdrop' => $gumdrop], 200);

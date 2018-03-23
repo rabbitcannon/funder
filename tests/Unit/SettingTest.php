@@ -110,6 +110,7 @@ class SettingTest extends ApiTestCase
                            'pack' => ["gumdrop" => [ "color" => "blue"]] ]);
       $packs = SettingPack::inEffectiveOrder()->get();
       $this->assertNotEmpty( $packs );
+      Setting::clearCache();
     }
     
     public function test_we_can_get_current_color()
