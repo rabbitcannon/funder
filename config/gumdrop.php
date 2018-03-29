@@ -37,8 +37,33 @@ return [
                                    "effective" => "2018-01-01"
                                    ],
                                ]
-                           ]
-               ]
-          ]
+                           ],
+               'shapes' => ['type' => 'multigroup', 'extensible' => true,
+                    'fields' => [
+                        'color' => ['type'=>'enum','valid'=>['none','red','blue','yellow']],
+                        'shape' => ['type'=>'oneof', 'fields' => [
+                            'square' => ['type'=>'group','fields'=>[
+                                'centerX' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'centerY' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'sideLength' => ['type'=>'number','decimal'=>true,'value'=>1]
+                            ]],
+                            'circle' => ['type'=>'group','fields'=>[
+                                'centerX' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'centerY' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'radius' => ['type'=>'number','decimal'=>true,'value'=>1]
+                            ]],
+                            'ellipse' => ['type'=>'group','fields'=>[
+                                'focus1X' => ['type'=>'number','decimal'=>true,'value'=>-1],
+                                'focus1Y' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'focus2X' => ['type'=>'number','decimal'=>true,'value'=>1],
+                                'focus2Y' => ['type'=>'number','decimal'=>true,'value'=>0],
+                                'sumRadius' => ['type'=>'number','decimal'=>true,'value'=>1.5]
+                            ]]
+                        ]]
+                    ],
+                   'value' => []
+                ]
+             ]
+      ]
 
 ];
