@@ -17,7 +17,7 @@ return [
           "fields"=> [
                "color" => ["type"=>"text","value"=>"red"],
                "number" => ["type"=>"number","valid"=>["min"=>0,"max"=>1000000]],
-              "number2" => ["type"=>"number","valid"=>["min"=>0,"max"=>1000000]],
+               "number2" => ["type"=>"number","valid"=>["min"=>0,"max"=>1000000]],
                "count" => ["type"=>"number","value"=>1,"valid"=>["min"=>1,"max"=>10]],
                "notify" => ["type"=>"group",
                             "fields"=> [

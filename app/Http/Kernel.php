@@ -57,7 +57,9 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
-        'auth.key' => \App\Http\Middleware\ApiKeyCheckMiddleware::class,
+        'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
+        'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
+        'auth.key' => \Eos\Common\Http\Middleware\ApiKeyCheckMiddleware::class,
         'eos' => \Eos\Common\Http\Middleware\EOSAuthBinding::class,
     ];
 }

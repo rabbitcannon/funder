@@ -26,8 +26,8 @@ class GumdropController extends Controller
         // use the /oauth/token call to get the bearer token, see EOS API group
         // all EOS services *must* use the 'eos' middleware group to provide
         // transaction tracing and player/agent identification.
-        // for security, the 'client' middleware (oauth2) is strongly recommended
-        // but simple API key 'auth.key' may be used in some cases
+        // for security, the 'client' or 'scopes/scope' middleware (oauth2) is strongly
+        // recommended but simple API key 'auth.key' may be used in some cases
         $this->middleware(['client','eos']);
     }
 
@@ -126,9 +126,11 @@ class GumdropController extends Controller
         {
             try
             {
+                // this would normally be a class defined in Eos\Common.
+                // a very simple service wrapper is included here as an example.
                 $svc = new EosWalletService();
                 $response = $svc->fetchAccounts();
-                Log::info( json_encode( $response ) );
+                Log::info( "Test Wallet Response: " . json_encode( $response ) );
             }
             catch (EosException $e)
             { /* no op - if no WalletService configured, just continue */ }

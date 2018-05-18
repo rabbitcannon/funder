@@ -17,9 +17,10 @@
         "laravel/framework": "5.4.*",
         "laravel/passport": "^4.0",
         "laravel/tinker": "~1.0",
+        "mtdowling/cron-expression": "^1.2",
         "peekmo/jsonpath": "dev-master",
         "predis/predis": "^1.1",
-        "sciplay/eos-common": "dev-master"
+        "sciplay/eos-common": "dev-redis-trace"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

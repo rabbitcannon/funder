@@ -64,7 +64,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('TIMEZONE', 'America/New_York'),
 
     /*
     |--------------------------------------------------------------------------
@@ -147,7 +147,9 @@ return [
         'Bonusing Manager' => ['pingable' => true, 'configurable' => true],
         'LPS Issuer' => ['pingable' => true, 'configurable' => true],
         'SciPlay' => ['pingable' => true, 'configurable' => false],
-        'SciPlayALC' => ['pingable' => false, 'configurable' => false],       'EOS Lore' => ['pingable' => true, 'configurable' => true],
+        'SciPlayALC' => ['pingable' => false, 'configurable' => false],
+        'EOS Lore' => ['pingable' => true, 'configurable' => true],
+        'EOS EmCee' => ['pingable' => false, 'configurable' => false],
         'Winners Service' => ['pingable' => false, 'configurable' => false],
         'Game Consumer Service' => ['pingable' => false, 'configurable' => false],
         'EOS Wallet' => ['pingable' => true, 'configurable' => true],
