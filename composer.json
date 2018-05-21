@@ -20,7 +20,7 @@
         "mtdowling/cron-expression": "^1.2",
         "peekmo/jsonpath": "dev-master",
         "predis/predis": "^1.1",
-        "sciplay/eos-common": "dev-redis-trace"
+        "sciplay/eos-common": "v1.0.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
