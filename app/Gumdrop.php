@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Exception;
 use App\Player;
 
 // this class/file is for example only, and should be removed
@@ -32,7 +33,7 @@ class Gumdrop extends Model
      * @param $values - ['name', 'color']
      * @param $player - the Player to attach to
      * @return Gumdrop - if successful.
-     * @throws \Exception
+     * @throws Exception
      */
     static function createNewGumdropForPlayer( $values, Player $player )
     {

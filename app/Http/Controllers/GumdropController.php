@@ -3,18 +3,23 @@
 namespace App\Http\Controllers;
 
 use Eos\Common\Exceptions\EosException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Gumdrop;
 use Eos\Common\AuthPlayer;
-use App\Player;
 use App\EosWalletService;
 
 //
 // This entire controller, along with the Gumdrop and probably User model,
 // as well as corresponding migrations, should be removed in your service.
 // It is provided as an example only.
+//
+// A word about exception handling:
+// Note in this Controller code there is very little exception catching, and no explicit
+// JSON error returns. By and large we let exceptions go, and let Handler.php do the work.
+// Custom exceptions can be useful: see Exceptions/SampleException.php
 //
 class GumdropController extends Controller
 {
@@ -253,7 +258,8 @@ class GumdropController extends Controller
 
         //todo: add $auth_agent check - set authorized if agent was given in SPAT
         if( ! $authorized )
-        { return response()->json(['status' => 'Unauthorized player'],401); }
+        { throw new AuthenticationException(); }
+        // the throw will result in a 401 being returned in JSON
 
 
         $name = $request->get('name');
@@ -313,10 +319,8 @@ class GumdropController extends Controller
         { $authorized = true; }
         //todo: add $auth_agent check - set authorized if agent was given in SPAT
         if( ! $authorized )
-        { return response()->json(['status' => 'Unauthorized player'],401); }
+        { throw new AuthenticationException(); }
 
-        // this may throw - it's better just to let it, and have the Handler return
-        // the 500 response.
         $gumdrop->delete();
 
         return response()->json([]);
