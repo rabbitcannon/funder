@@ -9,19 +9,19 @@ return [
      |
      | This is the default setting of the eos services configuration as defined in the eos.php
      | schema definition.
+     | We need EmCee in order to make Scheduler notifications work.
+     | Wallet is provided mostly as an example, but we have a peer test embedded
+     | in the GumdropController just to demonstrate peer service auth and logging.
      */
     'services' => [
-        'check-processor' => [
-            'name' => 'Check Processor',
-            'class' => 'Eos\Common\CheckProcessorService',
+        'eos-emcee' => [
+            'name' => 'EOS EmCee',
             'connections' => [
                 'outbound' => [
-                    'url' => env('CP_BASE_URI'),
-                    'authentication' => 'oauth',
-                    'clientid' => env('CP_CLIENT_ID'),
-                    'clientsecret' => env('CP_CLIENT_SECRET'),
-                ],
-            ],
+                    'url' => env('MC_BASE_URI'),
+                    'authentication' => 'none'
+                ]
+            ]
         ],
         'eos-wallet' => [
             'name' => 'EOS Wallet',
