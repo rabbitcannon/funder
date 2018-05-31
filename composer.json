@@ -9,18 +9,17 @@
         "url": "http://mozart:wh2kylW1AemZ95@git.gamelogic.com/sciplay/eos-common"
     }],
     "require": {
-        "php": ">=5.6.4",
-        "csun-metalab/laravel-multiple-logs": "^1.0.1",
-        "darkaonline/l5-swagger": "^4.0",
+        "php": "^7.2",
+        "darkaonline/l5-swagger": "^5.6",
         "doctrine/dbal": "^2.5",
+        "dragonmantank/cron-expression": "^2.1",
         "guzzlehttp/guzzle": "^6.3",
-        "laravel/framework": "5.4.*",
+        "laravel/framework": "5.6.*",
         "laravel/passport": "^4.0",
         "laravel/tinker": "~1.0",
-        "mtdowling/cron-expression": "^1.2",
         "peekmo/jsonpath": "dev-master",
         "predis/predis": "^1.1",
-        "sciplay/eos-common": "v1.0.*"
+        "sciplay/eos-common": "dev-php7"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
@@ -49,12 +48,10 @@
             "php artisan key:generate"
         ],
         "post-install-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postInstall",
-            "php artisan optimize"
+            "Illuminate\\Foundation\\ComposerScripts::postInstall"
         ],
         "post-update-cmd": [
-            "Illuminate\\Foundation\\ComposerScripts::postUpdate",
-            "php artisan optimize"
+            "Illuminate\\Foundation\\ComposerScripts::postUpdate"
         ]
     },
     "config": {

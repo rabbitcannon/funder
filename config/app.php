@@ -142,20 +142,6 @@ return [
     'bonusing_url' => env('BONUSING_URL',''),
     'bonusing_client_id' => env( 'BONUSING_CLIENT_ID',''),
     'bonusing_client_secret' => env( 'BONUSING_CLIENT_SECRET',''),
-    'known_services' => [
-        'Bonusing Engine' => ['pingable' => true, 'configurable' => true],
-        'Bonusing Manager' => ['pingable' => true, 'configurable' => true],
-        'LPS Issuer' => ['pingable' => true, 'configurable' => true],
-        'SciPlay' => ['pingable' => true, 'configurable' => false],
-        'SciPlayALC' => ['pingable' => false, 'configurable' => false],
-        'EOS Lore' => ['pingable' => true, 'configurable' => true],
-        'EOS EmCee' => ['pingable' => false, 'configurable' => false],
-        'Winners Service' => ['pingable' => false, 'configurable' => false],
-        'Game Consumer Service' => ['pingable' => false, 'configurable' => false],
-        'EOS Wallet' => ['pingable' => true, 'configurable' => true],
-        'Check Processor' => ['pingable' => true, 'configurable' => true],
-        'EOS Base Service' => ['pingable' => true, 'configurable' => true]
-        ],
     /*
     |--------------------------------------------------------------------------
     | Autoloaded Service Providers
@@ -195,7 +181,6 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
-        CSUNMetaLab\MultipleLogs\Providers\LoggingServiceProvider::class,
         Eos\Common\EosCommonServiceProvider::class,
         /*
          * Package Service Providers...
@@ -261,8 +246,6 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-        'AuditLog' => CSUNMetaLab\MultipleLogs\Facades\AuditLog::class,
-        'AuthLog' => CSUNMetaLab\MultipleLogs\Facades\AuthLog::class,
     ],
 
 ];
