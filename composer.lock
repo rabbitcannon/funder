@@ -2404,7 +2404,7 @@
             "source": {
                 "type": "git",
                 "url": "http://mozart:wh2kylW1AemZ95@git.gamelogic.com/sciplay/eos-common",
-                "reference": "3824000a05e2c43de2b14f73d82e4fdcc7a346b5"
+                "reference": "3bfce7b3f21f42833a7b33256ac47b9db7e2c4de"
             },
             "require": {
                 "peekmo/jsonpath": "dev-master"
@@ -2430,7 +2430,7 @@
             ],
             "description": "Library to use EOS Common framework",
             "homepage": "http://git.gamelogic.com/sciplay/eos-common",
-            "time": "2018-05-31T16:56:25+00:00"
+            "time": "2018-06-01T13:50:59+00:00"
         },
         {
             "name": "swagger-api/swagger-ui",

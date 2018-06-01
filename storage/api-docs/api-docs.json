@@ -12,6 +12,245 @@
         "application/json"
     ],
     "paths": {
+        "/api/schema": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Return settings pack schema",
+                "operationId": "settingsSchema",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/api/settings": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Return settings",
+                "operationId": "getSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Accept settings",
+                "operationId": "postSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Settings JSON Data",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Delete settings",
+                "operationId": "deleteSettings",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/api/schedule": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "REQUIRED API FOR SERVICES: Return job schedule",
+                "operationId": "getSchedule",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/api/oauth/clients": {
+            "get": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "GET OAUTH CLIENTS: only used by eos-mc.",
+                "operationId": "getOauthClients",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/OauthClientResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "CREATE OAUTH CLIENT: only used by eos-mc.",
+                "operationId": "createOauthClient",
+                "parameters": [
+                    {
+                        "name": "apikey",
+                        "in": "query",
+                        "description": "required api key",
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Client Data",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OauthClientData"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "$ref": "#/definitions/OauthClientResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        },
+        "/oauth/token": {
+            "post": {
+                "tags": [
+                    "eos"
+                ],
+                "summary": "GET AN ACCESS TOKEN: You must know the client credentials id and secret.",
+                "operationId": "getClientCredentialsToken",
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "description": "Client Authorization",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/OauthGrantRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful",
+                        "schema": {
+                            "$ref": "#/definitions/OauthGrantResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "System error"
+                    }
+                }
+            }
+        },
         "/api/gumdrops": {
             "get": {
                 "tags": [
@@ -299,6 +538,219 @@
             "type": "object",
             "xml": {
                 "name": "Gumdrop"
+            }
+        },
+        "OauthGrantRequest": {
+            "required": [
+                "grant_type",
+                "client_id",
+                "client_secret",
+                "scope"
+            ],
+            "properties": {
+                "grant_type": {
+                    "description": "Grant type",
+                    "format": "string",
+                    "example": "client_credentials"
+                },
+                "client_id": {
+                    "description": "ID of the credentials client",
+                    "type": "string",
+                    "example": "2"
+                },
+                "client_secret": {
+                    "description": "credentials client secret",
+                    "type": "string",
+                    "example": "random-string"
+                },
+                "scope": {
+                    "description": "requested scopes",
+                    "type": "string",
+                    "example": "manage-keys view-credentials"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "OauthGrantRequest"
+            }
+        },
+        "OauthGrantResponse": {
+            "required": [
+                "access_token",
+                "refresh_token",
+                "expires_in"
+            ],
+            "properties": {
+                "access_token": {
+                    "description": "use as Bearer token",
+                    "format": "string",
+                    "example": "long-string"
+                },
+                "refresh_token": {
+                    "description": "use to refresh expired token",
+                    "type": "string",
+                    "example": "long-string"
+                },
+                "expires_in": {
+                    "description": "seconds until expiration",
+                    "type": "number",
+                    "example": "445632"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "OauthGrantResponse"
+            }
+        },
+        "OauthClientResponse": {
+            "required": [
+                "id",
+                "name",
+                "secret",
+                "redirect"
+            ],
+            "properties": {
+                "id": {
+                    "description": "client Id",
+                    "format": "number",
+                    "example": "3"
+                },
+                "name": {
+                    "description": "name of client",
+                    "format": "string",
+                    "example": "eos-wallet"
+                },
+                "secret": {
+                    "description": "client Secret",
+                    "type": "string",
+                    "example": "long-string"
+                },
+                "redirect": {
+                    "description": "client redirect url",
+                    "type": "string",
+                    "example": "http:url"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "OauthClientResponse"
+            }
+        },
+        "OauthClientData": {
+            "required": [
+                "name",
+                "redirect"
+            ],
+            "properties": {
+                "name": {
+                    "description": "name of client",
+                    "format": "string",
+                    "example": "eos-wallet"
+                },
+                "redirect": {
+                    "description": "client redirect url",
+                    "type": "string",
+                    "example": "http:url"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "OauthClientData"
+            }
+        },
+        "ServiceConfig": {
+            "required": [
+                "name",
+                "inbound",
+                "outbound"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of the service",
+                    "format": "string",
+                    "example": "Bonusing Manager"
+                },
+                "inbound": {
+                    "description": "All known connections to this service",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ConnectionConfig"
+                    }
+                },
+                "outbound": {
+                    "description": "All known connections from this service",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ConnectionConfig"
+                    }
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ServiceConfig"
+            }
+        },
+        "ServiceConfigResponse": {
+            "required": [
+                "status"
+            ],
+            "properties": {
+                "status": {
+                    "description": "Status return, ok or error",
+                    "format": "string",
+                    "example": "ok"
+                },
+                "config": {
+                    "description": "Summary of consumed configuration",
+                    "type": "string",
+                    "example": "{json string}"
+                },
+                "message": {
+                    "description": "Any error message",
+                    "type": "string",
+                    "example": "config failure"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ServiceConfigResponse"
+            }
+        },
+        "ConnectionConfig": {
+            "required": [
+                "name",
+                "url"
+            ],
+            "properties": {
+                "name": {
+                    "description": "Name of the service",
+                    "format": "string",
+                    "example": "Bonusing Engine"
+                },
+                "url": {
+                    "description": "URL of the service.",
+                    "format": "string",
+                    "example": "https://bonusing.pawtest.gamelogic.com"
+                },
+                "client_id": {
+                    "description": "Oauth client ID.",
+                    "format": "string",
+                    "example": 3
+                },
+                "client_secret": {
+                    "description": "Oauth client secret.",
+                    "format": "string",
+                    "example": "34fcssec3w"
+                },
+                "client_callback": {
+                    "description": "Oauth client redirect url.",
+                    "format": "string",
+                    "example": "http://my.client/callback"
+                }
+            },
+            "type": "object",
+            "xml": {
+                "name": "ConnectionConfig"
             }
         }
     },
