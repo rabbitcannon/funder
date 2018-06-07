@@ -41,7 +41,7 @@ abstract class ApiTestCase extends TestCase
         ]);
     }
 
-    public function withoutMiddleware(array $middleware = [])
+    public function withoutMiddleware($middleware = [])
     {
         if (empty($middleware)) {
             return parent::withoutMiddleware();
