@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Eos\Common\SettingsSchema;
 use Eos\Common\SettingPack;
 use Eos\Common\Setting;
+use Eos\Common\Exceptions\SettingException;
 
 class SettingTest extends ApiTestCase
 {
@@ -20,35 +21,26 @@ class SettingTest extends ApiTestCase
     public function test_we_can_validate_schema()
     {
       print( 'test_we_can_validate_schema' . PHP_EOL );
-      try 
-      {
-          SettingsSchema::validate();
-      }
-      catch (Exception $e)
-      {
-          $this->assertTrue(false, "Unexpected exception {$e->getMessage()}");
-      }
+      $this->expectNotToPerformAssertions();
+       SettingsSchema::validate();
     }
     
     public function test_we_can_fail_schema_scalar()
     {
       print( 'test_we_can_fail_schema_scalar' . PHP_EOL );
-      try
-      {
-        SettingsSchema::validate( ['scalar_element' => ['type' => 'number', 'bogus' => ''] ]);
-        $this->fail("Expected exception not thrown");
-      }
-      catch (Exception $e)
-      {
-        print( 'Expected Exception: ' . $e->getMessage() . PHP_EOL );
-      }
+      $this->expectException(SettingException::class);
+
+      SettingsSchema::validate( ['scalar_element' => ['type' => 'number', 'bogus' => ''] ]);
+      $this->fail("Expected exception not thrown");
+
     }
     
     public function test_we_can_fail_schema_groups()
     {
       print( 'test_we_can_fail_schema_groups' . PHP_EOL );
-      try
-      {
+      $this->expectException(Exception::class);
+      $this->withoutExceptionHandling();
+
         SettingsSchema::validate( [
              'schema' => ['type' => 'group',
                  'fields' => [
@@ -72,18 +64,14 @@ class SettingTest extends ApiTestCase
                  ]
              ] ] );
         $this->fail("Expected exception not thrown");
-      }
-      catch (Exception $e)
-      {
-        print( 'Expected Exception: ' . $e->getMessage() . PHP_EOL);
-      }
+
     }
     
     public function test_we_can_get_schema()
     {
       print( 'test_we_can_get_schema' . PHP_EOL );
       $schema = SettingsSchema::get();
-      $this->assertJson(json_encode($schema),['eos','gumdrop']);
+      $this->assertJson(json_encode($schema),json_encode(['eos','gumdrop']));
     }
     
     public function test_we_can_get_default_values()
@@ -97,29 +85,32 @@ class SettingTest extends ApiTestCase
     {
       print( 'test_we_can_get_effective_packs' . PHP_EOL );
       $packs = SettingPack::inEffectiveOrder()->get();
-      $this->assertEmpty( $packs );
+      $this->assertEquals( $packs->count(), 1 ); // the 1 default pack added by the seeder
     }
     
     public function test_we_can_set_current_pack()
     {
       print( 'test_we_can_set_current_pack' . PHP_EOL );
-      $start = (new Carbon())->subMinute(10);
+      $start = new Carbon();
       $end = (new Carbon())->addHour();  //give us time to use it before it expires
       SettingPack::create(['quantum_start' => $start->timestamp,
                            'quantum_end' => $end->timestamp,
                            'pack' => ["gumdrop" => [ "color" => "blue"]] ]);
       $packs = SettingPack::inEffectiveOrder()->get();
-      $this->assertNotEmpty( $packs );
-      Setting::clearCache();
+      $this->assertEquals( $packs->count(), 2 );
+
     }
     
     public function test_we_can_get_current_color()
     {
       print( 'test_we_can_get_current_color' . PHP_EOL );
+      Setting::clearCache();
       $color = Setting::get('gumdrop.color');
       $this->assertEquals('blue', $color);
+
       $this->assertTrue( cache()->has( Setting::getCacheKey() ) );
       $cached = json_decode( cache()->get( Setting::getCacheKey() ) );
+
       $this->assertEquals('blue', $cached->gumdrop->color);
     }
 
@@ -132,10 +123,10 @@ class SettingTest extends ApiTestCase
 
     public function test_we_can_change_gumdrop_setting()
     {
-      print( 'test_we_can_change_gumdrop_setting' . PHP_EOL );
-      Setting::set('gumdrop.color', 'green');
-      $color = Setting::get('gumdrop.color');
-      $this->assertEquals('green', $color);
+        print( 'test_we_can_change_gumdrop_setting' . PHP_EOL );
+        Setting::set('gumdrop.color', 'green');
+        $color = Setting::get('gumdrop.color');
+        $this->assertEquals('green', $color);
     }
 }
     

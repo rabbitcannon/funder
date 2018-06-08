@@ -26,7 +26,8 @@ class UpdateUsersPasswordField extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('password',32)->change();
+            //revert won't work here because we already have strings longer than 32
+            //$table->string('password',32)->change();
         });
     }
 }

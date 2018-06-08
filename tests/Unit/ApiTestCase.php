@@ -2,6 +2,8 @@
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Artisan;
 
 class NullMiddleware
 {
@@ -13,7 +15,9 @@ class NullMiddleware
 
 abstract class ApiTestCase extends TestCase
 {
+
     protected static $client;
+    protected static $hasMigrated = false;
 
     /**
      * Note that tests derived from ApiTestCase will use .env.testing by default.
@@ -23,10 +27,25 @@ abstract class ApiTestCase extends TestCase
     public static function setUpBeforeClass()
     {
       parent::setUpBeforeClass();
-
-      exec('php artisan migrate:reset --env=testing');
-      exec('php artisan migrate --env=testing');
     }
+
+    /**
+     * We are choosing a policy of persisting the database throughout a testing class. We will migrate/seed only once,
+     * at the beginning of the first test.
+     */
+    public function setUp()
+    {
+        parent::setUp();
+        if(! self::$hasMigrated)
+        {
+            Artisan::call('migrate:reset');
+            Artisan::call('migrate');
+            Artisan::call('db:seed');
+            self::$hasMigrated = true;
+        }
+
+    }
+
 
     /**
      * This must be called at the top of EACH unit test that interacts with an EOS API
@@ -41,16 +60,4 @@ abstract class ApiTestCase extends TestCase
         ]);
     }
 
-    public function withoutMiddleware($middleware = [])
-    {
-        if (empty($middleware)) {
-            return parent::withoutMiddleware();
-        }
-
-        foreach ($middleware as $abstract) {
-            $this->app->instance($abstract, new NullMiddleware);
-        }
-
-        return $this;
-    }
 }
