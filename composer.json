@@ -19,7 +19,8 @@
         "laravel/tinker": "~1.0",
         "peekmo/jsonpath": "dev-master",
         "predis/predis": "^1.1",
-        "sciplay/eos-common": "dev-php7"
+        "sciplay/eos-common": "dev-php7",
+        "zircote/swagger-php": "2.*"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
