@@ -6,4 +6,9 @@
 @import "variables";
 
 // Bootstrap
-@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+//@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+
+//foundation
+@import "node_modules/foundation-sites/scss/foundation";
+@import "settings";
+@include foundation-everything(true);

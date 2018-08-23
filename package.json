@@ -19,5 +19,8 @@
         "lodash": "^4.17.4",
         "react": "^16.2.0",
         "react-dom": "^16.2.0"
+    },
+    "dependencies": {
+        "foundation-sites": "^6.5.0-rc.2"
     }
 }
