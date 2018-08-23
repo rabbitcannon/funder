@@ -25,7 +25,7 @@ return [
         ],
         'eos-wallet' => [
             'name' => 'EOS Wallet',
-            'class' => 'App\EosWalletService', /*todo: replace with Eos\Common service */
+            'class' => 'Eos\Common\WalletService',
             'connections' => [
                 'outbound' => [
                     'url' => env('WALLET_BASE_URI'),
@@ -35,6 +35,19 @@ return [
                 ],
             ],
         ],
+        'interactivecore' => [
+            'name' => 'InteractiveCore',
+            'class' => 'Eos\Common\InteractiveCoreService',
+            'connections' => [
+                'outbound' => [
+                    'url' => env('ICORE_BASE_URI'),
+                    'authentication' => 'apikey',
+                    'apikey'=> env('ICORE_API_KEY'),
+                    'apisecret' => env('ICORE_API_SECRET'),
+                ],
+            ]
+        ]
     ]
+
 ];
 

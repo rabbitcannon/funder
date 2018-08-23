@@ -17,11 +17,6 @@ use Illuminate\Http\Request;
 Route::group(['namespace'=>'App\Http\Controllers'],function() {
 
 
- /*   Route::middleware('auth:api')->get('/user', function (Request $request) {
-        return $request->user();
-    });
-*/
-    Route::resource('gumdrops', 'GumdropController');
-    Route::get('/players/gumdrops', 'GumdropController@gumdropsForPlayer');
-
+    Route::post('/funding/login', 'FundingController@login');
+    Route::get('/funding', 'FundingController@getFunding');
 });
