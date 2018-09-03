@@ -1,0 +1,51 @@
+@import "variables";
+
+html, body {
+  font-family: 'Roboto', sans-serif;
+
+  a {
+    color: $pink;
+    font-family: Verdana, sans-serif;
+    font-weight: 400;
+
+    &:hover {
+      color: #F9637B;
+    }
+  }
+}
+
+.top-bar {
+  &.top-bar ul {
+    background-color: $med-gray;
+  }
+
+  &.margin {
+    margin-bottom: 3%;
+    background-color: $med-gray;
+  }
+
+  ul {
+    &.menu {
+      li {
+        text-transform: uppercase;
+
+        &.menu-text {
+          &.title {
+            border-right: 1px $silver solid;
+            color: $silver;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            font-size: 1.1em;
+          }
+        }
+      }
+    }
+  }
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

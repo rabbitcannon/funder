@@ -44,9 +44,11 @@ class FundingController extends Controller
             'email' => 'required|email',
             'password' => 'required',
             'registrar_id' => 'required'
-            ]);
+        ]);
+
         $icore = new InteractiveCoreService();
         $auth = $icore->loginPlayer( $request->input('email'), $request->input('password') );
+dd("test");
         if( $auth['code'] != 200)
         { throw new FundingException('_AUTHERROR',['message' => $auth['message']] ); }
 

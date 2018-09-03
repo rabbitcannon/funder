@@ -1,6 +1,8 @@
 
 // Fonts
 @import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
+@import url("https://fonts.googleapis.com/css?family=Roboto:300,400,600");
+@import url("https://fonts.googleapis.com/css?family=Oswald:300,400,600");
 
 // Variables
 @import "variables";
@@ -11,4 +13,5 @@
 //foundation
 @import "node_modules/foundation-sites/scss/foundation";
 @import "settings";
+@import "extended";
 @include foundation-everything(true);
