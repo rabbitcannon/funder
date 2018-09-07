@@ -16,7 +16,7 @@ class Header extends Component {
 				<div className="top-bar-right">
 					<ul className="menu">
 						<li>
-							<a href="#">Logout</a>
+							[ <a href="#">Logout</a> ]
 						</li>
 					</ul>
 				</div>

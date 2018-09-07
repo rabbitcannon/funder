@@ -26,6 +26,16 @@ My Variables
 My Variables
  */
 
+/**
+  Table of Contents
+  ------------------------
+  CS01 - General Items
+  CS02 - Menu Elements
+**/
+
+/** CS01 General Items
+ ===================== **/
+
 html,
 body {
   font-family: 'Roboto', sans-serif;
@@ -42,6 +52,18 @@ html a:hover,
 body a:hover {
   color: #F9637B;
 }
+
+.login {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  width: 400px;
+}
+
+/** CS02 Menu Items
+ ===================== **/
 
 .top-bar.top-bar ul {
   background-color: #282828;
@@ -62,14 +84,6 @@ body a:hover {
   font-family: 'Oswald', sans-serif;
   font-weight: 500;
   font-size: 1.1em;
-}
-
-.centered {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
 }
 
 /*! normalize.css v8.0.0 | MIT License | github.com/necolas/normalize.css */

@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import "babel-polyfill";
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
 
-import Header from './layout/Header';
-import FundingIndex from './funding/index';
+import Header from "./layout/Header";
+import FundingIndex from "./funding/index";
 
 export default class Entrypoint extends Component {
     render() {

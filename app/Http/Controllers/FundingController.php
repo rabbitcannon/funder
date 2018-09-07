@@ -38,7 +38,7 @@ class FundingController extends Controller
      *   @SWG\Response(response=550, description="Failed login exception")
      *  )
      **/
-    public function login( Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -83,6 +83,7 @@ class FundingController extends Controller
             $match_player->save();
             $player = $match_player;
         }
+//        dd($player);
         return response()->json($player);
     }
 

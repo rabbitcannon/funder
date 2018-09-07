@@ -15,32 +15,37 @@
     </head>
 <body>
 
-    @if(!Auth::check())
+    @if(Auth::check())
         <div id="app"></div>
+        <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
     @else
-        <div class="centered">
-            <form action="/api/funding/login" method="post">
-                <div class="card" style="width: 400px;">
-                    <div class="card-divider">
-                        Login
-                    </div>
-                    <div class="card-section">
-                        <label>Email Address
-                            <input type="text" placeholder="Email">
-                        </label>
-                        <label>Password
-                            <input type="password" placeholder="Password">
-                        </label>
-                        <div class="text-right">
-                            <input type="submit" class="button" value="Login">
-                        </div>
-                    </div>
-                </div>
-            </form>
-        </div>
+        <div id="login-form"></div>
+        <script type="text/javascript" src="{!! asset('js/LoginForm.js') !!}"></script>
+
+        {{--<div class="centered">--}}
+            {{--<form action="/api/funding/login" method="post">--}}
+                {{--<div class="card" style="width: 400px;">--}}
+                    {{--<div class="card-divider">--}}
+                        {{--Login--}}
+                    {{--</div>--}}
+                    {{--<div class="card-section">--}}
+                        {{--<label>Email Address--}}
+                            {{--<input type="text" name="email" placeholder="Email">--}}
+                        {{--</label>--}}
+                        {{--<input type="hidden" name="registrar_id" value="1">--}}
+                        {{--<label>Password--}}
+                            {{--<input type="password" name="password" placeholder="Password">--}}
+                        {{--</label>--}}
+                        {{--<div class="text-right">--}}
+                            {{--<input type="submit" class="button" value="Login">--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
+                {{--</div>--}}
+            {{--</form>--}}
+        {{--</div>--}}
     @endif
 
-    <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
+    {{--<script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>--}}
 
 </body>
 </html>
