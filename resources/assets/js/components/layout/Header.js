@@ -1,6 +1,12 @@
 import React, {Component} from "react";
 
 class Header extends Component {
+	handleLogout = () => {
+		localStorage.clear();
+		sessionStorage.clear();
+		location.reload();
+	}
+
     render() {
         return (
 			<div className="top-bar margin">
@@ -14,9 +20,9 @@ class Header extends Component {
 					</ul>
 				</div>
 				<div className="top-bar-right">
-					<ul className="menu">
+					<ul className="menu __logout">
 						<li>
-							[ <a href="#">Logout</a> ]
+							<a href="#" onClick={this.handleLogout.bind(this)}>Logout</a>
 						</li>
 					</ul>
 				</div>

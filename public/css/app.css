@@ -65,6 +65,10 @@ body a:hover {
 /** CS02 Menu Items
  ===================== **/
 
+.top-bar {
+  color: #CCC;
+}
+
 .top-bar.top-bar ul {
   background-color: #282828;
 }
@@ -72,6 +76,10 @@ body a:hover {
 .top-bar.margin {
   margin-bottom: 3%;
   background-color: #282828;
+}
+
+.top-bar ul.menu.__logout {
+  font-size: .85em;
 }
 
 .top-bar ul.menu li {

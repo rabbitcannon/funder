@@ -15,12 +15,14 @@
     </head>
 <body>
 
-    @if(Auth::check())
-        <div id="app"></div>
-        <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
-    @else
-        <div id="login-form"></div>
-        <script type="text/javascript" src="{!! asset('js/LoginForm.js') !!}"></script>
+    <div id="app"></div>
+    <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
+    {{--@if(Auth::check())--}}
+        {{--<div id="app"></div>--}}
+        {{--<script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>--}}
+    {{--@else--}}
+        {{--<div id="login-form"></div>--}}
+        {{--<script type="text/javascript" src="{!! asset('js/LoginForm.js') !!}"></script>--}}
 
         {{--<div class="centered">--}}
             {{--<form action="/api/funding/login" method="post">--}}
@@ -43,7 +45,7 @@
                 {{--</div>--}}
             {{--</form>--}}
         {{--</div>--}}
-    @endif
+    {{--@endif--}}
 
     {{--<script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>--}}
 

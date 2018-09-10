@@ -35,6 +35,8 @@ html, body {
 /** CS02 Menu Items
  ===================== **/
 .top-bar {
+  color: $silver;
+
   &.top-bar ul {
     background-color: $med-gray;
   }
@@ -46,6 +48,10 @@ html, body {
 
   ul {
     &.menu {
+      &.__logout {
+        font-size: .85em;
+      }
+
       li {
         text-transform: uppercase;
 
