@@ -35959,7 +35959,7 @@ var EntryPoint = function (_Component) {
 				this.state.playerData.push(response.data);
 				this.setState({
 					loggedIn: true
-				}, console.log(this.state.playerData[0]));
+				}, console.log(this.state.playerData));
 			}.bind(_this)).catch(function (error) {
 				console.log(error);
 			});
@@ -60999,9 +60999,14 @@ var LoginForm = function (_React$Component) {
 								"label",
 								null,
 								"Email Address",
-								_react2.default.createElement("input", { type: "text", name: "email", placeholder: "Email", defaultValue: "larry.morris@scientificgames.com" })
+								_react2.default.createElement("input", { type: "text", name: "email", placeholder: "Email" })
 							),
-							_react2.default.createElement("input", { type: "hidden", name: "registrar_id", value: "1" }),
+							_react2.default.createElement(
+								"label",
+								null,
+								"Registrar ID",
+								_react2.default.createElement("input", { type: "text", name: "registrar_id", placeholder: "ID" })
+							),
 							_react2.default.createElement(
 								"label",
 								null,
