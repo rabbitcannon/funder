@@ -60948,6 +60948,7 @@ var Header = function (_Component) {
 		value: function render() {
 			var data = JSON.parse(this.state.playerData);
 			var player = data.player;
+			var cashBalance = parseFloat(player.cashbalancepence).toFixed(2);
 
 			return _react2.default.createElement(
 				"div",
@@ -60993,7 +60994,7 @@ var Header = function (_Component) {
 							"li",
 							{ className: "menu-text" },
 							"Balance: $",
-							player.cashbalancepence
+							cashBalance
 						),
 						_react2.default.createElement(
 							"li",

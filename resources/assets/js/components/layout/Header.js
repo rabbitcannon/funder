@@ -16,6 +16,7 @@ class Header extends Component {
     render() {
 		let data = JSON.parse(this.state.playerData);
 		let player = data.player;
+		let cashBalance = parseFloat(player.cashbalancepence).toFixed(2);
 
         return (
 			<div className="top-bar margin">
@@ -30,7 +31,7 @@ class Header extends Component {
 				</div>
 				<div className="top-bar-right">
 					<ul className="menu __logout">
-						<li className="menu-text">Balance: ${player.cashbalancepence}</li>
+						<li className="menu-text">Balance: ${cashBalance}</li>
 						<li className="menu-text">Hi, {player.firstname}!</li>
 						<li>
 							<a href="#" onClick={this.handleLogout.bind(this)}>Logout</a>
