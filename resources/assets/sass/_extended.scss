@@ -1,17 +1,25 @@
 @import "variables";
+@import "mixins";
 
 /**
   Table of Contents
   ------------------------
   CS01 - General Items
   CS02 - Menu Elements
+  CS03 - Form Elements
+  CS03 - Card Elements
 **/
 
 
 /** CS01 General Items
  ===================== **/
 html, body {
-  font-family: 'Roboto', sans-serif;
+  background-image: url('../../assets/images/bg.jpg');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: 100%;
+  background-size: cover;
+  height:100%;
 
   a {
     color: $pink;
@@ -24,18 +32,42 @@ html, body {
   }
 }
 
+footer {
+  &.__url {
+    bottom: 0;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+  }
+}
+
 .login {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
+
+  span {
+    &.error-msg {
+      color: $error;
+    }
+  }
+}
+
+#login-form {
+  -webkit-box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
+  -moz-box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
+  box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
 }
 
 /** CS02 Menu Items
  ===================== **/
 .top-bar {
   color: $silver;
+  -webkit-box-shadow: 0 10px 32px 0 rgba(0,0,0,0.75);
+  -moz-box-shadow: 0 10px 32px 0 rgba(0,0,0,0.75);
+  box-shadow: 0 10px 32px 0 rgba(0,0,0,0.75);
 
   &.top-bar ul {
     background-color: $med-gray;
@@ -50,6 +82,10 @@ html, body {
     &.menu {
       &.__logout {
         font-size: .85em;
+
+        .menu-text {
+          text-transform: capitalize;
+        }
       }
 
       li {
@@ -69,3 +105,40 @@ html, body {
   }
 }
 
+/** CS03 Form Items
+ ===================== **/
+
+.button {
+  @include border-radius(5px);
+
+  background-color: $med-gray;
+  color: $pink;
+  font-family: Verdana, sans-serif;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &:hover {
+    background-color: #474747;
+    color: $light-pink;
+  }
+
+  &:active {
+    background-color: $med-gray;
+    color: $pink;
+  }
+}
+
+/** CS04 Card Items
+ ===================== **/
+.card {
+  @include border-radius(5px);
+  border: 0;
+}
+
+.card-divider {
+  background: $med-gray;
+  color: $pink;
+  font-weight: 400;
+  font-family: 'Roboto', sans-serif;
+  text-transform: uppercase;
+}

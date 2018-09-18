@@ -5,13 +5,16 @@
 @import url("https://fonts.googleapis.com/css?family=Oswald:300,400,600");
 
 // Variables
-@import "variables";
+//@import "variables";
 
 // Bootstrap
 //@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
 
 //foundation
 @import "node_modules/foundation-sites/scss/foundation";
+@import "node_modules/animate.css/animate.min";
+@include foundation-everything(true);
+
 @import "settings";
 @import "extended";
-@include foundation-everything(true);
+@import "preloaders";

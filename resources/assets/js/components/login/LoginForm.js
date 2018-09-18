@@ -9,16 +9,25 @@ class LoginForm extends React.Component {
 	}
 
     render() {
+		const styles ={
+			center: {
+				textAlign: 'center'
+			}
+		}
+
         return (
 			<div className="login">
 				<form action="/api/funding/login" method="post" onSubmit={this.props.handleSubmit.bind(this)}>
-					<div className="card">
+					<div id="login-form" className="card">
 						<div className="card-divider">
-							Login {this.props.auth}
+							Login
 						</div>
 						<div className="card-section">
+							<div style={styles.center}>
+								<span className="error-msg"><small>{this.props.errorMessage}</small></span>
+							</div>
 							<label>Email Address
-								<input type="text" name="email" placeholder="Email" />
+								<input type="text" name="email" placeholder="Email" defaultValue="larry.morris@scientificgames.com" />
 							</label>
 
 							<label>Registrar ID
@@ -28,8 +37,13 @@ class LoginForm extends React.Component {
                             <label>Password
                                 <input type="password" name="password" placeholder="Password" />
                             </label>
-                            <div className="text-right">
-                                <input type="submit" className="button" value="Login" />
+                            <div className="grid-x grid-margin-x">
+								<div className="cell small-6 text-right">
+									<input type="submit" className="button small" value="Login" />
+								</div>
+								<div className="cell small-6">
+									<input type="reset" className="button small" value="Reset" />
+								</div>
                             </div>
 						</div>
 					</div>

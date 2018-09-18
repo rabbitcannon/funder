@@ -10,7 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
-Route::get('/', function () {
-    return view('index');
+Route::group(['namespace'=>'App\Http\Controllers'],function() {
+    Route::get('/', 'ViewController@index');
 });

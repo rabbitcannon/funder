@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Eos\Common\Exceptions\EosException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Exception;
-use Eos\Common\AuthPlayer;
 use Eos\Common\WalletService;
 use App\Player;
 use App\Exceptions\FundingException;
@@ -83,8 +79,18 @@ class FundingController extends Controller
             $match_player->save();
             $player = $match_player;
         }
-//        dd($player);
-        return response()->json($player);
+
+//        $ws = new WalletService();
+//        $accounts = $ws->getAccounts($player);
+//        $funding = $ws->getFundingOptions($player);
+
+        return response()->json([
+            'player' => $player,
+//            'accounts' => $accounts,
+//            'funding' => $funding
+        ]);
+
+//        return response()->json($player);
     }
 
     /**

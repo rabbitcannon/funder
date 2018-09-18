@@ -15,39 +15,32 @@
     </head>
 <body>
 
-    <div id="app"></div>
-    <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
-    {{--@if(Auth::check())--}}
-        {{--<div id="app"></div>--}}
-        {{--<script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>--}}
-    {{--@else--}}
-        {{--<div id="login-form"></div>--}}
-        {{--<script type="text/javascript" src="{!! asset('js/LoginForm.js') !!}"></script>--}}
+    <div>
+        <div class="container"></div>
 
-        {{--<div class="centered">--}}
-            {{--<form action="/api/funding/login" method="post">--}}
-                {{--<div class="card" style="width: 400px;">--}}
-                    {{--<div class="card-divider">--}}
-                        {{--Login--}}
-                    {{--</div>--}}
-                    {{--<div class="card-section">--}}
-                        {{--<label>Email Address--}}
-                            {{--<input type="text" name="email" placeholder="Email">--}}
-                        {{--</label>--}}
-                        {{--<input type="hidden" name="registrar_id" value="1">--}}
-                        {{--<label>Password--}}
-                            {{--<input type="password" name="password" placeholder="Password">--}}
-                        {{--</label>--}}
-                        {{--<div class="text-right">--}}
-                            {{--<input type="submit" class="button" value="Login">--}}
-                        {{--</div>--}}
-                    {{--</div>--}}
-                {{--</div>--}}
-            {{--</form>--}}
-        {{--</div>--}}
-    {{--@endif--}}
+        <div class="main">
+            <div id="app"></div>
+            <script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>
+        </div>
+    </div>
 
-    {{--<script type="text/javascript" src="{!! asset('js/app.js') !!}"></script>--}}
+    <footer class="__url">
+        <div id="preloader">
+            <div id="status">&nbsp;</div>
+        </div>
 
+        <script>
+            $(window).on('load', function() {
+                $('#status').fadeOut();
+                $('#preloader').delay(350).fadeOut('slow');
+                $('.container').css('display', 'block');
+                $('body').delay(350).css({'overflow':'visible'});
+            });
+        </script>
+
+        <small>
+            Logging into: {{ $url }}
+        </small>
+    </footer>
 </body>
 </html>
