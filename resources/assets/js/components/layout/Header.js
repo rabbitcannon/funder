@@ -4,7 +4,9 @@ class Header extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {playerData: this.props.playerData || {}}
+		this.state = {
+			playerData: this.props.playerData || {}
+		}
 	}
 
 	handleLogout = () => {
@@ -24,9 +26,9 @@ class Header extends Component {
 					<ul className="menu">
 						<li className="menu-text title">Funder</li>
 						<li>
-							<a href="#">Deposit</a>
+							<a onClick={() => this.props.setPage("deposits")}>Deposit</a>
 						</li>
-						<li><a href="#">Accounts</a></li>
+						<li><a onClick={() => this.props.setPage("accounts")}>Accounts</a></li>
 					</ul>
 				</div>
 				<div className="top-bar-right">

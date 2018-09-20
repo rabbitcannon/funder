@@ -27,7 +27,13 @@ html, body {
     font-weight: 400;
 
     &:hover {
-      color: #F9637B;
+      color: $light-pink;
+    }
+    &:active {
+      color: $light-pink;
+    }
+    &:focus {
+      color: $light-pink;
     }
   }
 }
@@ -125,6 +131,11 @@ footer {
   &:active {
     background-color: $med-gray;
     color: $pink;
+  }
+
+  &:focus {
+    background-color: $med-gray;
+    color: $light-pink;
   }
 }
 

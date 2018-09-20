@@ -2,7 +2,7 @@ import "babel-polyfill";
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
 
-import FundingIndex from "./funding/Index";
+import Index from "./layout/Index";
 import LoginForm from "./login/LoginForm";
 import Axios from "axios";
 
@@ -13,7 +13,7 @@ class EntryPoint extends Component {
         this.state ={
         	loggedIn: false,
 			errorMessage: '',
-			player: sessionStorage.getItem('playerData') || {}
+			player: sessionStorage.getItem('playerData') || {},
         }
     }
 
@@ -27,7 +27,8 @@ class EntryPoint extends Component {
 
 	handleSubmit = (event) => {
 		event.preventDefault();
-
+		$('#login-btn').html('Logging In <img src="../../images/loaders/loader_pink_15.svg" />');
+		$('#reset-btn').hide();
 		let $error = $('span.error-msg');
 
 		this.setState({errorMessage: ''});
@@ -40,6 +41,7 @@ class EntryPoint extends Component {
 			registrar_id: $('[name="registrar_id"]').val()
 		}).then((response) => {
 			let results = JSON.stringify(response.data);
+			console.log(results)
 			sessionStorage.setItem('playerData', results);
 			this.setState({
 				loggedIn: true,
@@ -50,6 +52,8 @@ class EntryPoint extends Component {
 			this.setState({
 				errorMessage: "Error logging in, please try again."
 			});
+			$('#login-btn').html('Login');
+			$('#reset-btn').show();
 			$error.addClass('animated fadeIn');
 		});
 	}
@@ -66,7 +70,7 @@ class EntryPoint extends Component {
     renderProfilePanel = () => {
 		return (
 			<div>
-				<FundingIndex playerData={this.state.player} />
+				<Index playerData={this.state.player} />
 			</div>
 		);
     }

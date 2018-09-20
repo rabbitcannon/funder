@@ -11777,7 +11777,17 @@ body a {
 
 html a:hover,
 body a:hover {
-  color: #F9637B;
+  color: #F6627A;
+}
+
+html a:active,
+body a:active {
+  color: #F6627A;
+}
+
+html a:focus,
+body a:focus {
+  color: #F6627A;
 }
 
 footer.__url {
@@ -11864,6 +11874,11 @@ footer.__url {
 .button:active {
   background-color: #282828;
   color: #EC5E75;
+}
+
+.button:focus {
+  background-color: #282828;
+  color: #F6627A;
 }
 
 /** CS04 Card Items

@@ -38,11 +38,15 @@ class LoginForm extends React.Component {
                                 <input type="password" name="password" placeholder="Password" />
                             </label>
                             <div className="grid-x grid-margin-x">
-								<div className="cell small-6 text-right">
-									<input type="submit" className="button small" value="Login" />
-								</div>
-								<div className="cell small-6">
-									<input type="reset" className="button small" value="Reset" />
+								<div className="cell small-12 text-center">
+									<button type="submit" id="login-btn" className="button small">
+										Login
+									</button>&nbsp;
+								{/*</div>*/}
+								{/*<div className="cell small-6">*/}
+									<button type="reset" id="reset-btn" className="button small">
+										Reset
+									</button>
 								</div>
                             </div>
 						</div>

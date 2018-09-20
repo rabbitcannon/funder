@@ -80,14 +80,14 @@ class FundingController extends Controller
             $player = $match_player;
         }
 
-//        $ws = new WalletService();
-//        $accounts = $ws->getAccounts($player);
-//        $funding = $ws->getFundingOptions($player);
+        $ws = new WalletService();
+        $accounts = $ws->getAccounts($player);
+        $funding = $ws->getFundingOptions($player);
 
         return response()->json([
             'player' => $player,
-//            'accounts' => $accounts,
-//            'funding' => $funding
+            'accounts' => $accounts,
+            'funding' => $funding
         ]);
 
 //        return response()->json($player);
