@@ -1,7 +1,9 @@
 import "babel-polyfill";
 import React, {Component} from "react";
+import {faSignInAlt, faTimesCircle} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
-class LoginForm extends React.Component {
+class LoginForm extends Component {
 	constructor(props) {
 		super(props);
 
@@ -16,7 +18,7 @@ class LoginForm extends React.Component {
 		}
 
         return (
-			<div className="login">
+			<div className="login animated fadeIn">
 				<form action="/api/funding/login" method="post" onSubmit={this.props.handleSubmit.bind(this)}>
 					<div id="login-form" className="card">
 						<div className="card-divider">
@@ -40,12 +42,10 @@ class LoginForm extends React.Component {
                             <div className="grid-x grid-margin-x">
 								<div className="cell small-12 text-center">
 									<button type="submit" id="login-btn" className="button small">
-										Login
+										Login <FontAwesomeIcon icon={faSignInAlt} />
 									</button>&nbsp;
-								{/*</div>*/}
-								{/*<div className="cell small-6">*/}
 									<button type="reset" id="reset-btn" className="button small">
-										Reset
+										Reset <FontAwesomeIcon icon={faTimesCircle} />
 									</button>
 								</div>
                             </div>

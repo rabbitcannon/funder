@@ -1,3 +1,7 @@
+//@import "./fontawesome/scss/fontawesome";
+//@import "./fontawesome/scss/solid";
+//@import "./fontawesome/scss/brands";
+
 @import "variables";
 @import "mixins";
 
@@ -27,7 +31,14 @@ html, body {
     font-weight: 400;
 
     &:hover {
+      //@extend %fa-icon;
+      //@extend .fas;
+
       color: $light-pink;
+
+      //&:before {
+      //  content: fa-content($fa-var-caret-right);
+      //}
     }
     &:active {
       color: $light-pink;
@@ -35,16 +46,27 @@ html, body {
     &:focus {
       color: $light-pink;
     }
+
+    span {
+      color: $silver;
+    }
   }
 }
 
 footer {
   &.__url {
     bottom: 0;
-    position: absolute;
     text-align: center;
     width: 100%;
   }
+}
+
+#content {
+  @include border-radius(5px);
+
+  background-color: $white;
+  border: 1px solid #ccc;
+  padding: 25px 15px;
 }
 
 .login {
@@ -143,7 +165,7 @@ footer {
  ===================== **/
 .card {
   @include border-radius(5px);
-  border: 0;
+  border: 1px solid $dark-gray;
 }
 
 .card-divider {

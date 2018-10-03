@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 class Header extends Component {
 	constructor(props) {
@@ -21,14 +23,16 @@ class Header extends Component {
 		let cashBalance = parseFloat(player.cashbalancepence).toFixed(2);
 
         return (
-			<div className="top-bar margin">
+			<div className="top-bar margin animated fadeIn">
 				<div className="top-bar-left">
 					<ul className="menu">
 						<li className="menu-text title">Funder</li>
 						<li>
 							<a onClick={() => this.props.setPage("deposits")}>Deposit</a>
 						</li>
-						<li><a onClick={() => this.props.setPage("accounts")}>Accounts</a></li>
+						<li>
+							<a onClick={() => this.props.setPage("accounts")}>Accounts</a>
+						</li>
 					</ul>
 				</div>
 				<div className="top-bar-right">
@@ -36,7 +40,9 @@ class Header extends Component {
 						<li className="menu-text">Balance: ${cashBalance}</li>
 						<li className="menu-text">Hi, {player.firstname}!</li>
 						<li>
-							<a href="#" onClick={this.handleLogout.bind(this)}>Logout</a>
+							<a href="#" onClick={this.handleLogout.bind(this)}>
+								<span><FontAwesomeIcon icon={faSignOutAlt} /></span> Logout
+							</a>
 						</li>
 					</ul>
 				</div>

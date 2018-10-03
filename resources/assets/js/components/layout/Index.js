@@ -3,43 +3,47 @@ import React, {Component} from "react";
 import Header from "./Header";
 import DepositsIndex from '../deposits/Index';
 import AccountIndex from '../accounts/Index';
-import FundingMethods from '../funding/FundingMethods';
 
 class Index extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			page: "",
+			page: "home",
 			playerData: this.props.playerData || {}
 		}
 	}
 
 	setPage = (page) => {
-		this.setState({
-			page: page
-		})
-		console.log(this.state.page)
+		this.setState({ page: page });
 	}
 
     render() {
+		let acctData = JSON.parse(this.state.playerData);
+		let accounts = acctData.accounts;
 		let page = this.state.page;
 		let currentPage = null;
 
-		if(page === "accounts") {
-			currentPage = <AccountIndex/>;
+		switch(page) {
+			case "home":
+				currentPage = "Welcome!";
+				break;
+			case "accounts":
+				currentPage = <AccountIndex accounts={accounts}/>;
+				break;
+			case "deposits":
+				currentPage = <DepositsIndex/>;
+				break;
+			default:
+				currentPage = null;
 		}
-		if(page === "deposits") {
-			currentPage = <DepositsIndex/>;
-		}
+
         return (
             <div>
 				<Header playerData={this.state.playerData} setPage={this.setPage.bind(this)} />
-				Current page: {this.state.page}
-				{/*<FundingMethods/>*/}
-				<div className="grid-container">
+				<div id="content" className="grid-container">
 					<div className="grid-x grid-margin-x">
-						<div className="cell large-6">
+						<div className="cell small-12">
 							{currentPage}
 						</div>
 					</div>

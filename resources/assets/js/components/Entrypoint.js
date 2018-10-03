@@ -1,10 +1,10 @@
 import "babel-polyfill";
 import React, { Component } from "react";
 import ReactDOM from "react-dom";
+import Axios from "axios";
 
 import Index from "./layout/Index";
 import LoginForm from "./login/LoginForm";
-import Axios from "axios";
 
 class EntryPoint extends Component {
     constructor(props) {
@@ -29,6 +29,7 @@ class EntryPoint extends Component {
 		event.preventDefault();
 		$('#login-btn').html('Logging In <img src="../../images/loaders/loader_pink_15.svg" />');
 		$('#reset-btn').hide();
+
 		let $error = $('span.error-msg');
 
 		this.setState({errorMessage: ''});
