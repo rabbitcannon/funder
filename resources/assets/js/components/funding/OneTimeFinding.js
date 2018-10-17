@@ -86,9 +86,8 @@ class OneTimeFinding extends Component {
 					Axios.post('/api/funds/add', {
 						data: {
 							amount: $('#fund-amount').val(),
-							card: {
-								paymentToken: token
-							},
+							provider_temporary_token: result.token,
+							funding_method_type: "card_profile",
 							billingDetails: {
 								address_nickname: $('#account-nickname').val(),
 								street: $('#address_1').val(),
