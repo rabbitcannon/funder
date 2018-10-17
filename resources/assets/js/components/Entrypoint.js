@@ -25,7 +25,7 @@ class EntryPoint extends Component {
 		}
 	}
 
-	handleSubmit = (event) => {
+	handleSubmit = async (event) => {
 		event.preventDefault();
 		$('#login-btn').html('Logging In <img src="../../images/loaders/loader_pink_15.svg" />');
 		$('#reset-btn').hide();
@@ -36,13 +36,12 @@ class EntryPoint extends Component {
 
 		$error.removeClass('animated fadeIn');
 
-		Axios.post('/api/funding/login', {
+		await Axios.post('/api/funding/login', {
 			email: $('[name="email"]').val(),
 			password: $('[name="password"]').val(),
 			registrar_id: $('[name="registrar_id"]').val()
 		}).then((response) => {
 			let results = JSON.stringify(response.data);
-			console.log(results)
 			sessionStorage.setItem('playerData', results);
 			this.setState({
 				loggedIn: true,

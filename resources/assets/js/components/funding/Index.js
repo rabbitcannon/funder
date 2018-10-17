@@ -2,6 +2,7 @@ import React, {Component} from "react";
 
 import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
+import OneTimeFunding from './OneTimeFinding';
 
 class Index extends Component {
 	constructor(props) {
@@ -9,6 +10,14 @@ class Index extends Component {
 
 		this.state = {paymentMethod: null, separator: false}
 	}
+
+	componentDidMount = () => {
+		$('#add-funds').on('click', function(event) {
+			event.preventDefault();
+			this.setState({paymentMethod: "oneTimeFunding", separator: true});
+		}.bind(this));
+	}
+
 	handleSelection = (event) => {
 		this.setState({paymentMethod: event.target.value});
 		if(this.state.paymentMethod != "default") {
@@ -33,6 +42,12 @@ class Index extends Component {
 		}
 	}
 
+	addFunds = (page) => {
+		this.setState({
+			paymentMethod: page
+		})
+	}
+
     render() {
 		let selection = this.state.paymentMethod;
 		let component = null;
@@ -40,6 +55,9 @@ class Index extends Component {
 		switch(selection) {
 			case "new_debit":
 				component = <AddCreditCard/>;
+				break;
+			case "oneTimeFunding":
+				component = <OneTimeFunding/>;
 				break;
 			case "new_checking":
 				component = <AddCheckingAcct/>;
@@ -60,6 +78,10 @@ class Index extends Component {
 									<option value="new_checking">Add new checking account</option>
 								</select>
 							</label>
+						</div>
+
+						<div className="cell large-8 text-right">
+							<button id="add-funds" className="button">+ Add Funds</button>
 						</div>
 					</div>
 				</div>

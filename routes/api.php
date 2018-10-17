@@ -14,11 +14,21 @@ use Illuminate\Http\Request;
 */
 
 // all your API routes should be within this route group!
-Route::group(['namespace'=>'App\Http\Controllers'],function() {
+Route::group(['namespace'=>'App\Http\Controllers'], function() {
 
     /*
      * Funding routes
      */
     Route::post('/funding/login', 'FundingController@login');
     Route::get('/funding', 'FundingController@getFunding');
+
+    /*
+     * Payment Routes
+     */
+    Route::post('/funds/add', 'FundingController@addPaymentMethod');
+
+    /*
+     * Fund Routes
+     */
+    Route::post('/methods/add', 'FundingController@fundWallet');
 });

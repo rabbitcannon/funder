@@ -11745,7 +11745,8 @@ My Variables
   CS01 - General Items
   CS02 - Menu Elements
   CS03 - Form Elements
-  CS03 - Card Elements
+  CS04 - Card Elements
+  CS05 - Funding Card Elements
 **/
 
 /** CS01 General Items
@@ -11901,6 +11902,28 @@ footer.__url {
   font-weight: 400;
   font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
+}
+
+/** CS05 Funding Card Items
+ ===================== **/
+
+.fund--table {
+  margin-bottom: 25px;
+}
+
+.fund--table > div {
+  padding: 50px;
+}
+
+.fund--table > div span {
+  font-size: 1.15em;
+}
+
+.fund--table .__item {
+  border-radius: 5px;
+  background-clip: padding-box;
+  background-color: #F6F6F6;
+  border: 1px solid #333;
 }
 
 /**

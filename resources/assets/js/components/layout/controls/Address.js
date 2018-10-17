@@ -25,7 +25,7 @@ class Address extends Component {
 				</label>
 
 				<div className="grid-x grid-margin-x">
-					<div className="cell medium-6">
+					<div className="cell medium-5">
 						<label htmlFor="city">City
 							<input id="city" type="text" placeholder="city" required pattern="alpha" />
 						</label>
@@ -34,7 +34,7 @@ class Address extends Component {
 						</span>
 					</div>
 
-					<div className="cell medium-3">
+					<div className="cell medium-4">
 						<States/>
 						<span className="form-error" id="state-error" data-form-error-for="state">
 							Select a state.

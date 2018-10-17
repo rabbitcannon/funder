@@ -11,7 +11,8 @@
   CS01 - General Items
   CS02 - Menu Elements
   CS03 - Form Elements
-  CS03 - Card Elements
+  CS04 - Card Elements
+  CS05 - Funding Card Elements
 **/
 
 
@@ -174,4 +175,25 @@ footer {
   font-weight: 400;
   font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
+}
+
+/** CS05 Funding Card Items
+ ===================== **/
+
+.fund--table {
+  margin-bottom: 25px;
+
+  > div {
+    padding: 50px;
+
+    span {
+      font-size: 1.15em;
+    }
+  }
+  .__item {
+    @include border-radius(5px);
+
+    background-color: #F6F6F6;
+    border: 1px solid #333;
+  }
 }

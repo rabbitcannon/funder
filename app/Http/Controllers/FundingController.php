@@ -89,8 +89,20 @@ class FundingController extends Controller
             'accounts' => $accounts,
             'funding' => $funding
         ]);
+    }
 
-//        return response()->json($player);
+    public function addPaymentMethod(Request $request) {
+//        echo $request['data'];
+        echo $request->getContent();
+        die;
+
+        $ws = new WalletService();
+        $addMethod = $ws->addPaymentMethod($player);
+    }
+
+    public function fundWallet() {
+//        $ws = new WalletService();
+//        $addMethod = $ws->fundWalletAccount();
     }
 
     /**
