@@ -88,10 +88,10 @@ class OneTimeFinding extends Component {
 							amount: $('#fund-amount').val(),
 							provider_temporary_token: result.token,
 							funding_method_type: "card_profile",
-							billingDetails: {
+							billing_details: {
 								address_nickname: $('#account-nickname').val(),
-								street: $('#address_1').val(),
-								street2: $('#address_2').val(),
+								address1: $('#address_1').val(),
+								address2: $('#address_2').val(),
 								city: $('#city').val(),
 								state: $('#state').val(),
 								country: $('#account-nickname').val(),
