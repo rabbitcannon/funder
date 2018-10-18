@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import _ from "underscore";
 
 import AccountItem from './AccountItem';
 
@@ -12,8 +13,11 @@ class Accounts extends Component {
 	}
 
     render() {
-		let accountList = this.state.accounts.map((account, i) => {
-			return <AccountItem ref="accounts" key={account.id} account={account} />
+		console.log(typeof this.state.accounts)
+		// let accountList = this.state.accounts.map((account, i) => {
+		let accountList = _.map(this.state.accounts, (account, i) => {
+			console.log("ID: " + account)
+			return <AccountItem key="1" account={account} />
 		});
 
         return (

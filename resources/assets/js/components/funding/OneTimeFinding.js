@@ -38,7 +38,8 @@ class OneTimeFinding extends Component {
 
 		this.state = {
 			additionalAmount: 0,
-			newAmount: 0
+			newAmount: 0,
+			playerData: sessionStorage.getItem('playerData'),
 		}
 	}
 
@@ -53,6 +54,34 @@ class OneTimeFinding extends Component {
 				instance = paysafeInstance;
 			}
 		});
+
+		///TEST
+
+		$('#pay-now').on('click', function(event) {
+			event.preventDefault();
+			let player = JSON.parse(sessionStorage.getItem('playerData'));
+			console.log(player.player)
+			Axios.post('/api/funds/add', {
+				player: player.player,
+				amount: $('#fund-amount').val(),
+				provider_temporary_token: "result.token",
+				funding_method_type: "card_profile",
+				billing_details: {
+					address_nickname: $('#account-nickname').val(),
+					address1: $('#address_1').val(),
+					address2: $('#address_2').val(),
+					city: $('#city').val(),
+					state: $('#state').val(),
+					country: 'US',
+					zip: $('#zip').val(),
+				}
+			}).then(function (response) {
+				console.log(response);
+				// }).bind(this).catch(function (error) {
+			}).catch(function (error) {
+				console.log(error);
+			});
+		})
 	}
 
 	handleAmountChange = (event) => {
@@ -85,6 +114,7 @@ class OneTimeFinding extends Component {
 				else {
 					Axios.post('/api/funds/add', {
 						data: {
+							player: this.state.playerData,
 							amount: $('#fund-amount').val(),
 							provider_temporary_token: result.token,
 							funding_method_type: "card_profile",
@@ -103,9 +133,8 @@ class OneTimeFinding extends Component {
 					}).bind(this).catch(function (error) {
 						console.log(error);
 					});
-					// window.location.replace("/api/methods/add/" + result.token);
+					window.location.replace("/api/methods/add/" + result.token);
 				}
-				return false;
 			});
 		});
 	}
@@ -152,7 +181,8 @@ class OneTimeFinding extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>
+									<button id="pay-now" className="button">Add Funds</button>
+									{/*<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>*/}
 								</div>
 							</div>
                         </div>

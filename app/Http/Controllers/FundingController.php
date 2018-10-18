@@ -93,16 +93,36 @@ class FundingController extends Controller
 
     public function addPaymentMethod(Request $request) {
 //        echo $request['data'];
-        echo $request->getContent();
-        die;
+//        echo $request->getContent();
+//        die;
 
         $ws = new WalletService();
         $addMethod = $ws->addPaymentMethod($player);
     }
 
-    public function fundWallet() {
-//        $ws = new WalletService();
-//        $addMethod = $ws->fundWalletAccount();
+    public function fundWallet(Request $request) {
+        //$type, $token, $address, $profile_id, $amount, $player, $agent = null
+
+        $info = json_decode($request->getContent(), true);
+
+        $type = "card_profile";
+        $token = $info['provider_temporary_token'];
+        $address = [
+            'address1' => $info['billing_details']['address1'],
+            'address2' => $info['billing_details']['address2'],
+            'city' => $info['billing_details']['city'],
+            'state' => $info['billing_details']['state'],
+            'country' => $info['billing_details']['country'],
+            'zip' => $info['billing_details']['zip'],
+        ];
+        $profile_id = null;
+        $amount = $info['amount'];
+        $player = $info['player'];
+
+//        var_dump(json_encode($player));die;
+
+        $ws = new WalletService();
+        $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
     }
 
     /**

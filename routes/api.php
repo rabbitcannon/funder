@@ -25,10 +25,10 @@ Route::group(['namespace'=>'App\Http\Controllers'], function() {
     /*
      * Payment Routes
      */
-    Route::post('/funds/add', 'FundingController@addPaymentMethod');
+    Route::post('/methods/add', 'FundingController@addPaymentMethod');
 
     /*
      * Fund Routes
      */
-    Route::post('/methods/add', 'FundingController@fundWallet');
+    Route::post('/funds/add', 'FundingController@fundWallet');
 });

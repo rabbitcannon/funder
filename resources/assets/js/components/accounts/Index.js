@@ -14,7 +14,7 @@ class AccountsIndex extends Component {
             <div className="animated fadeIn">
                 <h4>Current Accounts</h4>
 				<hr />
-                <Accounts accounts={this.state.accounts} />
+                <Accounts key="1" accounts={this.state.accounts} />
             </div>
         );
     }

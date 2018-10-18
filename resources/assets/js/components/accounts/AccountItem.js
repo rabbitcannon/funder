@@ -8,13 +8,13 @@ class AccountItem extends Component {
 
     render() {
 		let balance = parseFloat(this.props.account.balance).toFixed(2);
-		let name = this.props.account.name.replace(/^\w/, c => c.toUpperCase());
-		// let name = propName.replace(/^\w/, c => c.toUpperCase());
+		// let name = this.props.account.name.replace(/^\w/, c => c.toUpperCase());
+		// let name = this.props.account.name.replace(/^\w/, c => c.toUpperCase());
+		let name = this.props.account.name;
 
         return (
             <div className="animated fadeInUp">
 				<h5>{name} <small>Balance: ${balance}</small></h5>
-
 			</div>
         );
     }
