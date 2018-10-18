@@ -117,9 +117,12 @@ class FundingController extends Controller
         ];
         $profile_id = null;
         $amount = $info['amount'];
-        $player = $info['player'];
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
+//        $playerObject = (object) $player;
 
-//        var_dump(json_encode($player));die;
+//        var_dump($player);die;
+//        var_dump((object) $playerObject);die;
 
         $ws = new WalletService();
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);

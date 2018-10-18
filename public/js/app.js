@@ -82566,9 +82566,9 @@ var OneTimeFinding = function (_Component) {
 							$('#pay-now').on('click', function (event) {
 								event.preventDefault();
 								var player = JSON.parse(sessionStorage.getItem('playerData'));
-								console.log(player.player);
+
 								_axios2.default.post('/api/funds/add', {
-									player: player.player,
+									playerHash: player.player.playerhash,
 									amount: $('#fund-amount').val(),
 									provider_temporary_token: "result.token",
 									funding_method_type: "card_profile",
