@@ -2,7 +2,7 @@ import React, {Component} from "react";
 
 import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
-import OneTimeFunding from './OneTimeFinding';
+import OneTimeFunding from './OneTimeFunding';
 
 class Index extends Component {
 	constructor(props) {
@@ -81,7 +81,7 @@ class Index extends Component {
 						</div>
 
 						<div className="cell large-8 text-right">
-							<button id="add-funds" className="button">+ Add Funds</button>
+							<button id="add-funds" className="button">+ Instant Funds</button>
 						</div>
 					</div>
 				</div>

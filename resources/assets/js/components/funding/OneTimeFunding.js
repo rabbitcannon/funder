@@ -32,7 +32,7 @@ let OPTIONS = {
 	}
 };
 
-class OneTimeFinding extends Component {
+class OneTimeFunding extends Component {
 	constructor(props) {
 		super(props);
 
@@ -59,15 +59,17 @@ class OneTimeFinding extends Component {
 
 		$('#pay-now').on('click', function(event) {
 			event.preventDefault();
+
 			let player = JSON.parse(sessionStorage.getItem('playerData'));
+			let amount = parseInt($('#fund-amount').val());
 
 			Axios.post('/api/funds/add', {
 				playerHash: player.player.playerhash,
-				amount: $('#fund-amount').val(),
+				amount: amount,
 				provider_temporary_token: "result.token",
 				funding_method_type: "card_profile",
 				billing_details: {
-					address_nickname: $('#account-nickname').val(),
+					account_nickname: null,
 					address1: $('#address_1').val(),
 					address2: $('#address_2').val(),
 					city: $('#city').val(),
@@ -85,10 +87,11 @@ class OneTimeFinding extends Component {
 	}
 
 	handleAmountChange = (event) => {
+		// let value = event.target.value;
 		let currency = parseFloat(event.target.value).toFixed(2);
 		let newBalance = currency + this.state.newAmount;
 		let newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-
+// console.log("Value: " + value * 100);
 		this.setState({
 			additionalAmount: currency, newAmount: newBalanceFormatted
 		});
@@ -112,28 +115,29 @@ class OneTimeFinding extends Component {
 					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				}
 				else {
+					let player = JSON.parse(sessionStorage.getItem('playerData'));
+					let amount = parseInt($('#fund-amount').val());
+
 					Axios.post('/api/funds/add', {
-						data: {
-							player: this.state.playerData,
-							amount: $('#fund-amount').val(),
-							provider_temporary_token: result.token,
-							funding_method_type: "card_profile",
-							billing_details: {
-								address_nickname: $('#account-nickname').val(),
-								address1: $('#address_1').val(),
-								address2: $('#address_2').val(),
-								city: $('#city').val(),
-								state: $('#state').val(),
-								country: $('#account-nickname').val(),
-								zip: $('#zip').val(),
-							}
+						playerHash: player.player.playerhash,
+						amount: amount,
+						provider_temporary_token: "result.token",
+						funding_method_type: "card_profile",
+						billing_details: {
+							account_nickname: null,
+							address1: $('#address_1').val(),
+							address2: $('#address_2').val(),
+							city: $('#city').val(),
+							state: $('#state').val(),
+							country: 'US',
+							zip: $('#zip').val(),
 						}
 					}).then(function (response) {
 						console.log(response);
-					}).bind(this).catch(function (error) {
+						// }).bind(this).catch(function (error) {
+					}).catch(function (error) {
 						console.log(error);
 					});
-					window.location.replace("/api/methods/add/" + result.token);
 				}
 			});
 		});
@@ -194,4 +198,4 @@ class OneTimeFinding extends Component {
     }
 }
 
-export default OneTimeFinding;
+export default OneTimeFunding;

@@ -16,8 +16,6 @@ class FundingBlock extends Component {
 		let currentBalance = parseFloat(player.cashbalancepence).toFixed(2);
 		let newBalance = parseFloat(this.props.newAmount).toFixed(2)
 
-		console.log(typeof parseFloat(this.props.newAmount).toFixed(2))
-
         return (
 			<div className="grid-container">
 

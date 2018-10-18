@@ -81749,9 +81749,9 @@ var _AddNewCheckingAcct = __webpack_require__(428);
 
 var _AddNewCheckingAcct2 = _interopRequireDefault(_AddNewCheckingAcct);
 
-var _OneTimeFinding = __webpack_require__(429);
+var _OneTimeFunding = __webpack_require__(429);
 
-var _OneTimeFinding2 = _interopRequireDefault(_OneTimeFinding);
+var _OneTimeFunding2 = _interopRequireDefault(_OneTimeFunding);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -81824,7 +81824,7 @@ var Index = function (_Component) {
 					component = _react2.default.createElement(_AddCreditCard2.default, null);
 					break;
 				case "oneTimeFunding":
-					component = _react2.default.createElement(_OneTimeFinding2.default, null);
+					component = _react2.default.createElement(_OneTimeFunding2.default, null);
 					break;
 				case "new_checking":
 					component = _react2.default.createElement(_AddNewCheckingAcct2.default, null);
@@ -81876,7 +81876,7 @@ var Index = function (_Component) {
 							_react2.default.createElement(
 								'button',
 								{ id: 'add-funds', className: 'button' },
-								'+ Add Funds'
+								'+ Instant Funds'
 							)
 						)
 					)
@@ -82533,15 +82533,15 @@ var OPTIONS = {
 	}
 };
 
-var OneTimeFinding = function (_Component) {
-	_inherits(OneTimeFinding, _Component);
+var OneTimeFunding = function (_Component) {
+	_inherits(OneTimeFunding, _Component);
 
-	function OneTimeFinding(props) {
+	function OneTimeFunding(props) {
 		var _this2 = this;
 
-		_classCallCheck(this, OneTimeFinding);
+		_classCallCheck(this, OneTimeFunding);
 
-		var _this = _possibleConstructorReturn(this, (OneTimeFinding.__proto__ || Object.getPrototypeOf(OneTimeFinding)).call(this, props));
+		var _this = _possibleConstructorReturn(this, (OneTimeFunding.__proto__ || Object.getPrototypeOf(OneTimeFunding)).call(this, props));
 
 		_this.componentDidMount = _asyncToGenerator( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
 			return _regenerator2.default.wrap(function _callee$(_context) {
@@ -82565,15 +82565,17 @@ var OneTimeFinding = function (_Component) {
 
 							$('#pay-now').on('click', function (event) {
 								event.preventDefault();
+
 								var player = JSON.parse(sessionStorage.getItem('playerData'));
+								var amount = parseInt($('#fund-amount').val());
 
 								_axios2.default.post('/api/funds/add', {
 									playerHash: player.player.playerhash,
-									amount: $('#fund-amount').val(),
+									amount: amount,
 									provider_temporary_token: "result.token",
 									funding_method_type: "card_profile",
 									billing_details: {
-										address_nickname: $('#account-nickname').val(),
+										account_nickname: null,
 										address1: $('#address_1').val(),
 										address2: $('#address_2').val(),
 										city: $('#city').val(),
@@ -82598,10 +82600,11 @@ var OneTimeFinding = function (_Component) {
 		}));
 
 		_this.handleAmountChange = function (event) {
+			// let value = event.target.value;
 			var currency = parseFloat(event.target.value).toFixed(2);
 			var newBalance = currency + _this.state.newAmount;
 			var newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-
+			// console.log("Value: " + value * 100);
 			_this.setState({
 				additionalAmount: currency, newAmount: newBalanceFormatted
 			});
@@ -82624,28 +82627,29 @@ var OneTimeFinding = function (_Component) {
 						$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
 						console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 					} else {
+						var player = JSON.parse(sessionStorage.getItem('playerData'));
+						var amount = parseInt($('#fund-amount').val());
+
 						_axios2.default.post('/api/funds/add', {
-							data: {
-								player: this.state.playerData,
-								amount: $('#fund-amount').val(),
-								provider_temporary_token: result.token,
-								funding_method_type: "card_profile",
-								billing_details: {
-									address_nickname: $('#account-nickname').val(),
-									address1: $('#address_1').val(),
-									address2: $('#address_2').val(),
-									city: $('#city').val(),
-									state: $('#state').val(),
-									country: $('#account-nickname').val(),
-									zip: $('#zip').val()
-								}
+							playerHash: player.player.playerhash,
+							amount: amount,
+							provider_temporary_token: "result.token",
+							funding_method_type: "card_profile",
+							billing_details: {
+								account_nickname: null,
+								address1: $('#address_1').val(),
+								address2: $('#address_2').val(),
+								city: $('#city').val(),
+								state: $('#state').val(),
+								country: 'US',
+								zip: $('#zip').val()
 							}
 						}).then(function (response) {
 							console.log(response);
-						}).bind(this).catch(function (error) {
+							// }).bind(this).catch(function (error) {
+						}).catch(function (error) {
 							console.log(error);
 						});
-						window.location.replace("/api/methods/add/" + result.token);
 					}
 				});
 			});
@@ -82659,7 +82663,7 @@ var OneTimeFinding = function (_Component) {
 		return _this;
 	}
 
-	_createClass(OneTimeFinding, [{
+	_createClass(OneTimeFunding, [{
 		key: "render",
 		value: function render() {
 			var styles = {
@@ -82747,10 +82751,10 @@ var OneTimeFinding = function (_Component) {
 		}
 	}]);
 
-	return OneTimeFinding;
+	return OneTimeFunding;
 }(_react.Component);
 
-exports.default = OneTimeFinding;
+exports.default = OneTimeFunding;
 
 /***/ }),
 /* 430 */
@@ -82824,8 +82828,6 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(11);
@@ -82865,8 +82867,6 @@ var FundingBlock = function (_Component) {
 			var player = data.player;
 			var currentBalance = parseFloat(player.cashbalancepence).toFixed(2);
 			var newBalance = parseFloat(this.props.newAmount).toFixed(2);
-
-			console.log(_typeof(parseFloat(this.props.newAmount).toFixed(2)));
 
 			return _react2.default.createElement(
 				"div",
@@ -83353,8 +83353,6 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _react = __webpack_require__(11);
@@ -83394,7 +83392,6 @@ var Accounts = function (_Component) {
 	_createClass(Accounts, [{
 		key: "render",
 		value: function render() {
-			console.log(_typeof(this.state.accounts));
 			// let accountList = this.state.accounts.map((account, i) => {
 			var accountList = _underscore2.default.map(this.state.accounts, function (account, i) {
 				console.log("ID: " + account);

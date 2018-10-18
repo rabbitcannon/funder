@@ -108,6 +108,7 @@ class FundingController extends Controller
         $type = "card_profile";
         $token = $info['provider_temporary_token'];
         $address = [
+            'payment_method_nickname' => $info['billing_details']['account_nickname'],
             'address1' => $info['billing_details']['address1'],
             'address2' => $info['billing_details']['address2'],
             'city' => $info['billing_details']['city'],
@@ -126,6 +127,10 @@ class FundingController extends Controller
 
         $ws = new WalletService();
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
+
+        return response()->json(
+            $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player)
+        );
     }
 
     /**

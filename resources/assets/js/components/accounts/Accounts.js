@@ -13,7 +13,6 @@ class Accounts extends Component {
 	}
 
     render() {
-		console.log(typeof this.state.accounts)
 		// let accountList = this.state.accounts.map((account, i) => {
 		let accountList = _.map(this.state.accounts, (account, i) => {
 			console.log("ID: " + account)
