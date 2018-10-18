@@ -44,7 +44,7 @@ class OneTimeFunding extends Component {
 	}
 
 	componentDidMount = async () => {
-		$(document).foundation(); this.handlePayment();
+		$(document).foundation();
 
 		await window.paysafe.fields.setup(API_KEY, OPTIONS, function(paysafeInstance, error) {
 			if(error) {
@@ -57,33 +57,33 @@ class OneTimeFunding extends Component {
 
 		///TEST
 
-		$('#pay-now').on('click', function(event) {
-			event.preventDefault();
-
-			let player = JSON.parse(sessionStorage.getItem('playerData'));
-			let amount = parseInt($('#fund-amount').val());
-
-			Axios.post('/api/funds/add', {
-				playerHash: player.player.playerhash,
-				amount: amount,
-				provider_temporary_token: "result.token",
-				funding_method_type: "card_profile",
-				billing_details: {
-					account_nickname: null,
-					address1: $('#address_1').val(),
-					address2: $('#address_2').val(),
-					city: $('#city').val(),
-					state: $('#state').val(),
-					country: 'US',
-					zip: $('#zip').val(),
-				}
-			}).then(function (response) {
-				console.log(response);
-				// }).bind(this).catch(function (error) {
-			}).catch(function (error) {
-				console.log(error);
-			});
-		})
+		// $('#pay-now').on('click', function(event) {
+		// 	event.preventDefault();
+		//
+		// 	let player = JSON.parse(sessionStorage.getItem('playerData'));
+		// 	let amount = parseInt($('#fund-amount').val());
+		//
+		// 	Axios.post('/api/funds/add', {
+		// 		playerHash: player.player.playerhash,
+		// 		amount: amount * 100,
+		// 		provider_temporary_token: "result.token",
+		// 		funding_method_type: "card_profile",
+		// 		billing_details: {
+		// 			account_nickname: null,
+		// 			address1: $('#address_1').val(),
+		// 			address2: $('#address_2').val(),
+		// 			city: $('#city').val(),
+		// 			state: $('#state').val(),
+		// 			country: 'US',
+		// 			zip: $('#zip').val(),
+		// 		}
+		// 	}).then(function (response) {
+		// 		console.log(response);
+		// 		// }).bind(this).catch(function (error) {
+		// 	}).catch(function (error) {
+		// 		console.log(error);
+		// 	});
+		// });
 	}
 
 	handleAmountChange = (event) => {
@@ -101,11 +101,14 @@ class OneTimeFunding extends Component {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
 
-		$("form#add-card-form").bind("formvalid.zf.abide", function(event, target) {
+		$("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
 			event.preventDefault();
 
 			if(!instance) {
 				console.log("No instance");
+			}
+			else {
+				console.log("instance")
 			}
 
 			instance.tokenize(function(paysafeInstance, error, result) {
@@ -115,13 +118,14 @@ class OneTimeFunding extends Component {
 					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				}
 				else {
+					console.log(result.token)
 					let player = JSON.parse(sessionStorage.getItem('playerData'));
-					let amount = parseInt($('#fund-amount').val());
+					let amount = parseInt($('#fund-amount').val()) * 100;
 
 					Axios.post('/api/funds/add', {
 						playerHash: player.player.playerhash,
 						amount: amount,
-						provider_temporary_token: "result.token",
+						provider_temporary_token: result.token,
 						funding_method_type: "card_profile",
 						billing_details: {
 							account_nickname: null,
@@ -132,13 +136,13 @@ class OneTimeFunding extends Component {
 							country: 'US',
 							zip: $('#zip').val(),
 						}
-					}).then(function (response) {
+					}).then(function(response) {
 						console.log(response);
-						// }).bind(this).catch(function (error) {
-					}).catch(function (error) {
+					}).bind(this).catch(function (error) {
 						console.log(error);
 					});
 				}
+				return false;
 			});
 		});
 	}
@@ -162,7 +166,7 @@ class OneTimeFunding extends Component {
 						<FundingBlock additionalAmount={this.state.additionalAmount} newAmount={this.state.newAmount}/>
 					</div>
 
-                    <form id="add-checking-form" data-abide noValidate>
+                    <form id="add-funds-form" data-abide noValidate>
                         <div className="grid-container">
 
                             <div className="grid-x grid-margin-x">
@@ -185,8 +189,8 @@ class OneTimeFunding extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<button id="pay-now" className="button">Add Funds</button>
-									{/*<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>*/}
+									{/*<button id="pay-now" className="button">Add Funds</button>*/}
+									<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>
 								</div>
 							</div>
                         </div>

@@ -10,6 +10,15 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .env
-.phpstorm.meta.php
+.env.testing
 _ide_helper.php
-composer.lock
+resources/assets/js/components/passport/
+resources/views/vendor/l5-swagger/index.blade.php
+resources/views/vendor/pagination/semantic-ui.blade.php
+resources/views/vendor/passport/
+tests/Feature/.phpunit.result.cache
+/storage/api-docs/api-docs.json
+/composer.lock
+/app/Http/Controllers/CommonSwagger.php
+/tests/Unit/.phpunit.result.cache
+/.phpunit.result.cache

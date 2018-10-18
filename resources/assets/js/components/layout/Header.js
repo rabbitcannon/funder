@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import _ from "underscore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
@@ -7,8 +8,18 @@ class Header extends Component {
 		super(props);
 
 		this.state = {
-			playerData: this.props.playerData || {}
+			playerData: this.props.playerData || {},
+			cashBalance: null,
 		}
+	}
+
+	componentDidMount =() => {
+		let player = JSON.parse(this.state.playerData);
+		let accounts = player.accounts;
+
+		_.each(accounts, function(index) {
+			console.log(index);
+		});
 	}
 
 	handleLogout = () => {

@@ -33,6 +33,7 @@ class FundingBlock extends Component {
 							<span>Additional Funds</span>
 						</div>
 						<div>
+							{/*<span>{this.props.additionalAmount}</span>*/}
 							<span>
 								<CountUp
 									end={this.props.additionalAmount}
