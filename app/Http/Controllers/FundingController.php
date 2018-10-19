@@ -105,10 +105,10 @@ class FundingController extends Controller
 
         $info = json_decode($request->getContent(), true);
 
-        $type = "card_profile";
+        $type = "token";
         $token = $info['provider_temporary_token'];
         $address = [
-            'payment_method_nickname' => $info['billing_details']['account_nickname'],
+            'address_nickname' => $info['billing_details']['address_nickname'],
             'address1' => $info['billing_details']['address1'],
             'address2' => $info['billing_details']['address2'],
             'city' => $info['billing_details']['city'],
@@ -120,11 +120,12 @@ class FundingController extends Controller
         $amount = $info['amount'];
         $hash = $info['playerHash'];
         $player = Player::byHash($hash)->first();
+        
 //        $playerObject = (object) $player;
 
 //        var_dump($player);die;
 //        var_dump((object) $playerObject);die;
-
+var_dump($type, $token, $address, $profile_id, $amount, $player);die;
         $ws = new WalletService();
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 

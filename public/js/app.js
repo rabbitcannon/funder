@@ -31101,7 +31101,7 @@ exports.default = CreditCard;
 /* 182 */
 /***/ (function(module, exports) {
 
-module.exports = {"keys":{"paysafe":"OT-246710:B-qa2-0-5bb677df-0-302d021462f6c4261d717542f4f9ce444f11c00e8e1264020215008ccc26474ddcc6744f40eb73e8614e88e48b1cb8"}}
+module.exports = {"keys":{"paysafe":"OT-234110:B-qa2-0-5bbca7c8-0-302e02150085c02f97a0771818059fccd576de7c7af63aa34802150086a481ac55dc73aa0b15e57a507e44aef1072376"}}
 
 /***/ }),
 /* 183 */
@@ -79063,6 +79063,15 @@ var Header = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, (Header.__proto__ || Object.getPrototypeOf(Header)).call(this, props));
 
+		_this.componentDidMount = function () {
+			var player = JSON.parse(_this.state.playerData);
+			var accounts = player.accounts;
+
+			_underscore2.default.each(accounts, function (index) {
+				console.log(index);
+			});
+		};
+
 		_this.handleLogout = function () {
 			localStorage.clear();
 			sessionStorage.clear();
@@ -79075,14 +79084,6 @@ var Header = function (_Component) {
 		};
 		return _this;
 	}
-
-	// componentDidMount =() => {
-	// 	let player = JSON.parse(this.state.playerData);
-	// 	let accounts = player.accounts;
-	// 	_.each(accounts, function(index) {
-	// 		console.log(index);
-	// 	});
-	// }
 
 	_createClass(Header, [{
 		key: "render",
@@ -82581,11 +82582,10 @@ var OneTimeFunding = function (_Component) {
 		}));
 
 		_this.handleAmountChange = function (event) {
-			// let value = event.target.value;
 			var currency = parseFloat(event.target.value).toFixed(2);
 			var newBalance = currency + _this.state.newAmount;
 			var newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-			// console.log("Value: " + value * 100);
+
 			_this.setState({
 				additionalAmount: currency, newAmount: newBalanceFormatted
 			});
@@ -82620,7 +82620,7 @@ var OneTimeFunding = function (_Component) {
 							provider_temporary_token: result.token,
 							funding_method_type: "card_profile",
 							billing_details: {
-								account_nickname: null,
+								address_nickname: null,
 								address1: $('#address_1').val(),
 								address2: $('#address_2').val(),
 								city: $('#city').val(),
@@ -82629,13 +82629,12 @@ var OneTimeFunding = function (_Component) {
 								zip: $('#zip').val()
 							}
 						}).then(function (response) {
-							console.log("worked");
 							console.log(response);
+							// window.location.replace("/api/methods/add/" + result.token);
 						}).bind(this).catch(function (error) {
 							console.log(error);
 						});
 					}
-					return false;
 				});
 			});
 		};

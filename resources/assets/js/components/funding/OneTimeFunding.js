@@ -69,7 +69,7 @@ class OneTimeFunding extends Component {
 		// 		provider_temporary_token: "result.token",
 		// 		funding_method_type: "card_profile",
 		// 		billing_details: {
-		// 			account_nickname: null,
+		// 			address_nickname: null,
 		// 			address1: $('#address_1').val(),
 		// 			address2: $('#address_2').val(),
 		// 			city: $('#city').val(),
@@ -79,19 +79,19 @@ class OneTimeFunding extends Component {
 		// 		}
 		// 	}).then(function (response) {
 		// 		console.log(response);
-		// 		// }).bind(this).catch(function (error) {
 		// 	}).catch(function (error) {
 		// 		console.log(error);
 		// 	});
+		//
+		// 	console.log(result.token);
 		// });
 	}
 
 	handleAmountChange = (event) => {
-		// let value = event.target.value;
 		let currency = parseFloat(event.target.value).toFixed(2);
 		let newBalance = currency + this.state.newAmount;
 		let newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-// console.log("Value: " + value * 100);
+
 		this.setState({
 			additionalAmount: currency, newAmount: newBalanceFormatted
 		});
@@ -128,7 +128,7 @@ class OneTimeFunding extends Component {
 						provider_temporary_token: result.token,
 						funding_method_type: "card_profile",
 						billing_details: {
-							account_nickname: null,
+							address_nickname: null,
 							address1: $('#address_1').val(),
 							address2: $('#address_2').val(),
 							city: $('#city').val(),
@@ -138,11 +138,12 @@ class OneTimeFunding extends Component {
 						}
 					}).then(function(response) {
 						console.log(response);
+						// window.location.replace("/api/methods/add/" + result.token);
+
 					}).bind(this).catch(function (error) {
 						console.log(error);
 					});
 				}
-				return false;
 			});
 		});
 	}
