@@ -22,3 +22,4 @@ tests/Feature/.phpunit.result.cache
 /app/Http/Controllers/CommonSwagger.php
 /tests/Unit/.phpunit.result.cache
 /.phpunit.result.cache
+storage/

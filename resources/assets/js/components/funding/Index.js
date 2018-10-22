@@ -74,7 +74,7 @@ class Index extends Component {
 							<label>Select Funding Method
 								<select onChange={this.handleSelection.bind(this)}>
 									<option value="default">-- Select One --</option>
-									<option value="new_debit">Add new debit card</option>
+									<option value="new_debit">Add new debit or credit card</option>
 									<option value="new_checking">Add new checking account</option>
 								</select>
 							</label>

@@ -19,8 +19,8 @@ class Index extends Component {
 	}
 
     render() {
-		let acctData = JSON.parse(this.state.playerData);
-		let accounts = acctData.accounts;
+		let data = JSON.parse(this.state.playerData);
+		let accounts = data.accounts;
 		let page = this.state.page;
 		let currentPage = null;
 

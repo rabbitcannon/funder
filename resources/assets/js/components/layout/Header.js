@@ -16,9 +16,10 @@ class Header extends Component {
 	componentDidMount =() => {
 		let player = JSON.parse(this.state.playerData);
 		let accounts = player.accounts;
+		let balance = 0;
 
 		_.each(accounts, function(index) {
-			console.log(index);
+			balance += index.balance;
 		});
 	}
 
@@ -31,7 +32,14 @@ class Header extends Component {
     render() {
 		let data = JSON.parse(this.state.playerData);
 		let player = data.player;
-		let cashBalance = parseFloat(player.cashbalancepence).toFixed(2);
+		let accounts = data.accounts;
+		let balance = 0;
+
+		_.each(accounts, function(index) {
+			balance += index.balance;
+		});
+
+		let cashBalance = balance.toFixed(2);
 
         return (
 			<div className="top-bar margin animated fadeIn">

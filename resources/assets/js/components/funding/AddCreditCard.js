@@ -50,7 +50,7 @@ class AddCreditCard extends Component {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
 
-		$("form#add-card-form").bind("formvalid.zf.abide", function(event, target) {
+		// $("form#add-card-form").bind("formvalid.zf.abide", function(event, target) {
 			event.preventDefault();
 
 			if(!instance) {
@@ -58,37 +58,45 @@ class AddCreditCard extends Component {
 			}
 
 			instance.tokenize(function(paysafeInstance, error, result) {
-				console.log(result);
 				if(error) {
 					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				}
 				else {
+					let data = JSON.parse(sessionStorage.getItem('playerData'));
+					let defaultCheck = $('#make_default').val();
+					let checkValue = null;
+
+					if(defaultCheck.is(':checked')) {
+						checkValue = true;
+					}
+					else {
+						checkValue = false;
+					}
+
 					Axios.post('/api/methods/add', {
-						data: {
-							card: {
-								paymentToken: token
-							},
-							billingDetails: {
-								address_nickname: $('#account-nickname').val(),
-								street: $('#address_1').val(),
-								street2: $('#address_2').val(),
-								city: $('#city').val(),
-								state: $('#state').val(),
-								country: $('#account-nickname').val(),
-								zip: $('#zip').val(),
-							}
+						playerHash: data.player.playerhash,
+						provider_temporary_token: result.token,
+						payment_method_nickname: $('#account-nickname').val(),
+						funding_method_type: "card_profile",
+						default: checkValue,
+						billing_details: {
+							address_nickname: null,
+							address1: $('#address_1').val(),
+							address2: $('#address_2').val(),
+							city: $('#city').val(),
+							state: $('#state').val(),
+							country: 'US',
+							zip: $('#zip').val(),
 						}
 					}).then(function (response) {
 						console.log(response);
 					}).bind(this).catch(function (error) {
 						console.log(error);
 					});
-					// window.location.replace("/api/methods/add/" + result.token);
 				}
-				return false;
 			});
-		});
+		// });
 	}
 
     render() {
@@ -130,7 +138,7 @@ class AddCreditCard extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<Address />
-								<CreditCard/>
+								<CreditCard showDefault={true}/>
 							</div>
 
 							<div className="grid-x grid-margin-x">

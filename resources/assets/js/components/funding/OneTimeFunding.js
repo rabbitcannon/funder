@@ -39,7 +39,7 @@ class OneTimeFunding extends Component {
 		this.state = {
 			additionalAmount: 0,
 			newAmount: 0,
-			playerData: sessionStorage.getItem('playerData'),
+			playerData: sessionStorage.getItem('playerData')
 		}
 	}
 
@@ -88,7 +88,7 @@ class OneTimeFunding extends Component {
 	}
 
 	handleAmountChange = (event) => {
-		let currency = parseFloat(event.target.value).toFixed(2);
+		let currency = parseInt(event.target.value).toFixed(2);
 		let newBalance = currency + this.state.newAmount;
 		let newBalanceFormatted = parseFloat(newBalance).toFixed(2);
 
@@ -97,11 +97,11 @@ class OneTimeFunding extends Component {
 		});
 	}
 
-	handlePayment = () => {
+	handlePayment = (event) => {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
 
-		$("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
+		// $("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
 			event.preventDefault();
 
 			if(!instance) {
@@ -118,12 +118,11 @@ class OneTimeFunding extends Component {
 					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				}
 				else {
-					console.log(result.token)
-					let player = JSON.parse(sessionStorage.getItem('playerData'));
+					let data = JSON.parse(sessionStorage.getItem('playerData'));
 					let amount = parseInt($('#fund-amount').val()) * 100;
 
 					Axios.post('/api/funds/add', {
-						playerHash: player.player.playerhash,
+						playerHash: data.player.playerhash,
 						amount: amount,
 						provider_temporary_token: result.token,
 						funding_method_type: "card_profile",
@@ -140,12 +139,13 @@ class OneTimeFunding extends Component {
 						console.log(response);
 						// window.location.replace("/api/methods/add/" + result.token);
 
-					}).bind(this).catch(function (error) {
+					// }).bind(this).catch(function (error) {
+					}).catch(function (error) {
 						console.log(error);
 					});
 				}
 			});
-		});
+		// });
 	}
 
     render() {
@@ -154,6 +154,8 @@ class OneTimeFunding extends Component {
 				display: 'none'
 			}
 		}
+
+
 
         return (
             <div className="card animated fadeIn">
@@ -190,7 +192,6 @@ class OneTimeFunding extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									{/*<button id="pay-now" className="button">Add Funds</button>*/}
 									<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>
 								</div>
 							</div>

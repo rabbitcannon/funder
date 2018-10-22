@@ -92,17 +92,25 @@ class FundingController extends Controller
     }
 
     public function addPaymentMethod(Request $request) {
-//        echo $request['data'];
-//        echo $request->getContent();
-//        die;
+//        $type, $nickname, $details, $default, $player, $agent = null
+        $info = json_decode($request->getContent(), true);
+
+        $type = $info['funding_method_type'];
+        $nickname = $info['payment_method_nickname'];
+        $token = $info['provider_temporary_token'];
+        $details = [
+
+        ];
+
+
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
 
         $ws = new WalletService();
-        $addMethod = $ws->addPaymentMethod($player);
+        $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
     }
 
     public function fundWallet(Request $request) {
-        //$type, $token, $address, $profile_id, $amount, $player, $agent = null
-
         $info = json_decode($request->getContent(), true);
 
         $type = "token";
@@ -120,12 +128,7 @@ class FundingController extends Controller
         $amount = $info['amount'];
         $hash = $info['playerHash'];
         $player = Player::byHash($hash)->first();
-        
-//        $playerObject = (object) $player;
 
-//        var_dump($player);die;
-//        var_dump((object) $playerObject);die;
-var_dump($type, $token, $address, $profile_id, $amount, $player);die;
         $ws = new WalletService();
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 

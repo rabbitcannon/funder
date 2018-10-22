@@ -31015,6 +31015,8 @@ var CreditCard = function (_Component) {
 	_createClass(CreditCard, [{
 		key: "render",
 		value: function render() {
+			console.log(this.props.showDefault);
+
 			return _react2.default.createElement(
 				"div",
 				{ className: "cell medium-6" },
@@ -31085,6 +31087,20 @@ var CreditCard = function (_Component) {
 							"span",
 							{ className: "form-error", id: "cvv-error", "data-form-error-for": "cvv" },
 							"CVV required."
+						)
+					)
+				),
+				_react2.default.createElement(
+					"div",
+					{ className: "grid-x grid-margin-x" },
+					_react2.default.createElement(
+						"div",
+						{ className: "cell medium-12" },
+						_react2.default.createElement("input", { id: "make_default", type: "checkbox" }),
+						_react2.default.createElement(
+							"label",
+							{ htmlFor: "make_default" },
+							"Make default"
 						)
 					)
 				)
@@ -78977,8 +78993,8 @@ var Index = function (_Component) {
 	_createClass(Index, [{
 		key: "render",
 		value: function render() {
-			var acctData = JSON.parse(this.state.playerData);
-			var accounts = acctData.accounts;
+			var data = JSON.parse(this.state.playerData);
+			var accounts = data.accounts;
 			var page = this.state.page;
 			var currentPage = null;
 
@@ -79066,9 +79082,10 @@ var Header = function (_Component) {
 		_this.componentDidMount = function () {
 			var player = JSON.parse(_this.state.playerData);
 			var accounts = player.accounts;
+			var balance = 0;
 
 			_underscore2.default.each(accounts, function (index) {
-				console.log(index);
+				balance += index.balance;
 			});
 		};
 
@@ -79092,7 +79109,14 @@ var Header = function (_Component) {
 
 			var data = JSON.parse(this.state.playerData);
 			var player = data.player;
-			var cashBalance = parseFloat(player.cashbalancepence).toFixed(2);
+			var accounts = data.accounts;
+			var balance = 0;
+
+			_underscore2.default.each(accounts, function (index) {
+				balance += index.balance;
+			});
+
+			var cashBalance = balance.toFixed(2);
 
 			return _react2.default.createElement(
 				"div",
@@ -81874,7 +81898,7 @@ var Index = function (_Component) {
 									_react2.default.createElement(
 										'option',
 										{ value: 'new_debit' },
-										'Add new debit card'
+										'Add new debit or credit card'
 									),
 									_react2.default.createElement(
 										'option',
@@ -82148,7 +82172,7 @@ var AddCreditCard = function (_Component) {
 								'div',
 								{ className: 'grid-x grid-margin-x' },
 								_react2.default.createElement(_Address2.default, null),
-								_react2.default.createElement(_CreditCard2.default, null)
+								_react2.default.createElement(_CreditCard2.default, { showDefault: true })
 							),
 							_react2.default.createElement(
 								'div',
@@ -82582,7 +82606,7 @@ var OneTimeFunding = function (_Component) {
 		}));
 
 		_this.handleAmountChange = function (event) {
-			var currency = parseFloat(event.target.value).toFixed(2);
+			var currency = parseInt(event.target.value).toFixed(2);
 			var newBalance = currency + _this.state.newAmount;
 			var newBalanceFormatted = parseFloat(newBalance).toFixed(2);
 
@@ -82591,52 +82615,53 @@ var OneTimeFunding = function (_Component) {
 			});
 		};
 
-		_this.handlePayment = function () {
+		_this.handlePayment = function (event) {
 			var $errorSpan = $("#form-submit-error");
 			$errorSpan.text("");
 
-			$("form#add-funds-form").bind("formvalid.zf.abide", function (event, target) {
-				event.preventDefault();
+			// $("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
+			event.preventDefault();
 
-				if (!instance) {
-					console.log("No instance");
+			if (!instance) {
+				console.log("No instance");
+			} else {
+				console.log("instance");
+			}
+
+			instance.tokenize(function (paysafeInstance, error, result) {
+				console.log(result);
+				if (error) {
+					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
+					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				} else {
-					console.log("instance");
+					var data = JSON.parse(sessionStorage.getItem('playerData'));
+					var amount = parseInt($('#fund-amount').val()) * 100;
+
+					_axios2.default.post('/api/funds/add', {
+						playerHash: data.player.playerhash,
+						amount: amount,
+						provider_temporary_token: result.token,
+						funding_method_type: "card_profile",
+						billing_details: {
+							address_nickname: null,
+							address1: $('#address_1').val(),
+							address2: $('#address_2').val(),
+							city: $('#city').val(),
+							state: $('#state').val(),
+							country: 'US',
+							zip: $('#zip').val()
+						}
+					}).then(function (response) {
+						console.log(response);
+						// window.location.replace("/api/methods/add/" + result.token);
+
+						// }).bind(this).catch(function (error) {
+					}).catch(function (error) {
+						console.log(error);
+					});
 				}
-
-				instance.tokenize(function (paysafeInstance, error, result) {
-					console.log(result);
-					if (error) {
-						$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
-						console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
-					} else {
-						console.log(result.token);
-						var player = JSON.parse(sessionStorage.getItem('playerData'));
-						var amount = parseInt($('#fund-amount').val()) * 100;
-
-						_axios2.default.post('/api/funds/add', {
-							playerHash: player.player.playerhash,
-							amount: amount,
-							provider_temporary_token: result.token,
-							funding_method_type: "card_profile",
-							billing_details: {
-								address_nickname: null,
-								address1: $('#address_1').val(),
-								address2: $('#address_2').val(),
-								city: $('#city').val(),
-								state: $('#state').val(),
-								country: 'US',
-								zip: $('#zip').val()
-							}
-						}).then(function (response) {
-							console.log(response);
-							// window.location.replace("/api/methods/add/" + result.token);
-						}).bind(this).catch(function (error) {
-							console.log(error);
-						});
-					}
-				});
 			});
+			// });
 		};
 
 		_this.state = {
@@ -82849,8 +82874,9 @@ var FundingBlock = function (_Component) {
 		value: function render() {
 			var data = JSON.parse(this.state.playerData);
 			var player = data.player;
-			var currentBalance = parseFloat(player.cashbalancepence).toFixed(2);
-			var newBalance = parseFloat(this.props.newAmount).toFixed(2);
+			var currentBalance = parseInt(player.cashbalancepence).toFixed(2);
+			var newBalance = parseInt(this.props.newAmount).toFixed(2);
+			var additionalFunds = parseInt(this.props.additionalAmount).toFixed(2);
 
 			return _react2.default.createElement(
 				"div",
@@ -82900,7 +82926,7 @@ var FundingBlock = function (_Component) {
 								"span",
 								null,
 								_react2.default.createElement(_reactCountup2.default, {
-									end: this.props.additionalAmount,
+									end: additionalFunds,
 									decimals: 2,
 									prefix: "$",
 									duration: 1.5 })

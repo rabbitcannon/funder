@@ -13,8 +13,9 @@ class FundingBlock extends Component {
     render() {
 		let data = JSON.parse(this.state.playerData);
 		let player = data.player;
-		let currentBalance = parseFloat(player.cashbalancepence).toFixed(2);
-		let newBalance = parseFloat(this.props.newAmount).toFixed(2)
+		let currentBalance = parseInt(player.cashbalancepence).toFixed(2);
+		let newBalance = parseInt(this.props.newAmount).toFixed(2);
+		let additionalFunds = parseInt(this.props.additionalAmount).toFixed(2);
 
         return (
 			<div className="grid-container">
@@ -36,7 +37,7 @@ class FundingBlock extends Component {
 							{/*<span>{this.props.additionalAmount}</span>*/}
 							<span>
 								<CountUp
-									end={this.props.additionalAmount}
+									end={additionalFunds}
 									decimals={2}
 									prefix="$"
 									duration={1.5} />

@@ -1,9 +1,9 @@
 import React, {Component} from "react";
 
 class CreditCard extends Component {
-
-
     render() {
+    	console.log(this.props.showDefault);
+
         return (
 			<div className="cell medium-6">
 				<div className="grid-x grid-margin-x">
@@ -45,6 +45,14 @@ class CreditCard extends Component {
 						</span>
 					</div>
 				</div>
+
+				<div className="grid-x grid-margin-x">
+					<div className="cell medium-12">
+						<input id="make_default" type="checkbox" />
+						<label htmlFor="make_default">Make default</label>
+					</div>
+				</div>
+
 
 			</div>
         );
