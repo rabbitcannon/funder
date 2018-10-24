@@ -31092,7 +31092,7 @@ var CreditCard = function (_Component) {
 				),
 				_react2.default.createElement(
 					"div",
-					{ className: "grid-x grid-margin-x" },
+					{ className: "grid-x grid-margin-x", style: { visibility: this.props.showDefault == true ? 'visible' : 'hidden' } },
 					_react2.default.createElement(
 						"div",
 						{ className: "cell medium-12" },
@@ -82037,9 +82037,9 @@ var AddCreditCard = function (_Component) {
 				while (1) {
 					switch (_context.prev = _context.next) {
 						case 0:
-							$(document).foundation();_this.handlePayment();
+							$(document).foundation();
 
-							_context.next = 4;
+							_context.next = 3;
 							return window.paysafe.fields.setup(API_KEY, OPTIONS, function (paysafeInstance, error) {
 								console.log(instance);
 								if (error) {
@@ -82049,53 +82049,59 @@ var AddCreditCard = function (_Component) {
 								}
 							});
 
-						case 4:
+						case 3:
 						case 'end':
 							return _context.stop();
 					}
 				}
 			}, _callee, _this2);
-		})), _this.handlePayment = function () {
+		})), _this.handlePayment = function (event) {
 			var $errorSpan = $("#form-submit-error");
 			$errorSpan.text("");
 
-			$("form#add-card-form").bind("formvalid.zf.abide", function (event, target) {
-				event.preventDefault();
+			event.preventDefault();
 
-				if (!instance) {
-					console.log("No instance");
-				}
+			if (!instance) {
+				console.log("No instance");
+			}
 
-				instance.tokenize(function (paysafeInstance, error, result) {
-					console.log(result);
-					if (error) {
-						$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
-						console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+			instance.tokenize(function (paysafeInstance, error, result) {
+				console.log(result);
+				if (error) {
+					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
+					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+				} else {
+					var data = JSON.parse(sessionStorage.getItem('playerData'));
+					var defaultCheck = $('#make_default').is(':checked');
+					var checkValue = null;
+
+					if (defaultCheck) {
+						checkValue = true;
 					} else {
-						_axios2.default.post('/api/methods/add', {
-							data: {
-								card: {
-									paymentToken: token
-								},
-								billingDetails: {
-									address_nickname: $('#account-nickname').val(),
-									street: $('#address_1').val(),
-									street2: $('#address_2').val(),
-									city: $('#city').val(),
-									state: $('#state').val(),
-									country: $('#account-nickname').val(),
-									zip: $('#zip').val()
-								}
-							}
-						}).then(function (response) {
-							console.log(response);
-						}).bind(this).catch(function (error) {
-							console.log(error);
-						});
-						// window.location.replace("/api/methods/add/" + result.token);
+						checkValue = false;
 					}
-					return false;
-				});
+
+					_axios2.default.post('/api/methods/add', {
+						playerHash: data.player.playerhash,
+						provider_temporary_token: result.token,
+						payment_method_nickname: $('#account-nickname').val(),
+						funding_method_type: "card_profile",
+						default: checkValue,
+						billing_details: {
+							address_nickname: null,
+							address1: $('#address_1').val(),
+							address2: $('#address_2').val(),
+							city: $('#city').val(),
+							state: $('#state').val(),
+							country: 'US',
+							zip: $('#zip').val()
+						}
+					}).then(function (response) {
+						console.log(response);
+					}).catch(function (error) {
+						console.log(error);
+					});
+				}
 			});
 		}, _temp), _possibleConstructorReturn(_this, _ret);
 	}
@@ -82191,7 +82197,7 @@ var AddCreditCard = function (_Component) {
 									{ className: 'cell medium-12 text-center' },
 									_react2.default.createElement(
 										'button',
-										{ id: 'pay-now', className: 'button', onClick: this.handlePayment },
+										{ id: 'add-card-btn', className: 'button', onClick: this.handlePayment },
 										'Add Card'
 									)
 								)
@@ -82619,7 +82625,6 @@ var OneTimeFunding = function (_Component) {
 			var $errorSpan = $("#form-submit-error");
 			$errorSpan.text("");
 
-			// $("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
 			event.preventDefault();
 
 			if (!instance) {
@@ -82629,7 +82634,6 @@ var OneTimeFunding = function (_Component) {
 			}
 
 			instance.tokenize(function (paysafeInstance, error, result) {
-				console.log(result);
 				if (error) {
 					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
 					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
@@ -82641,7 +82645,7 @@ var OneTimeFunding = function (_Component) {
 						playerHash: data.player.playerhash,
 						amount: amount,
 						provider_temporary_token: result.token,
-						funding_method_type: "card_profile",
+						funding_method_type: "token",
 						billing_details: {
 							address_nickname: null,
 							address1: $('#address_1').val(),
@@ -82653,15 +82657,11 @@ var OneTimeFunding = function (_Component) {
 						}
 					}).then(function (response) {
 						console.log(response);
-						// window.location.replace("/api/methods/add/" + result.token);
-
-						// }).bind(this).catch(function (error) {
 					}).catch(function (error) {
 						console.log(error);
 					});
 				}
 			});
-			// });
 		};
 
 		_this.state = {
@@ -82675,6 +82675,8 @@ var OneTimeFunding = function (_Component) {
 	_createClass(OneTimeFunding, [{
 		key: "render",
 		value: function render() {
+			var _this3 = this;
+
 			var styles = {
 				hidden: {
 					display: 'none'
@@ -82748,7 +82750,9 @@ var OneTimeFunding = function (_Component) {
 									{ className: "cell medium-12 text-center" },
 									_react2.default.createElement(
 										"button",
-										{ id: "pay-now", className: "button", onClick: this.handlePayment },
+										{ id: "add-funds-btn", className: "button", onClick: function onClick(event) {
+												return _this3.handlePayment(event);
+											} },
 										"Add Funds"
 									)
 								)

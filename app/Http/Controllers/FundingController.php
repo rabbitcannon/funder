@@ -92,16 +92,22 @@ class FundingController extends Controller
     }
 
     public function addPaymentMethod(Request $request) {
-//        $type, $nickname, $details, $default, $player, $agent = null
         $info = json_decode($request->getContent(), true);
-
         $type = $info['funding_method_type'];
         $nickname = $info['payment_method_nickname'];
         $token = $info['provider_temporary_token'];
-        $details = [
-
+        $details['address'] = [
+            'provider_temporary_token' => $info['provider_temporary_token'],
+            'address1' => $info['billing_details']['address1'],
+            'address2' => $info['billing_details']['address2'],
+            'city' => $info['billing_details']['city'],
+            'state' => $info['billing_details']['state'],
+            'country' => $info['billing_details']['country'],
+            'zip' => $info['billing_details']['zip'],
         ];
 
+        var_dump($info);
+        $default = $info['default'];
 
         $hash = $info['playerHash'];
         $player = Player::byHash($hash)->first();
@@ -113,7 +119,7 @@ class FundingController extends Controller
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
 
-        $type = "token";
+        $type = $info['funding_method_type'];
         $token = $info['provider_temporary_token'];
         $address = [
             'address_nickname' => $info['billing_details']['address_nickname'],
@@ -124,6 +130,7 @@ class FundingController extends Controller
             'country' => $info['billing_details']['country'],
             'zip' => $info['billing_details']['zip'],
         ];
+
         $profile_id = null;
         $amount = $info['amount'];
         $hash = $info['playerHash'];

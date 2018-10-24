@@ -54,37 +54,6 @@ class OneTimeFunding extends Component {
 				instance = paysafeInstance;
 			}
 		});
-
-		///TEST
-
-		// $('#pay-now').on('click', function(event) {
-		// 	event.preventDefault();
-		//
-		// 	let player = JSON.parse(sessionStorage.getItem('playerData'));
-		// 	let amount = parseInt($('#fund-amount').val());
-		//
-		// 	Axios.post('/api/funds/add', {
-		// 		playerHash: player.player.playerhash,
-		// 		amount: amount * 100,
-		// 		provider_temporary_token: "result.token",
-		// 		funding_method_type: "card_profile",
-		// 		billing_details: {
-		// 			address_nickname: null,
-		// 			address1: $('#address_1').val(),
-		// 			address2: $('#address_2').val(),
-		// 			city: $('#city').val(),
-		// 			state: $('#state').val(),
-		// 			country: 'US',
-		// 			zip: $('#zip').val(),
-		// 		}
-		// 	}).then(function (response) {
-		// 		console.log(response);
-		// 	}).catch(function (error) {
-		// 		console.log(error);
-		// 	});
-		//
-		// 	console.log(result.token);
-		// });
 	}
 
 	handleAmountChange = (event) => {
@@ -101,51 +70,45 @@ class OneTimeFunding extends Component {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
 
-		// $("form#add-funds-form").bind("formvalid.zf.abide", function(event, target) {
-			event.preventDefault();
+		event.preventDefault();
 
-			if(!instance) {
-				console.log("No instance");
+		if(!instance) {
+			console.log("No instance");
+		}
+		else {
+			console.log("instance");
+		}
+
+		instance.tokenize(function(paysafeInstance, error, result) {
+			if(error) {
+				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
+				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 			}
 			else {
-				console.log("instance")
+				let data = JSON.parse(sessionStorage.getItem('playerData'));
+				let amount = parseInt($('#fund-amount').val()) * 100;
+
+				Axios.post('/api/funds/add', {
+					playerHash: data.player.playerhash,
+					amount: amount,
+					provider_temporary_token: result.token,
+					funding_method_type: "token",
+					billing_details: {
+						address_nickname: null,
+						address1: $('#address_1').val(),
+						address2: $('#address_2').val(),
+						city: $('#city').val(),
+						state: $('#state').val(),
+						country: 'US',
+						zip: $('#zip').val(),
+					}
+				}).then(function(response) {
+					console.log(response);
+				}).catch(function (error) {
+					console.log(error);
+				});
 			}
-
-			instance.tokenize(function(paysafeInstance, error, result) {
-				console.log(result);
-				if(error) {
-					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
-					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
-				}
-				else {
-					let data = JSON.parse(sessionStorage.getItem('playerData'));
-					let amount = parseInt($('#fund-amount').val()) * 100;
-
-					Axios.post('/api/funds/add', {
-						playerHash: data.player.playerhash,
-						amount: amount,
-						provider_temporary_token: result.token,
-						funding_method_type: "card_profile",
-						billing_details: {
-							address_nickname: null,
-							address1: $('#address_1').val(),
-							address2: $('#address_2').val(),
-							city: $('#city').val(),
-							state: $('#state').val(),
-							country: 'US',
-							zip: $('#zip').val(),
-						}
-					}).then(function(response) {
-						console.log(response);
-						// window.location.replace("/api/methods/add/" + result.token);
-
-					// }).bind(this).catch(function (error) {
-					}).catch(function (error) {
-						console.log(error);
-					});
-				}
-			});
-		// });
+		});
 	}
 
     render() {
@@ -154,8 +117,6 @@ class OneTimeFunding extends Component {
 				display: 'none'
 			}
 		}
-
-
 
         return (
             <div className="card animated fadeIn">
@@ -192,7 +153,7 @@ class OneTimeFunding extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<button id="pay-now" className="button" onClick={this.handlePayment}>Add Funds</button>
+									<button id="add-funds-btn" className="button" onClick={(event) => this.handlePayment(event)}>Add Funds</button>
 								</div>
 							</div>
                         </div>

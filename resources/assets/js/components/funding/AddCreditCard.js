@@ -33,7 +33,7 @@ let OPTIONS = {
 
 class AddCreditCard extends Component {
 	componentDidMount = async () => {
-		$(document).foundation(); this.handlePayment();
+		$(document).foundation();
 
 		await window.paysafe.fields.setup(API_KEY, OPTIONS, function(paysafeInstance, error) {
 			console.log(instance);
@@ -46,57 +46,56 @@ class AddCreditCard extends Component {
 		});
 	}
 
-	handlePayment = () => {
+	handlePayment = (event) => {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
 
-		// $("form#add-card-form").bind("formvalid.zf.abide", function(event, target) {
-			event.preventDefault();
+		event.preventDefault();
 
-			if(!instance) {
-				console.log("No instance");
+		if(!instance) {
+			console.log("No instance");
+		}
+
+		instance.tokenize(function(paysafeInstance, error, result) {
+			console.log(result)
+			if(error) {
+				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
+				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 			}
+			else {
+				let data = JSON.parse(sessionStorage.getItem('playerData'));
+				let defaultCheck = $('#make_default').is(':checked');
+				let checkValue = null;
 
-			instance.tokenize(function(paysafeInstance, error, result) {
-				if(error) {
-					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
-					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+				if(defaultCheck) {
+					checkValue = true;
 				}
 				else {
-					let data = JSON.parse(sessionStorage.getItem('playerData'));
-					let defaultCheck = $('#make_default').val();
-					let checkValue = null;
-
-					if(defaultCheck.is(':checked')) {
-						checkValue = true;
-					}
-					else {
-						checkValue = false;
-					}
-
-					Axios.post('/api/methods/add', {
-						playerHash: data.player.playerhash,
-						provider_temporary_token: result.token,
-						payment_method_nickname: $('#account-nickname').val(),
-						funding_method_type: "card_profile",
-						default: checkValue,
-						billing_details: {
-							address_nickname: null,
-							address1: $('#address_1').val(),
-							address2: $('#address_2').val(),
-							city: $('#city').val(),
-							state: $('#state').val(),
-							country: 'US',
-							zip: $('#zip').val(),
-						}
-					}).then(function (response) {
-						console.log(response);
-					}).bind(this).catch(function (error) {
-						console.log(error);
-					});
+					checkValue = false;
 				}
-			});
-		// });
+
+				Axios.post('/api/methods/add', {
+					playerHash: data.player.playerhash,
+					provider_temporary_token: result.token,
+					payment_method_nickname: $('#account-nickname').val(),
+					funding_method_type: "card_profile",
+					default: checkValue,
+					billing_details: {
+						address_nickname: null,
+						address1: $('#address_1').val(),
+						address2: $('#address_2').val(),
+						city: $('#city').val(),
+						state: $('#state').val(),
+						country: 'US',
+						zip: $('#zip').val(),
+					}
+				}).then(function (response) {
+					console.log(response);
+				}).catch(function (error) {
+					console.log(error);
+				});
+			}
+		});
 	}
 
     render() {
@@ -149,7 +148,7 @@ class AddCreditCard extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<button id="pay-now" className="button" onClick={this.handlePayment}>Add Card</button>
+									<button id="add-card-btn" className="button" onClick={this.handlePayment}>Add Card</button>
 								</div>
 							</div>
 
