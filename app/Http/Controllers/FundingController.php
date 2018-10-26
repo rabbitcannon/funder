@@ -109,7 +109,7 @@ class FundingController extends Controller
             'zip' => $info['billing_details']['zip'],
         ];
 
-        var_dump($details);
+//        var_dump($details);
         $default = $info['default'];
 
         $hash = $info['playerHash'];
@@ -121,7 +121,7 @@ class FundingController extends Controller
 
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
-var_dump($info);
+//var_dump($info);
         $type = $info['funding_method_type'];
         $token = $info['provider_temporary_token'];
         $address = [
