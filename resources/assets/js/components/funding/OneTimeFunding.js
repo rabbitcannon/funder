@@ -87,12 +87,22 @@ class OneTimeFunding extends Component {
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
 				let amount = parseInt($('#fund-amount').val()) * 100;
+				let defaultCheck = $('#save_method').is(':checked');
+				let saveValue = null;
+
+				if(defaultCheck) {
+					saveValue = true;
+				}
+				else {
+					saveValue = false;
+				}
 
 				Axios.post('/api/funds/add', {
 					playerHash: data.player.playerhash,
 					amount: amount,
 					provider_temporary_token: result.token,
 					funding_method_type: "token",
+					save_method: saveValue,
 					billing_details: {
 						address_nickname: null,
 						address1: $('#address_1').val(),
@@ -148,12 +158,20 @@ class OneTimeFunding extends Component {
 								<div className="cell medium-6">
 									<CreditCard/>
 									<FundAmount handleAmountChange={this.handleAmountChange}/>
+
+									<div className="grid-x grid-margin-x">
+										<div className="cell medium-12">
+											<input id="save_payment" type="checkbox" />
+											<label htmlFor="save_payment">Save payment method?</label>
+										</div>
+									</div>
 								</div>
 							</div>
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<button id="add-funds-btn" className="button" onClick={(event) => this.handlePayment(event)}>Add Funds</button>
+									<button id="add-funds-btn" className="button"
+											onClick={(event) => this.handlePayment(event)}>Add Funds</button>SCjdWt6WbgC5ObHL
 								</div>
 							</div>
                         </div>

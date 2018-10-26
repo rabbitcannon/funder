@@ -31015,8 +31015,6 @@ var CreditCard = function (_Component) {
 	_createClass(CreditCard, [{
 		key: "render",
 		value: function render() {
-			console.log(this.props.showDefault);
-
 			return _react2.default.createElement(
 				"div",
 				{ className: "cell medium-6" },
@@ -31092,7 +31090,7 @@ var CreditCard = function (_Component) {
 				),
 				_react2.default.createElement(
 					"div",
-					{ className: "grid-x grid-margin-x", style: { visibility: this.props.showDefault == true ? 'visible' : 'hidden' } },
+					{ className: "grid-x grid-margin-x", style: { display: this.props.showDefault == true ? 'block' : 'none' } },
 					_react2.default.createElement(
 						"div",
 						{ className: "cell medium-12" },
@@ -82640,12 +82638,21 @@ var OneTimeFunding = function (_Component) {
 				} else {
 					var data = JSON.parse(sessionStorage.getItem('playerData'));
 					var amount = parseInt($('#fund-amount').val()) * 100;
+					var defaultCheck = $('#save_method').is(':checked');
+					var saveValue = null;
+
+					if (defaultCheck) {
+						saveValue = true;
+					} else {
+						saveValue = false;
+					}
 
 					_axios2.default.post('/api/funds/add', {
 						playerHash: data.player.playerhash,
 						amount: amount,
 						provider_temporary_token: result.token,
 						funding_method_type: "token",
+						save_method: saveValue,
 						billing_details: {
 							address_nickname: null,
 							address1: $('#address_1').val(),
@@ -82739,7 +82746,21 @@ var OneTimeFunding = function (_Component) {
 									"div",
 									{ className: "cell medium-6" },
 									_react2.default.createElement(_CreditCard2.default, null),
-									_react2.default.createElement(_FundAmount2.default, { handleAmountChange: this.handleAmountChange })
+									_react2.default.createElement(_FundAmount2.default, { handleAmountChange: this.handleAmountChange }),
+									_react2.default.createElement(
+										"div",
+										{ className: "grid-x grid-margin-x" },
+										_react2.default.createElement(
+											"div",
+											{ className: "cell medium-12" },
+											_react2.default.createElement("input", { id: "save_payment", type: "checkbox" }),
+											_react2.default.createElement(
+												"label",
+												{ htmlFor: "save_payment" },
+												"Save payment method?"
+											)
+										)
+									)
 								)
 							),
 							_react2.default.createElement(
@@ -82750,7 +82771,8 @@ var OneTimeFunding = function (_Component) {
 									{ className: "cell medium-12 text-center" },
 									_react2.default.createElement(
 										"button",
-										{ id: "add-funds-btn", className: "button", onClick: function onClick(event) {
+										{ id: "add-funds-btn", className: "button",
+											onClick: function onClick(event) {
 												return _this3.handlePayment(event);
 											} },
 										"Add Funds"

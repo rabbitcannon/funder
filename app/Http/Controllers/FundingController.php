@@ -96,8 +96,11 @@ class FundingController extends Controller
         $type = $info['funding_method_type'];
         $nickname = $info['payment_method_nickname'];
         $token = $info['provider_temporary_token'];
+        $details = [
+            'provider_temporary_token' => $token,
+        ];
         $details['address'] = [
-            'provider_temporary_token' => $info['provider_temporary_token'],
+            'provider_temporary_token' => $token,
             'address1' => $info['billing_details']['address1'],
             'address2' => $info['billing_details']['address2'],
             'city' => $info['billing_details']['city'],
@@ -106,7 +109,7 @@ class FundingController extends Controller
             'zip' => $info['billing_details']['zip'],
         ];
 
-        var_dump($info);
+        var_dump($details);
         $default = $info['default'];
 
         $hash = $info['playerHash'];
@@ -118,7 +121,7 @@ class FundingController extends Controller
 
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
-
+var_dump($info);
         $type = $info['funding_method_type'];
         $token = $info['provider_temporary_token'];
         $address = [
@@ -138,6 +141,10 @@ class FundingController extends Controller
 
         $ws = new WalletService();
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
+
+        if($info['save_method'] === true) {
+            $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
+        }
 
         return response()->json(
             $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player)
