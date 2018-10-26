@@ -64,9 +64,10 @@ class AddCreditCard extends Component {
 			}
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
+				let defaultCheck = $('#make_default').is(':checked')
 				let checkValue = null;
 
-				if($('#make_default').is(':checked')) {
+				if(defaultCheck) {
 					checkValue = true;
 				}
 				else {

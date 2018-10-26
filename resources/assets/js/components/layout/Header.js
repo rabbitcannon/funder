@@ -8,19 +8,19 @@ class Header extends Component {
 		super(props);
 
 		this.state = {
+			currentBlanace: this.props.balance,
 			playerData: this.props.playerData || {},
-			cashBalance: null,
 		}
 	}
 
 	componentDidMount =() => {
-		let player = JSON.parse(this.state.playerData);
-		let accounts = player.accounts;
-		let balance = 0;
-
-		_.each(accounts, function(index) {
-			balance += index.balance;
-		});
+		// let player = JSON.parse(this.state.playerData);
+		// let accounts = player.accounts;
+		// let balance = 0;
+		//
+		// _.each(accounts, function(index) {
+		// 	balance += index.balance;
+		// });
 	}
 
 	handleLogout = () => {
@@ -32,14 +32,9 @@ class Header extends Component {
     render() {
 		let data = JSON.parse(this.state.playerData);
 		let player = data.player;
-		let accounts = data.accounts;
-		let balance = 0;
 
-		_.each(accounts, function(index) {
-			balance += index.balance;
-		});
-
-		let cashBalance = balance.toFixed(2);
+		const balance = this.state.currentBlanace;
+		let cashBalance = balance / 100;
 
         return (
 			<div className="top-bar margin animated fadeIn">

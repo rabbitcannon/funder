@@ -146,6 +146,19 @@ class FundingController extends Controller
 
         if($info['save_method'] === true) {
             $nickname = null;
+            $default = null;
+            $details = [
+                'provider_temporary_token' => $token,
+            ];
+            $details['address'] = [
+                'provider_temporary_token' => $token,
+                'address1' => $info['billing_details']['address1'],
+                'address2' => $info['billing_details']['address2'],
+                'city' => $info['billing_details']['city'],
+                'state' => $info['billing_details']['state'],
+                'country' => $info['billing_details']['country'],
+                'zip' => $info['billing_details']['zip'],
+            ];
 //            $address
             $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
         }

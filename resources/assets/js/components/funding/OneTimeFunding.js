@@ -12,6 +12,10 @@ import FundingBlock from "./FundingBlock";
 const API_KEY = btoa(config.keys.paysafe);
 let instance = null;
 
+Toastr.options.closeMethod = 'fadeOut';
+Toastr.options.closeDuration = 300;
+Toastr.options.closeEasing = 'swing';
+
 let OPTIONS = {
 	environment: "TEST",
 	fields: {
@@ -88,7 +92,7 @@ class OneTimeFunding extends Component {
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
 				let amount = parseInt($('#fund-amount').val()) * 100;
-				let defaultCheck = $('#save_method').attr('checked');
+				let defaultCheck = $('#save_payment').is(':checked');
 				let saveValue = null;
 
 				if(defaultCheck) {
@@ -97,8 +101,6 @@ class OneTimeFunding extends Component {
 				else {
 					saveValue = false;
 				}
-
-				console.log(saveValue);
 
 				Axios.post('/api/funds/add', {
 					playerHash: data.player.playerhash,
@@ -176,7 +178,7 @@ class OneTimeFunding extends Component {
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
 									<button id="add-funds-btn" className="button"
-											onClick={(event) => this.handlePayment(event)}>Add Funds</button>SCjdWt6WbgC5ObHL
+											onClick={(event) => this.handlePayment(event)}>Add Funds</button>
 								</div>
 							</div>
                         </div>
