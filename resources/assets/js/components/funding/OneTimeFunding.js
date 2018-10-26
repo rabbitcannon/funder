@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import Axios from "axios";
+import Toastr from "toastr";
 
 import Address from '../layout/controls/Address';
 import CreditCard from "../layout/controls/CreditCard";
@@ -87,7 +88,7 @@ class OneTimeFunding extends Component {
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
 				let amount = parseInt($('#fund-amount').val()) * 100;
-				let defaultCheck = $('#save_method').is(':checked');
+				let defaultCheck = $('#save_method').attr('checked');
 				let saveValue = null;
 
 				if(defaultCheck) {
@@ -96,6 +97,8 @@ class OneTimeFunding extends Component {
 				else {
 					saveValue = false;
 				}
+
+				console.log(saveValue);
 
 				Axios.post('/api/funds/add', {
 					playerHash: data.player.playerhash,
@@ -113,8 +116,10 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(function(response) {
+					Toastr.success('Funding successful!');
 					console.log(response);
 				}).catch(function (error) {
+					Toastr.error('Funding successful!');
 					console.log(error);
 				});
 			}
@@ -161,7 +166,7 @@ class OneTimeFunding extends Component {
 
 									<div className="grid-x grid-margin-x">
 										<div className="cell medium-12">
-											<input id="save_payment" type="checkbox" />
+											<input id="save_payment" name="save_payment" type="checkbox" />
 											<label htmlFor="save_payment">Save payment method?</label>
 										</div>
 									</div>

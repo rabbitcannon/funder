@@ -36,6 +36,7 @@
     "dependencies": {
         "foundation-sites": "^6.5.0-rc.3",
         "fs": "^0.0.1-security",
-        "react-countup": "^4.0.0-alpha.6"
+        "react-countup": "^4.0.0-alpha.6",
+        "toastr": "^2.1.4"
     }
 }
