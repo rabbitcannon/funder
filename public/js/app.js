@@ -82651,7 +82651,7 @@ var OneTimeFunding = function (_Component) {
 						playerHash: data.player.playerhash,
 						amount: amount,
 						provider_temporary_token: result.token,
-						funding_method_type: "token",
+						funding_method_type: "card_profile",
 						save_method: saveValue,
 						billing_details: {
 							address_nickname: null,
@@ -82776,7 +82776,8 @@ var OneTimeFunding = function (_Component) {
 												return _this3.handlePayment(event);
 											} },
 										"Add Funds"
-									)
+									),
+									"SCjdWt6WbgC5ObHL"
 								)
 							)
 						)

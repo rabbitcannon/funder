@@ -143,6 +143,8 @@ class FundingController extends Controller
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 
         if($info['save_method'] === true) {
+            $nickname = null;
+//            $address
             $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
         }
 
