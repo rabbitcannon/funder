@@ -101,7 +101,7 @@ class OneTimeFunding extends Component {
 					playerHash: data.player.playerhash,
 					amount: amount,
 					provider_temporary_token: result.token,
-					funding_method_type: "token",
+					funding_method_type: "card_profile", //todo: make flexible
 					save_method: saveValue,
 					billing_details: {
 						address_nickname: null,

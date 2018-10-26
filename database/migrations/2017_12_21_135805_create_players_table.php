@@ -16,7 +16,7 @@ class CreatePlayersTable extends Migration
         Schema::create('players', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
-            $table->string('registrar_id',32)->unique()->index();
+            $table->string('registrar_id',32)->index();
             $table->string('playerhash')->default('');
             $table->integer('activateddatetime')->default(0);
             $table->integer('lastlogindatetime')->default(0);

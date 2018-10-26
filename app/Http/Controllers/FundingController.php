@@ -8,6 +8,7 @@ use Eos\Common\WalletService;
 use App\Player;
 use App\Exceptions\FundingException;
 use Eos\Common\InteractiveCoreService;
+use Illuminate\Support\Facades\Log;
 
 
 //
@@ -140,6 +141,7 @@ class FundingController extends Controller
         $player = Player::byHash($hash)->first();
 
         $ws = new WalletService();
+        Log::info("About to fund with type ".$type.", token ".$token.", zip ".$address['zip'].", amount $". $amount / 100.0);
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 
         if($info['save_method'] === true) {
