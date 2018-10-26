@@ -11,11 +11,11 @@ class FundingBlock extends Component {
 	}
 
     render() {
-		let data = JSON.parse(this.state.playerData);
-		let player = data.player;
-		let currentBalance = parseInt(player.cashbalancepence).toFixed(2);
-		let newBalance = parseInt(this.props.newAmount).toFixed(2);
-		let additionalFunds = parseInt(this.props.additionalAmount).toFixed(2);
+		const balance = this.props.balance;
+		let cashBalance = balance / 100;
+		// let newBalance = parseInt(this.props.newAmount).toFixed(2) + cashBalance;
+		let newBalance = this.props.newAmount / 100;
+		let additionalFunds = this.props.additionalAmount;
 
         return (
 			<div className="grid-container">
@@ -26,7 +26,7 @@ class FundingBlock extends Component {
 							<span>Current Wallet</span>
 						</div>
 						<div>
-							<span>${currentBalance}</span>
+							<span>${cashBalance}</span>
 						</div>
 					</div>
 					<div className="cell medium-4 __item">

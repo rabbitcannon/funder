@@ -57,7 +57,7 @@ class Index extends Component {
 				component = <AddCreditCard/>;
 				break;
 			case "oneTimeFunding":
-				component = <OneTimeFunding/>;
+				component = <OneTimeFunding balance={this.props.balance}/>;
 				break;
 			case "new_checking":
 				component = <AddCheckingAcct/>;

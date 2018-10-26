@@ -10,27 +10,9 @@ class Index extends Component {
 		super(props);
 
 		this.state = {
-			// currentBalance: null,
 			page: "home",
 			playerData: this.props.playerData || {}
 		}
-	}
-
-	componentDidMount = () => {
-		// let data = JSON.parse(this.state.playerData);
-		// let accounts = data.accounts;
-		// let balance = 0;
-		//
-		// _.each(accounts, function(index) {
-		// 	balance += index.balance;
-		// });
-		//
-		// let formattedBalance = balance.toFixed(2);
-		//
-		// this.setState({
-		// 	currentBalance: balance
-		// }, console.log(this.state.currentBalance))
-
 	}
 
 	setPage = (page) => {
@@ -56,7 +38,7 @@ class Index extends Component {
 				currentPage = <AccountIndex accounts={accounts}/>;
 				break;
 			case "deposits":
-				currentPage = <DepositsIndex/>;
+				currentPage = <DepositsIndex balance={balance}/>;
 				break;
 			default:
 				currentPage = null;

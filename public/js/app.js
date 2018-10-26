@@ -78981,29 +78981,11 @@ var Index = function (_Component) {
 
 		var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
 
-		_this.componentDidMount = function () {
-			// let data = JSON.parse(this.state.playerData);
-			// let accounts = data.accounts;
-			// let balance = 0;
-			//
-			// _.each(accounts, function(index) {
-			// 	balance += index.balance;
-			// });
-			//
-			// let formattedBalance = balance.toFixed(2);
-			//
-			// this.setState({
-			// 	currentBalance: balance
-			// }, console.log(this.state.currentBalance))
-
-		};
-
 		_this.setPage = function (page) {
 			_this.setState({ page: page });
 		};
 
 		_this.state = {
-			// currentBalance: null,
 			page: "home",
 			playerData: _this.props.playerData || {}
 		};
@@ -79031,7 +79013,7 @@ var Index = function (_Component) {
 					currentPage = _react2.default.createElement(_Index4.default, { accounts: accounts });
 					break;
 				case "deposits":
-					currentPage = _react2.default.createElement(_Index2.default, null);
+					currentPage = _react2.default.createElement(_Index2.default, { balance: balance });
 					break;
 				default:
 					currentPage = null;
@@ -79134,12 +79116,6 @@ var Header = function (_Component) {
 
 			var data = JSON.parse(this.state.playerData);
 			var player = data.player;
-			// let accounts = data.accounts;
-			// let balance = 0;
-			//
-			// _.each(accounts, function(index) {
-			// 	balance += index.balance;
-			// });
 
 			var balance = this.state.currentBlanace;
 			var cashBalance = balance / 100;
@@ -81766,10 +81742,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var DepositsIndex = function (_Component) {
     _inherits(DepositsIndex, _Component);
 
-    function DepositsIndex() {
+    function DepositsIndex(props) {
         _classCallCheck(this, DepositsIndex);
 
-        return _possibleConstructorReturn(this, (DepositsIndex.__proto__ || Object.getPrototypeOf(DepositsIndex)).apply(this, arguments));
+        return _possibleConstructorReturn(this, (DepositsIndex.__proto__ || Object.getPrototypeOf(DepositsIndex)).call(this, props));
     }
 
     _createClass(DepositsIndex, [{
@@ -81778,7 +81754,7 @@ var DepositsIndex = function (_Component) {
             return _react2.default.createElement(
                 "div",
                 { className: "animated fadeIn" },
-                _react2.default.createElement(_Index2.default, null)
+                _react2.default.createElement(_Index2.default, { balance: this.props.balance })
             );
         }
     }]);
@@ -81888,7 +81864,7 @@ var Index = function (_Component) {
 					component = _react2.default.createElement(_AddCreditCard2.default, null);
 					break;
 				case "oneTimeFunding":
-					component = _react2.default.createElement(_OneTimeFunding2.default, null);
+					component = _react2.default.createElement(_OneTimeFunding2.default, { balance: this.props.balance });
 					break;
 				case "new_checking":
 					component = _react2.default.createElement(_AddNewCheckingAcct2.default, null);
@@ -82646,13 +82622,22 @@ var OneTimeFunding = function (_Component) {
 		}));
 
 		_this.handleAmountChange = function (event) {
+			var newFundsPence = event.target.value * 100;
 			var currency = parseInt(event.target.value).toFixed(2);
-			var newBalance = currency + _this.state.newAmount;
+			var newBalance = newFundsPence + _this.props.balance;
 			var newBalanceFormatted = parseFloat(newBalance).toFixed(2);
 
+			console.log(_this.props.balance);
+			console.log(newFundsPence);
+			console.log(newFundsPence + _this.props.balance);
+
 			_this.setState({
-				additionalAmount: currency, newAmount: newBalanceFormatted
+				additionalAmount: currency, newAmount: newBalance
 			});
+
+			// console.log("New: " + parseInt(newBalance) * 100);
+			// console.log(currency);
+			// console.log(parseInt(newBalance));
 		};
 
 		_this.handlePayment = function (event) {
@@ -82746,7 +82731,7 @@ var OneTimeFunding = function (_Component) {
 					_react2.default.createElement(
 						"div",
 						null,
-						_react2.default.createElement(_FundingBlock2.default, { additionalAmount: this.state.additionalAmount, newAmount: this.state.newAmount })
+						_react2.default.createElement(_FundingBlock2.default, { balance: this.props.balance, additionalAmount: this.state.additionalAmount, newAmount: this.state.newAmount })
 					),
 					_react2.default.createElement(
 						"form",
@@ -83422,11 +83407,11 @@ var FundingBlock = function (_Component) {
 	_createClass(FundingBlock, [{
 		key: "render",
 		value: function render() {
-			var data = JSON.parse(this.state.playerData);
-			var player = data.player;
-			var currentBalance = parseInt(player.cashbalancepence).toFixed(2);
-			var newBalance = parseInt(this.props.newAmount).toFixed(2);
-			var additionalFunds = parseInt(this.props.additionalAmount).toFixed(2);
+			var balance = this.props.balance;
+			var cashBalance = balance / 100;
+			// let newBalance = parseInt(this.props.newAmount).toFixed(2) + cashBalance;
+			var newBalance = this.props.newAmount / 100;
+			var additionalFunds = this.props.additionalAmount;
 
 			return _react2.default.createElement(
 				"div",
@@ -83453,7 +83438,7 @@ var FundingBlock = function (_Component) {
 								"span",
 								null,
 								"$",
-								currentBalance
+								cashBalance
 							)
 						)
 					),

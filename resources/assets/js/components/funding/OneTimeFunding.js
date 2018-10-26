@@ -62,13 +62,22 @@ class OneTimeFunding extends Component {
 	}
 
 	handleAmountChange = (event) => {
+		let newFundsPence = event.target.value * 100;
 		let currency = parseInt(event.target.value).toFixed(2);
-		let newBalance = currency + this.state.newAmount;
+		let newBalance = newFundsPence + this.props.balance;
 		let newBalanceFormatted = parseFloat(newBalance).toFixed(2);
 
+		console.log(this.props.balance);
+		console.log(newFundsPence);
+		console.log(newFundsPence + this.props.balance);
+
 		this.setState({
-			additionalAmount: currency, newAmount: newBalanceFormatted
+			additionalAmount: currency, newAmount: newBalance
 		});
+
+		// console.log("New: " + parseInt(newBalance) * 100);
+		// console.log(currency);
+		// console.log(parseInt(newBalance));
 	}
 
 	handlePayment = (event) => {
@@ -144,7 +153,7 @@ class OneTimeFunding extends Component {
                 <div className="card-section">
 
 					<div>
-						<FundingBlock additionalAmount={this.state.additionalAmount} newAmount={this.state.newAmount}/>
+						<FundingBlock balance={this.props.balance} additionalAmount={this.state.additionalAmount} newAmount={this.state.newAmount}/>
 					</div>
 
                     <form id="add-funds-form" data-abide noValidate>
