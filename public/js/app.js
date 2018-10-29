@@ -31115,7 +31115,7 @@ exports.default = CreditCard;
 /* 182 */
 /***/ (function(module, exports) {
 
-module.exports = {"keys":{"paysafe":"OT-234110:B-qa2-0-5bbca7c8-0-302e02150085c02f97a0771818059fccd576de7c7af63aa34802150086a481ac55dc73aa0b15e57a507e44aef1072376"}}
+module.exports = {"keys":{"paysafe":"T1QtMjM0MTEwOkItcWEyLTAtNWJiY2E3YzgtMC0zMDJlMDIxNTAwODVjMDJmOTdhMDc3MTgxODA1OWZjY2Q1NzZkZTdjN2FmNjNhYTM0ODAyMTUwMDg2YTQ4MWFjNTVkYzczYWEwYjE1ZTU3YTUwN2U0NGFlZjEwNzIzNzY="}}
 
 /***/ }),
 /* 183 */
@@ -82676,6 +82676,7 @@ var OneTimeFunding = function (_Component) {
 							zip: $('#zip').val()
 						}
 					}).then(function (response) {
+						console.log(result.token);
 						var message = "Funding successful";
 						if (defaultCheck) {
 							message = +" and payment method saved";

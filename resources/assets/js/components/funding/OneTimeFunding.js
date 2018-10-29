@@ -119,6 +119,7 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(function(response) {
+					console.log(result.token)
 					let message = "Funding successful";
 					if(defaultCheck) {
 						message =+ " and payment method saved";
