@@ -104,6 +104,23 @@ class Player extends Model
     }
 
     /**
+     * This strips out some cruft from the Player that we don't really want to send to the
+     * WalletService as part of the SPAT (auth header).
+     * @return array
+     */
+    public function toSimplePlayer()
+    {
+        return [
+            'registrar_id' => $this->registrar_id,
+            'phone' => $this->phone,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
+            'email' => $this->email,
+            'playerstate' => $this->playerstate
+        ];
+    }
+
+    /**
      * a player may have zero or more gumdrops via gumdrop-player pivot
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      **/

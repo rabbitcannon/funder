@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Eos\Common\Exceptions\EosAuthException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Eos\Common\WalletService;
@@ -82,7 +83,7 @@ class FundingController extends Controller
         }
 
         $ws = new WalletService();
-        $accounts = $ws->getAccounts($player);
+        $accounts = $ws->getAccounts($player->toSimplePlayer());
         $funding = $ws->getFundingOptions($player);
 
         return response()->json([
@@ -101,7 +102,8 @@ class FundingController extends Controller
             'provider_temporary_token' => $token,
         ];
         $details['address'] = [
-            'provider_temporary_token' => $token,
+            //todo: may need a better nickname mechanism for addresses
+            'address_nickname' => str_slug($info['billing_details']['address1']),
             'address1' => $info['billing_details']['address1'],
             'address2' => $info['billing_details']['address2'],
             'city' => $info['billing_details']['city'],
@@ -115,11 +117,21 @@ class FundingController extends Controller
 
         $hash = $info['playerHash'];
         $player = Player::byHash($hash)->first();
+        if( !$player )
+        { throw new FundingException( '_AUTHERROR',['message' => 'missing player info in addpaymentmethod']); }
 
         $ws = new WalletService();
-        $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
+        $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
     }
 
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     * @throws \Eos\Common\Exceptions\EosWalletServiceException
+     */
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
 //var_dump($info);
@@ -160,11 +172,11 @@ class FundingController extends Controller
                 'zip' => $info['billing_details']['zip'],
             ];
 //            $address
-            $ws->addPaymentMethod($type, $nickname, $details, $default, $player);
+            $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
         }
 
         return response()->json(
-            $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player)
+            $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player->toSimplePlayer())
         );
     }
 
@@ -200,7 +212,7 @@ class FundingController extends Controller
         { throw new AuthenticationException(); }
 
         $wallet = new WalletService();
-        $funding = $wallet->getFundingOptions( $player, null );
+        $funding = $wallet->getFundingOptions( $player->toSimplePlayer(), null );
 
         return response()->json($funding);
     }
