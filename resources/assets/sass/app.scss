@@ -8,6 +8,9 @@
 @import "node_modules/animate.css/animate.min";
 @include foundation-everything(true);
 
+//toastr
+@import "node_modules/toastr/toastr.scss";
+
 @import "settings";
 @import "extended";
 @import "preloaders";

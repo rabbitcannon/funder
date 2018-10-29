@@ -31115,7 +31115,7 @@ exports.default = CreditCard;
 /* 182 */
 /***/ (function(module, exports) {
 
-module.exports = {"keys":{"paysafe":"OT-234110:B-qa2-0-5bbca7c8-0-302e02150085c02f97a0771818059fccd576de7c7af63aa34802150086a481ac55dc73aa0b15e57a507e44aef1072376"}}
+module.exports = {"keys":{"paysafe":"T1QtMjM0MTEwOkItcWEyLTAtNWJiY2E3YzgtMC0zMDJlMDIxNTAwODVjMDJmOTdhMDc3MTgxODA1OWZjY2Q1NzZkZTdjN2FmNjNhYTM0ODAyMTUwMDg2YTQ4MWFjNTVkYzczYWEwYjE1ZTU3YTUwN2U0NGFlZjEwNzIzNzY="}}
 
 /***/ }),
 /* 183 */
@@ -82565,6 +82565,9 @@ var instance = null;
 _toastr2.default.options.closeMethod = 'fadeOut';
 _toastr2.default.options.closeDuration = 300;
 _toastr2.default.options.closeEasing = 'swing';
+_toastr2.default.options.closeButton = true;
+_toastr2.default.options.preventDuplicates = true;
+_toastr2.default.options.progressBar = true;
 
 var OPTIONS = {
 	environment: "TEST",
@@ -82625,19 +82628,10 @@ var OneTimeFunding = function (_Component) {
 			var newFundsPence = event.target.value * 100;
 			var currency = parseInt(event.target.value).toFixed(2);
 			var newBalance = newFundsPence + _this.props.balance;
-			var newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-
-			console.log(_this.props.balance);
-			console.log(newFundsPence);
-			console.log(newFundsPence + _this.props.balance);
 
 			_this.setState({
 				additionalAmount: currency, newAmount: newBalance
 			});
-
-			// console.log("New: " + parseInt(newBalance) * 100);
-			// console.log(currency);
-			// console.log(parseInt(newBalance));
 		};
 
 		_this.handlePayment = function (event) {
@@ -82648,14 +82642,12 @@ var OneTimeFunding = function (_Component) {
 
 			if (!instance) {
 				console.log("No instance");
-			} else {
-				console.log("instance");
 			}
 
 			instance.tokenize(function (paysafeInstance, error, result) {
 				if (error) {
 					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
-					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+					_toastr2.default.error("Tokenization error: " + error.code + " " + error.detailedMessage);
 				} else {
 					var data = JSON.parse(sessionStorage.getItem('playerData'));
 					var amount = parseInt($('#fund-amount').val()) * 100;
@@ -82675,7 +82667,7 @@ var OneTimeFunding = function (_Component) {
 						funding_method_type: "card_profile",
 						save_method: saveValue,
 						billing_details: {
-							address_nickname: null,
+							address_nickname: $('#account-nickname').val(),
 							address1: $('#address_1').val(),
 							address2: $('#address_2').val(),
 							city: $('#city').val(),
@@ -82684,20 +82676,34 @@ var OneTimeFunding = function (_Component) {
 							zip: $('#zip').val()
 						}
 					}).then(function (response) {
-						_toastr2.default.success('Funding successful!');
+						console.log(result.token);
+						var message = "Funding successful";
+						if (defaultCheck) {
+							message = +" and payment method saved";
+						}
+						_toastr2.default.success(message + "!");
 						console.log(response);
 					}).catch(function (error) {
-						_toastr2.default.error('Funding successful!');
+						_toastr2.default.error('Funding error.');
 						console.log(error);
 					});
 				}
 			});
 		};
 
+		_this.handleVisibility = function () {
+			if ($('#save_payment').is(':checked')) {
+				_this.setState({ saveVisible: true });
+			} else {
+				_this.setState({ saveVisible: false });
+			}
+		};
+
 		_this.state = {
 			additionalAmount: 0,
 			newAmount: 0,
-			playerData: sessionStorage.getItem('playerData')
+			playerData: sessionStorage.getItem('playerData'),
+			saveVisible: false
 		};
 		return _this;
 	}
@@ -82776,11 +82782,31 @@ var OneTimeFunding = function (_Component) {
 										_react2.default.createElement(
 											"div",
 											{ className: "cell medium-12" },
-											_react2.default.createElement("input", { id: "save_payment", name: "save_payment", type: "checkbox" }),
+											_react2.default.createElement("input", { id: "save_payment", name: "save_payment", type: "checkbox", onChange: this.handleVisibility }),
 											_react2.default.createElement(
 												"label",
 												{ htmlFor: "save_payment" },
 												"Save payment method?"
+											)
+										)
+									),
+									_react2.default.createElement(
+										"div",
+										{ className: "grid-x grid-margin-x", style: { display: this.state.saveVisible == true ? 'block' : 'none' } },
+										_react2.default.createElement(
+											"div",
+											{ className: "cell medium-4" },
+											_react2.default.createElement(
+												"label",
+												{ htmlFor: "account-nickname" },
+												"Account Nickname",
+												_react2.default.createElement("input", { id: "account-nickname", type: "text", placeholder: "account nickname",
+													"aria-errormessage": "numberError", required: true })
+											),
+											_react2.default.createElement(
+												"span",
+												{ className: "form-error", id: "nickname-error", "data-form-error-for": "account-nickname" },
+												"Please add a name to identify this account."
 											)
 										)
 									)
