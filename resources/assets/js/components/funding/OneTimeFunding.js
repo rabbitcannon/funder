@@ -15,6 +15,9 @@ let instance = null;
 Toastr.options.closeMethod = 'fadeOut';
 Toastr.options.closeDuration = 300;
 Toastr.options.closeEasing = 'swing';
+Toastr.options.closeButton = true;
+Toastr.options.preventDuplicates = true;
+Toastr.options.progressBar = true;
 
 let OPTIONS = {
 	environment: "TEST",
@@ -44,7 +47,8 @@ class OneTimeFunding extends Component {
 		this.state = {
 			additionalAmount: 0,
 			newAmount: 0,
-			playerData: sessionStorage.getItem('playerData')
+			playerData: sessionStorage.getItem('playerData'),
+			saveVisible: false
 		}
 	}
 
@@ -65,19 +69,10 @@ class OneTimeFunding extends Component {
 		let newFundsPence = event.target.value * 100;
 		let currency = parseInt(event.target.value).toFixed(2);
 		let newBalance = newFundsPence + this.props.balance;
-		let newBalanceFormatted = parseFloat(newBalance).toFixed(2);
-
-		console.log(this.props.balance);
-		console.log(newFundsPence);
-		console.log(newFundsPence + this.props.balance);
 
 		this.setState({
 			additionalAmount: currency, newAmount: newBalance
 		});
-
-		// console.log("New: " + parseInt(newBalance) * 100);
-		// console.log(currency);
-		// console.log(parseInt(newBalance));
 	}
 
 	handlePayment = (event) => {
@@ -89,14 +84,11 @@ class OneTimeFunding extends Component {
 		if(!instance) {
 			console.log("No instance");
 		}
-		else {
-			console.log("instance");
-		}
 
 		instance.tokenize(function(paysafeInstance, error, result) {
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
-				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+				Toastr.error("Tokenization error: " + error.code + " " + error.detailedMessage);
 			}
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
@@ -118,7 +110,7 @@ class OneTimeFunding extends Component {
 					funding_method_type: "card_profile",
 					save_method: saveValue,
 					billing_details: {
-						address_nickname: null,
+						address_nickname: $('#account-nickname').val(),
 						address1: $('#address_1').val(),
 						address2: $('#address_2').val(),
 						city: $('#city').val(),
@@ -127,14 +119,27 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(function(response) {
-					Toastr.success('Funding successful!');
+					let message = "Funding successful";
+					if(defaultCheck) {
+						message =+ " and payment method saved";
+					}
+					Toastr.success(message + "!");
 					console.log(response);
 				}).catch(function (error) {
-					Toastr.error('Funding successful!');
+					Toastr.error('Funding error.');
 					console.log(error);
 				});
 			}
 		});
+	}
+
+	handleVisibility = () => {
+		if($('#save_payment').is(':checked')) {
+			this.setState({ saveVisible: true })
+		}
+		else {
+			this.setState({ saveVisible: false })
+		}
 	}
 
     render() {
@@ -177,8 +182,20 @@ class OneTimeFunding extends Component {
 
 									<div className="grid-x grid-margin-x">
 										<div className="cell medium-12">
-											<input id="save_payment" name="save_payment" type="checkbox" />
+											<input id="save_payment" name="save_payment" type="checkbox" onChange={this.handleVisibility} />
 											<label htmlFor="save_payment">Save payment method?</label>
+										</div>
+									</div>
+
+									<div className="grid-x grid-margin-x" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>
+										<div className="cell medium-4">
+											<label htmlFor="account-nickname">Account Nickname
+												<input id="account-nickname" type="text" placeholder="account nickname"
+													   aria-errormessage="numberError" required />
+											</label>
+											<span className="form-error" id="nickname-error" data-form-error-for="account-nickname">
+												Please add a name to identify this account.
+											</span>
 										</div>
 									</div>
 								</div>
