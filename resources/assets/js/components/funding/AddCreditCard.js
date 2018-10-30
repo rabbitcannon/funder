@@ -1,6 +1,7 @@
 import React, {Component} from "react";
-import Axios from 'axios';
-import Foundation from 'foundation-sites';
+import Axios from "axios";
+import Toastr from "toastr";
+import Foundation from "foundation-sites";
 
 import Address from '../layout/controls/Address';
 import CreditCard from "../layout/controls/CreditCard";
@@ -8,6 +9,13 @@ import config from  "../../config/config.json";
 
 const API_KEY = btoa(config.keys.paysafe);
 let instance = null;
+
+Toastr.options.closeMethod = 'fadeOut';
+Toastr.options.closeDuration = 300;
+Toastr.options.closeEasing = 'swing';
+Toastr.options.closeButton = true;
+Toastr.options.preventDuplicates = true;
+Toastr.options.progressBar = true;
 
 let OPTIONS = {
 	environment: "TEST",
@@ -49,6 +57,7 @@ class AddCreditCard extends Component {
 	handlePayment = (event) => {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
+		$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Saving');
 
 		event.preventDefault();
 
@@ -61,6 +70,8 @@ class AddCreditCard extends Component {
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+				$('#add-card-btn').html('Add Card');
+				Toastr.error(error.detailedMessage);
 			}
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
@@ -90,8 +101,14 @@ class AddCreditCard extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(function (response) {
+					Toastr.success('Payment method saved.');
+					console.log("---CreditCard---");
 					console.log(response);
+					$('form#add-card-form').trigger("reset");
+					$('#add-card-btn').html('Add Card');
 				}).catch(function (error) {
+					Toastr.error('Error saving payment method.');
+					$('#add-card-btn').html('Add Card');
 					console.log(error);
 				});
 			}

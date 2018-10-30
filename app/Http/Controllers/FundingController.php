@@ -95,6 +95,7 @@ class FundingController extends Controller
 
     public function addPaymentMethod(Request $request) {
         $info = json_decode($request->getContent(), true);
+        
         $type = $info['funding_method_type'];
         $nickname = $info['payment_method_nickname'];
         $token = $info['provider_temporary_token'];
@@ -134,7 +135,7 @@ class FundingController extends Controller
      */
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
-//var_dump($info);
+
         $type = $info['funding_method_type'];
         $token = $info['provider_temporary_token'];
         $address = [
@@ -178,6 +179,12 @@ class FundingController extends Controller
         return response()->json(
             $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player->toSimplePlayer())
         );
+    }
+
+    public function getFundingAccounts(Request $request) {
+        $info = json_decode($request->getContent(), true);
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
     }
 
     /**

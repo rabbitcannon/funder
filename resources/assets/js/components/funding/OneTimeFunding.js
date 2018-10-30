@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import Axios from "axios";
 import Toastr from "toastr";
+import Foundation from "foundation-sites";
 
 import Address from '../layout/controls/Address';
 import CreditCard from "../layout/controls/CreditCard";
@@ -78,6 +79,7 @@ class OneTimeFunding extends Component {
 	handlePayment = (event) => {
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
+		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
 
 		event.preventDefault();
 
@@ -89,6 +91,8 @@ class OneTimeFunding extends Component {
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				Toastr.error("Tokenization error: " + error.code + " " + error.detailedMessage);
+				$('#add-funds-btn').html('Add Funds');
+				Toastr.error(error.detailedMessage);
 			}
 			else {
 				let data = JSON.parse(sessionStorage.getItem('playerData'));
@@ -125,9 +129,13 @@ class OneTimeFunding extends Component {
 						message =+ " and payment method saved";
 					}
 					Toastr.success(message + "!");
+					$('form#add-funds-form').trigger("reset");
+					$('#add-funds-btn').html('Add Funds');
+					console.log("---OneTime---");
 					console.log(response);
 				}).catch(function (error) {
-					Toastr.error('Funding error.');
+					$('#add-funds-btn').html('Add Funds');
+					Toastr.error('Error: Unable to add funds.');
 					console.log(error);
 				});
 			}
