@@ -28,6 +28,8 @@ class AddNewCheckingAcct extends Component {
 								</div>
 							</div>
 						</div>
+
+						Checking Account.
 					</form>
 
 				</div>

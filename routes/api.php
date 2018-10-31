@@ -25,6 +25,7 @@ Route::group(['namespace'=>'App\Http\Controllers'], function() {
     /*
      * Payment Routes
      */
+    Route::post('/methods', 'FundingController@getPaymentMethods');
     Route::post('/methods/add', 'FundingController@addPaymentMethod');
 
     /*

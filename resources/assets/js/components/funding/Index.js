@@ -3,6 +3,7 @@ import React, {Component} from "react";
 import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
 import OneTimeFunding from './OneTimeFunding';
+import FundingOptions from "./FundingOptions";
 
 class Index extends Component {
 	constructor(props) {
@@ -71,13 +72,15 @@ class Index extends Component {
 				<div className="grid-container">
 					<div className="grid-x grid-margin-x">
 						<div className="cell large-4">
-							<label>Select Funding Method
-								<select onChange={this.handleSelection.bind(this)}>
-									<option value="default">-- Select One --</option>
-									<option value="new_debit">Add new debit or credit card</option>
-									<option value="new_checking">Add new checking account</option>
-								</select>
-							</label>
+							{/*<label>Select Funding Method*/}
+								{/*<select onChange={this.handleSelection.bind(this)}>*/}
+									{/*<option value="default">-- Select One --</option>*/}
+									{/*<option value="new_debit">Add new debit or credit card</option>*/}
+									{/*<option value="new_checking">Add new checking account</option>*/}
+								{/*</select>*/}
+							{/*</label>*/}
+							<FundingOptions paymentMethod={this.state.paymentMethod} separator={this.state.separator}
+											handleSelection={this.handleSelection}/>
 						</div>
 
 						<div className="cell large-8 text-right">
