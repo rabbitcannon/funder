@@ -51,7 +51,7 @@ class Header extends Component {
 				</div>
 				<div className="top-bar-right">
 					<ul className="menu __logout">
-						<li className="menu-text">Balance: ${cashBalance}</li>
+						<li className="menu-text">Balance: ${cashBalance.toFixed(2)}</li>
 						<li className="menu-text">Hi, {player.firstname}!</li>
 						<li>
 							<a href="#" onClick={this.handleLogout.bind(this)}>

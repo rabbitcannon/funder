@@ -93,15 +93,24 @@ class FundingController extends Controller
         ]);
     }
 
+    /**
+     * @param Request $request
+     * @throws FundingException
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     * @throws \Eos\Common\Exceptions\EosWalletServiceException
+     */
     public function addPaymentMethod(Request $request) {
         $info = json_decode($request->getContent(), true);
 
         $type = $info['funding_method_type'];
         $nickname = $info['payment_method_nickname'];
         $token = $info['provider_temporary_token'];
+
         $details = [
             'provider_temporary_token' => $token,
         ];
+
         $details['address'] = [
             //todo: may need a better nickname mechanism for addresses
             'address_nickname' => str_slug($info['billing_details']['address1']),
@@ -158,13 +167,16 @@ class FundingController extends Controller
         $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 
         if($info['save_method'] === true) {
-            $nickname = null;
-            $default = null;
+            $nickname = $info['payment_method_nickname'];
+            $default = $info['default'];
+
             $details = [
                 'provider_temporary_token' => $token,
             ];
+
             $details['address'] = [
                 'provider_temporary_token' => $token,
+                'address_nickname' => str_slug($info['billing_details']['address1']),
                 'address1' => $info['billing_details']['address1'],
                 'address2' => $info['billing_details']['address2'],
                 'city' => $info['billing_details']['city'],
@@ -172,7 +184,12 @@ class FundingController extends Controller
                 'country' => $info['billing_details']['country'],
                 'zip' => $info['billing_details']['zip'],
             ];
-//            $address
+//            var_dump($type);
+//            var_dump($nickname);
+//            var_dump($details);
+//            var_dump($default);
+//            var_dump($player->toSimplePlayer());
+//            die;
             $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
         }
 
@@ -181,6 +198,12 @@ class FundingController extends Controller
         );
     }
 
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     */
     public function getPaymentMethods(Request $request) {
         $info = json_decode($request->getContent(), true);
         $hash = $info['playerHash'];

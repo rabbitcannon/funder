@@ -79757,7 +79757,7 @@ var Header = function (_Component) {
 							"li",
 							{ className: "menu-text" },
 							"Balance: $",
-							cashBalance
+							cashBalance.toFixed(2)
 						),
 						_react2.default.createElement(
 							"li",
@@ -83160,10 +83160,12 @@ var OneTimeFunding = function (_Component) {
 						playerHash: data.player.playerhash,
 						amount: amount,
 						provider_temporary_token: result.token,
+						payment_method_nickname: $('#account-nickname').val(),
 						funding_method_type: "card_profile",
 						save_method: saveValue,
+						default: false,
 						billing_details: {
-							address_nickname: $('#account-nickname').val(),
+							address_nickname: null,
 							address1: $('#address_1').val(),
 							address2: $('#address_2').val(),
 							city: $('#city').val(),
@@ -83172,16 +83174,14 @@ var OneTimeFunding = function (_Component) {
 							zip: $('#zip').val()
 						}
 					}).then(function (response) {
-						console.log(result.token);
+						console.log(response.data);
 						var message = "Funding successful";
 						if (defaultCheck) {
-							message = +" and payment method saved";
+							message += " and payment method saved";
 						}
 						_toastr2.default.success(message + "!");
 						$('form#add-funds-form').trigger("reset");
 						$('#add-funds-btn').html('Add Funds');
-						console.log("---OneTime---");
-						console.log(response);
 					}).catch(function (error) {
 						$('#add-funds-btn').html('Add Funds');
 						_toastr2.default.error('Error: Unable to add funds.');
@@ -84000,10 +84000,6 @@ var FundingOptions = function (_Component) {
 					);
 				}
 			});
-			// let cardMethods = _.map(this.state.cardProfiles, (method) => {
-			// 	return <option key={method.id}
-			// 				   value={method.id}>{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}</option>;
-			// });
 
 			return _react2.default.createElement(
 				"label",

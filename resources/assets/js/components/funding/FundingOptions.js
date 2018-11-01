@@ -57,10 +57,6 @@ class FundingOptions extends Component {
 				return <option key={1} disabled>No EFT accounts</option>;
 			}
 		});
-		// let cardMethods = _.map(this.state.cardProfiles, (method) => {
-		// 	return <option key={method.id}
-		// 				   value={method.id}>{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}</option>;
-		// });
 
         return (
 			<label>Select Funding Method <img id="loader" src="../../images/loaders/loader_black_15.gif" />

@@ -111,10 +111,12 @@ class OneTimeFunding extends Component {
 					playerHash: data.player.playerhash,
 					amount: amount,
 					provider_temporary_token: result.token,
+					payment_method_nickname: $('#account-nickname').val(),
 					funding_method_type: "card_profile",
 					save_method: saveValue,
+					default: false,
 					billing_details: {
-						address_nickname: $('#account-nickname').val(),
+						address_nickname: null,
 						address1: $('#address_1').val(),
 						address2: $('#address_2').val(),
 						city: $('#city').val(),
@@ -123,16 +125,14 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(function(response) {
-					console.log(result.token)
+					console.log(response.data)
 					let message = "Funding successful";
 					if(defaultCheck) {
-						message =+ " and payment method saved";
+						message += " and payment method saved";
 					}
 					Toastr.success(message + "!");
 					$('form#add-funds-form').trigger("reset");
 					$('#add-funds-btn').html('Add Funds');
-					console.log("---OneTime---");
-					console.log(response);
 				}).catch(function (error) {
 					$('#add-funds-btn').html('Add Funds');
 					Toastr.error('Error: Unable to add funds.');
