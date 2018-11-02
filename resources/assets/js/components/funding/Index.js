@@ -13,10 +13,10 @@ class Index extends Component {
 	}
 
 	componentDidMount = () => {
-		$('#add-funds').on('click', function(event) {
+		$('#add-funds').on('click', (event) => {
 			event.preventDefault();
 			this.setState({paymentMethod: "oneTimeFunding", separator: true});
-		}.bind(this));
+		});
 	}
 
 	handleSelection = (event) => {
@@ -27,6 +27,10 @@ class Index extends Component {
 		else {
 			this.setState({separator: false})
 		}
+	}
+
+	updateBalance = () => {
+		this.props.updateBalance();
 	}
 
 	renderSeparator = () => {
@@ -58,7 +62,7 @@ class Index extends Component {
 				component = <AddCreditCard/>;
 				break;
 			case "oneTimeFunding":
-				component = <OneTimeFunding balance={this.props.balance}/>;
+				component = <OneTimeFunding balance={this.props.balance} updateBalance={this.updateBalance}/>;
 				break;
 			case "new_checking":
 				component = <AddCheckingAcct/>;
@@ -72,13 +76,6 @@ class Index extends Component {
 				<div className="grid-container">
 					<div className="grid-x grid-margin-x">
 						<div className="cell large-4">
-							{/*<label>Select Funding Method*/}
-								{/*<select onChange={this.handleSelection.bind(this)}>*/}
-									{/*<option value="default">-- Select One --</option>*/}
-									{/*<option value="new_debit">Add new debit or credit card</option>*/}
-									{/*<option value="new_checking">Add new checking account</option>*/}
-								{/*</select>*/}
-							{/*</label>*/}
 							<FundingOptions paymentMethod={this.state.paymentMethod} separator={this.state.separator}
 											handleSelection={this.handleSelection}/>
 						</div>

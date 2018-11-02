@@ -13,7 +13,6 @@ class FundingBlock extends Component {
     render() {
 		const balance = this.props.balance;
 		let cashBalance = balance / 100;
-		// let newBalance = parseInt(this.props.newAmount).toFixed(2) + cashBalance;
 		let newBalance = this.props.newAmount / 100;
 		let additionalFunds = this.props.additionalAmount;
 
@@ -26,7 +25,7 @@ class FundingBlock extends Component {
 							<span>Current Wallet</span>
 						</div>
 						<div>
-							<span>${cashBalance}</span>
+							<span>${cashBalance.toFixed(2)}</span>
 						</div>
 					</div>
 					<div className="cell medium-4 __item">
@@ -34,7 +33,6 @@ class FundingBlock extends Component {
 							<span>Additional Funds</span>
 						</div>
 						<div>
-							{/*<span>{this.props.additionalAmount}</span>*/}
 							<span>
 								<CountUp
 									end={additionalFunds}
@@ -49,7 +47,6 @@ class FundingBlock extends Component {
 							<span>New Balance</span>
 						</div>
 						<div>
-							{/*<span>${this.props.newAmount}</span>*/}
 							<span>
 								<CountUp
 									end={newBalance}

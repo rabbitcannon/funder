@@ -184,12 +184,7 @@ class FundingController extends Controller
                 'country' => $info['billing_details']['country'],
                 'zip' => $info['billing_details']['zip'],
             ];
-//            var_dump($type);
-//            var_dump($nickname);
-//            var_dump($details);
-//            var_dump($default);
-//            var_dump($player->toSimplePlayer());
-//            die;
+
             $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
         }
 
@@ -251,6 +246,27 @@ class FundingController extends Controller
         $funding = $wallet->getFundingOptions( $player->toSimplePlayer(), null );
 
         return response()->json($funding);
+    }
+
+
+    /**
+     * @param $hash
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     */
+    public function getPlayerBalance($hash) {
+        $player = Player::byHash($hash)->first();
+        $balance = 0;
+
+        $wallet = new WalletService();
+        $accounts = $wallet->getAccounts($player);
+
+        foreach($accounts as $account) {
+            $balance += $account->balance;
+        }
+
+        return response()->json(['balance' => $balance]);
     }
 
     /**

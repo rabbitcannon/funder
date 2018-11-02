@@ -8,19 +8,17 @@ class Header extends Component {
 		super(props);
 
 		this.state = {
-			currentBlanace: this.props.balance,
+			currentBalance: this.props.balance,
 			playerData: this.props.playerData || {},
 		}
 	}
 
-	componentDidMount =() => {
-		// let player = JSON.parse(this.state.playerData);
-		// let accounts = player.accounts;
-		// let balance = 0;
-		//
-		// _.each(accounts, function(index) {
-		// 	balance += index.balance;
-		// });
+	componentWillReceiveProps(nextProps) {
+		if(this.props != nextProps) {
+			this.setState({
+				currentBalance: nextProps.balance
+			});
+		}
 	}
 
 	handleLogout = () => {
@@ -33,7 +31,7 @@ class Header extends Component {
 		let data = JSON.parse(this.state.playerData);
 		let player = data.player;
 
-		const balance = this.state.currentBlanace;
+		const balance = this.state.currentBalance;
 		let cashBalance = balance / 100;
 
         return (
@@ -51,7 +49,14 @@ class Header extends Component {
 				</div>
 				<div className="top-bar-right">
 					<ul className="menu __logout">
-						<li className="menu-text">Balance: ${cashBalance.toFixed(2)}</li>
+						<li className="menu-text">Balance:&nbsp;
+							<span className="animated fadeIn" id="balance-loader" >
+								<img src="../../images/loaders/loader_pink_17_sharp.svg" />
+							</span>
+							<span id="balance">
+								${cashBalance.toFixed(2)}
+							</span>
+						</li>
 						<li className="menu-text">Hi, {player.firstname}!</li>
 						<li>
 							<a href="#" onClick={this.handleLogout.bind(this)}>

@@ -32,4 +32,5 @@ Route::group(['namespace'=>'App\Http\Controllers'], function() {
      * Fund Routes
      */
     Route::post('/funds/add', 'FundingController@fundWallet');
+    Route::get('/funds/balance/{hash}', 'FundingController@getPlayerBalance');
 });

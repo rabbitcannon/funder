@@ -1,22 +1,45 @@
 import React, {Component} from "react";
+import Axios from "axios";
+import _ from "underscore";
 
 import Header from "./Header";
-import DepositsIndex from '../deposits/Index';
+import FundingIndex from '../funding/Index';
 import AccountIndex from '../accounts/Index';
-import _ from "underscore";
 
 class Index extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
+			cashBalance: 0,
 			page: "home",
 			playerData: this.props.playerData || {}
 		}
 	}
 
+	componentDidMount = () => {
+		this.updateBalance();
+	}
+
 	setPage = (page) => {
 		this.setState({ page: page });
+	}
+
+	updateBalance = async () => {
+		let data = JSON.parse(this.state.playerData);
+		let player = data.player;
+		let hash = player.playerhash;
+
+		await Axios.get('/api/funds/balance/' + hash).then((response) => {
+			this.setState({
+				cashBalance: response.data.balance,
+			});
+
+			$('#balance-loader').hide();
+			$('#balance').show();
+		}).catch(function(error) {
+			console.log(error);
+		});
 	}
 
     render() {
@@ -24,11 +47,6 @@ class Index extends Component {
 		let accounts = data.accounts;
 		let page = this.state.page;
 		let currentPage = null;
-		let balance = 0;
-
-		_.each(accounts, function(index) {
-			balance += index.balance;
-		});
 
 		switch(page) {
 			case "home":
@@ -38,7 +56,7 @@ class Index extends Component {
 				currentPage = <AccountIndex accounts={accounts}/>;
 				break;
 			case "deposits":
-				currentPage = <DepositsIndex balance={balance}/>;
+				currentPage = <FundingIndex balance={this.state.cashBalance} updateBalance={this.updateBalance} />;
 				break;
 			default:
 				currentPage = null;
@@ -46,7 +64,7 @@ class Index extends Component {
 
         return (
             <div>
-				<Header playerData={this.state.playerData} setPage={this.setPage.bind(this)} balance={balance} />
+				<Header playerData={this.state.playerData} setPage={this.setPage.bind(this)} balance={this.state.cashBalance} />
 				<div id="content" className="grid-container">
 					<div className="grid-x grid-margin-x">
 						<div className="cell small-12">

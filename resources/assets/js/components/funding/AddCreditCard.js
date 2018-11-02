@@ -66,7 +66,6 @@ class AddCreditCard extends Component {
 		}
 
 		instance.tokenize(function(paysafeInstance, error, result) {
-			console.log(result)
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
@@ -102,8 +101,6 @@ class AddCreditCard extends Component {
 					}
 				}).then(function (response) {
 					Toastr.success('Payment method saved.');
-					console.log("---CreditCard---");
-					console.log(response);
 					$('form#add-card-form').trigger("reset");
 					$('#add-card-btn').html('Add Card');
 				}).catch(function (error) {

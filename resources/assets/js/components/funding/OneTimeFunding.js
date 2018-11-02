@@ -51,6 +51,8 @@ class OneTimeFunding extends Component {
 			playerData: sessionStorage.getItem('playerData'),
 			saveVisible: false
 		}
+
+		this.updateBalance = this.updateBalance.bind(this);
 	}
 
 	componentDidMount = async () => {
@@ -64,6 +66,7 @@ class OneTimeFunding extends Component {
 				instance = paysafeInstance;
 			}
 		});
+		this.updateBalance();
 	}
 
 	handleAmountChange = (event) => {
@@ -124,7 +127,7 @@ class OneTimeFunding extends Component {
 						country: 'US',
 						zip: $('#zip').val(),
 					}
-				}).then(function(response) {
+				}).then((response) => {
 					console.log(response.data)
 					let message = "Funding successful";
 					if(defaultCheck) {
@@ -133,13 +136,15 @@ class OneTimeFunding extends Component {
 					Toastr.success(message + "!");
 					$('form#add-funds-form').trigger("reset");
 					$('#add-funds-btn').html('Add Funds');
-				}).catch(function (error) {
+				}).catch((error) => {
 					$('#add-funds-btn').html('Add Funds');
 					Toastr.error('Error: Unable to add funds.');
 					console.log(error);
 				});
 			}
 		});
+
+		this.updateBalance();
 	}
 
 	handleVisibility = () => {
@@ -149,6 +154,10 @@ class OneTimeFunding extends Component {
 		else {
 			this.setState({ saveVisible: false })
 		}
+	}
+
+	updateBalance = () => {
+		this.props.updateBalance();
 	}
 
     render() {
