@@ -83139,7 +83139,6 @@ var OneTimeFunding = function (_Component) {
 				console.log("No instance");
 			}
 
-			// instance.tokenize(function(paysafeInstance, error, result) {
 			instance.tokenize(function (paysafeInstance, error, result) {
 				if (error) {
 					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
@@ -83175,8 +83174,7 @@ var OneTimeFunding = function (_Component) {
 							country: 'US',
 							zip: $('#zip').val()
 						}
-					}).then(function (response) {
-						console.log(response.data);
+					}).then(function () {
 						var message = "Funding successful";
 						if (defaultCheck) {
 							message += " and payment method saved";
@@ -83185,6 +83183,10 @@ var OneTimeFunding = function (_Component) {
 						$('form#add-funds-form').trigger("reset");
 						$('#add-funds-btn').html('Add Funds');
 						_this.updateBalance();
+						_this.setState({
+							additionalAmount: 0,
+							newAmount: 0
+						});
 					}).catch(function (error) {
 						$('#add-funds-btn').html('Add Funds');
 						_toastr2.default.error('Error: Unable to add funds.');

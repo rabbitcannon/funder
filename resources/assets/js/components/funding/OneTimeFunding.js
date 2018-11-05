@@ -91,7 +91,6 @@ class OneTimeFunding extends Component {
 			console.log("No instance");
 		}
 
-		// instance.tokenize(function(paysafeInstance, error, result) {
 		instance.tokenize((paysafeInstance, error, result) => {
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
@@ -129,8 +128,7 @@ class OneTimeFunding extends Component {
 						country: 'US',
 						zip: $('#zip').val(),
 					}
-				}).then((response) => {
-					console.log(response.data);
+				}).then(() => {
 					let message = "Funding successful";
 					if(defaultCheck) {
 						message += " and payment method saved";
@@ -139,6 +137,10 @@ class OneTimeFunding extends Component {
 					$('form#add-funds-form').trigger("reset");
 					$('#add-funds-btn').html('Add Funds');
 					this.updateBalance();
+					this.setState({
+						additionalAmount: 0,
+						newAmount: 0,
+					});
 				}).catch((error) => {
 					$('#add-funds-btn').html('Add Funds');
 					Toastr.error('Error: Unable to add funds.');
