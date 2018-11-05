@@ -82400,7 +82400,7 @@ var Index = function (_Component) {
 		var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
 
 		_this.componentDidMount = function () {
-			$('#add-funds').on('click', function (event) {
+			$('#add-funds-toggle').on('click', function (event) {
 				event.preventDefault();
 				_this.setState({ paymentMethod: "oneTimeFunding", separator: true });
 			});
@@ -82443,7 +82443,7 @@ var Index = function (_Component) {
 			});
 		};
 
-		_this.state = { paymentMethod: null, separator: false };
+		_this.state = { balance: _this.props.balance, paymentMethod: null, separator: false };
 		return _this;
 	}
 
@@ -82487,7 +82487,7 @@ var Index = function (_Component) {
 							{ className: 'cell large-8 text-right' },
 							_react2.default.createElement(
 								'button',
-								{ id: 'add-funds', className: 'button' },
+								{ id: 'add-funds-toggle', className: 'button' },
 								'+ Instant Funds'
 							)
 						)
@@ -83108,7 +83108,7 @@ var OneTimeFunding = function (_Component) {
 							});
 
 						case 3:
-							_this.updateBalance();
+							console.log(_this.props.balance);
 
 						case 4:
 						case "end":
@@ -83139,6 +83139,7 @@ var OneTimeFunding = function (_Component) {
 				console.log("No instance");
 			}
 
+			// instance.tokenize(function(paysafeInstance, error, result) {
 			instance.tokenize(function (paysafeInstance, error, result) {
 				if (error) {
 					$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage);
@@ -83183,6 +83184,7 @@ var OneTimeFunding = function (_Component) {
 						_toastr2.default.success(message + "!");
 						$('form#add-funds-form').trigger("reset");
 						$('#add-funds-btn').html('Add Funds');
+						_this.updateBalance();
 					}).catch(function (error) {
 						$('#add-funds-btn').html('Add Funds');
 						_toastr2.default.error('Error: Unable to add funds.');
@@ -83190,8 +83192,6 @@ var OneTimeFunding = function (_Component) {
 					});
 				}
 			});
-
-			// this.updateBalance();
 		};
 
 		_this.handleVisibility = function () {
@@ -83208,6 +83208,7 @@ var OneTimeFunding = function (_Component) {
 
 		_this.state = {
 			additionalAmount: 0,
+			balance: _this.props.balance,
 			newAmount: 0,
 			playerData: sessionStorage.getItem('playerData'),
 			saveVisible: false

@@ -9,11 +9,11 @@ class Index extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {paymentMethod: null, separator: false}
+		this.state = {balance: this.props.balance ,paymentMethod: null, separator: false}
 	}
 
 	componentDidMount = () => {
-		$('#add-funds').on('click', (event) => {
+		$('#add-funds-toggle').on('click', (event) => {
 			event.preventDefault();
 			this.setState({paymentMethod: "oneTimeFunding", separator: true});
 		});
@@ -81,7 +81,7 @@ class Index extends Component {
 						</div>
 
 						<div className="cell large-8 text-right">
-							<button id="add-funds" className="button">+ Instant Funds</button>
+							<button id="add-funds-toggle" className="button">+ Instant Funds</button>
 						</div>
 					</div>
 				</div>

@@ -47,6 +47,7 @@ class OneTimeFunding extends Component {
 
 		this.state = {
 			additionalAmount: 0,
+			balance: this.props.balance,
 			newAmount: 0,
 			playerData: sessionStorage.getItem('playerData'),
 			saveVisible: false
@@ -66,7 +67,7 @@ class OneTimeFunding extends Component {
 				instance = paysafeInstance;
 			}
 		});
-		this.updateBalance();
+		console.log(this.props.balance);
 	}
 
 	handleAmountChange = (event) => {
@@ -90,7 +91,8 @@ class OneTimeFunding extends Component {
 			console.log("No instance");
 		}
 
-		instance.tokenize(function(paysafeInstance, error, result) {
+		// instance.tokenize(function(paysafeInstance, error, result) {
+		instance.tokenize((paysafeInstance, error, result) => {
 			if(error) {
 				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				Toastr.error("Tokenization error: " + error.code + " " + error.detailedMessage);
@@ -128,7 +130,7 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then((response) => {
-					console.log(response.data)
+					console.log(response.data);
 					let message = "Funding successful";
 					if(defaultCheck) {
 						message += " and payment method saved";
@@ -136,6 +138,7 @@ class OneTimeFunding extends Component {
 					Toastr.success(message + "!");
 					$('form#add-funds-form').trigger("reset");
 					$('#add-funds-btn').html('Add Funds');
+					this.updateBalance();
 				}).catch((error) => {
 					$('#add-funds-btn').html('Add Funds');
 					Toastr.error('Error: Unable to add funds.');
@@ -143,8 +146,6 @@ class OneTimeFunding extends Component {
 				});
 			}
 		});
-
-		this.updateBalance();
 	}
 
 	handleVisibility = () => {
