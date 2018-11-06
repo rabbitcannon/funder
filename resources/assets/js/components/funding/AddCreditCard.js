@@ -44,7 +44,6 @@ class AddCreditCard extends Component {
 		$(document).foundation();
 
 		await window.paysafe.fields.setup(API_KEY, OPTIONS, function(paysafeInstance, error) {
-			console.log(instance);
 			if(error) {
 				console.log("Setup error: " + error.code + " " + error.detailedMessage);
 			}
@@ -55,11 +54,13 @@ class AddCreditCard extends Component {
 	}
 
 	handlePayment = (event) => {
-		let $errorSpan = $("#form-submit-error");
-		$errorSpan.text("");
+		event.preventDefault();
+
+		$('form#add-card-form').foundation('validateForm');
 		$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Saving');
 
-		event.preventDefault();
+		let $errorSpan = $("#form-card-error");
+		$errorSpan.text("");
 
 		if(!instance) {
 			console.log("No instance");
@@ -99,11 +100,11 @@ class AddCreditCard extends Component {
 						country: 'US',
 						zip: $('#zip').val(),
 					}
-				}).then(function (response) {
+				}).then(function(response) {
 					Toastr.success('Payment method saved.');
 					$('form#add-card-form').trigger("reset");
 					$('#add-card-btn').html('Add Card');
-				}).catch(function (error) {
+				}).catch(function(error) {
 					Toastr.error('Error saving payment method.');
 					$('#add-card-btn').html('Add Card');
 					console.log(error);
@@ -156,7 +157,7 @@ class AddCreditCard extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-12 text-center">
-									<span className="form-error" id="form-submit-error"></span>
+									<span className="form-error" id="form-card-error"></span>
 								</div>
 							</div>
 
@@ -165,7 +166,6 @@ class AddCreditCard extends Component {
 									<button id="add-card-btn" className="button" onClick={this.handlePayment}>Add Card</button>
 								</div>
 							</div>
-
 						</div>
 					</form>
 				</div>

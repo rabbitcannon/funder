@@ -5,10 +5,10 @@ import Foundation from "foundation-sites";
 
 import Address from '../layout/controls/Address';
 import CreditCard from "../layout/controls/CreditCard";
-
-import config from  "../../config/config.json";
 import FundAmount from "../layout/controls/FundAmount";
 import FundingBlock from "./FundingBlock";
+
+import config from  "../../config/config.json";
 
 const API_KEY = btoa(config.keys.paysafe);
 let instance = null;
@@ -67,7 +67,6 @@ class OneTimeFunding extends Component {
 				instance = paysafeInstance;
 			}
 		});
-		console.log(this.props.balance);
 	}
 
 	handleAmountChange = (event) => {
@@ -81,11 +80,13 @@ class OneTimeFunding extends Component {
 	}
 
 	handlePayment = (event) => {
+		event.preventDefault();
+
 		let $errorSpan = $("#form-submit-error");
 		$errorSpan.text("");
-		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
 
-		event.preventDefault();
+		$('form#add-funds-form').foundation('validateForm');
+		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
 
 		if(!instance) {
 			console.log("No instance");
@@ -129,18 +130,22 @@ class OneTimeFunding extends Component {
 						zip: $('#zip').val(),
 					}
 				}).then(() => {
+					$('form#add-funds-form').trigger("reset");
+					$('#add-funds-btn').html('Add Funds');
+
 					let message = "Funding successful";
+
 					if(defaultCheck) {
 						message += " and payment method saved";
 					}
-					Toastr.success(message + "!");
-					$('form#add-funds-form').trigger("reset");
-					$('#add-funds-btn').html('Add Funds');
-					this.updateBalance();
+
 					this.setState({
 						additionalAmount: 0,
 						newAmount: 0,
 					});
+					this.updateBalance();
+
+					Toastr.success(message + "!");
 				}).catch((error) => {
 					$('#add-funds-btn').html('Add Funds');
 					Toastr.error('Error: Unable to add funds.');
