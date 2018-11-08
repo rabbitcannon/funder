@@ -8,7 +8,7 @@ class FundingOptions extends Component {
 
 		this.state = { cardProfiles: [], eftProfiles: [] }
 	}
-//addresses - eft_profiles
+
 	componentDidMount = () => {
 		this.getFundingOptions();
 
@@ -22,7 +22,6 @@ class FundingOptions extends Component {
 		await Axios.post('/api/methods', {
 			playerHash: data.player.playerhash,
 		}).then(function(response) {
-			// console.log(response.data);
 			this.setState({
 				cardProfiles: response.data.card_profiles,
 				eftProfiles: response.data.eft_profiles
@@ -39,8 +38,9 @@ class FundingOptions extends Component {
 		let cardMethods = _.map(this.state.cardProfiles, (method) => {
 			if(this.state.cardProfiles.length > 0) {
 				return <option key={method.id}
-							   value={method.id}>{method.payment_method_nickname}:
-					xxxx-xxxx-xxxx-{method.last_4_digits}</option>;
+							   value="card"  id={"card-" + method.id}>
+							{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}
+					</option>;
 			}
 			else {
 				return <option key={1} disabled>No Credit/Debit cards</option>;
@@ -50,8 +50,9 @@ class FundingOptions extends Component {
 		let eftMethods = _.map(this.state.eftProfiles, (method) => {
 			if(this.state.cardProfiles.length > 0) {
 				return <option key={method.id}
-							   value={method.id}>{method.payment_method_nickname}:
-					xxxx-xxxx-xxxx-{method.last_4_digits}</option>;
+							   value="card"  id={"eft-" + method.id}>
+							{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}
+					</option>;
 			}
 			else {
 				return <option key={1} disabled>No EFT accounts</option>;

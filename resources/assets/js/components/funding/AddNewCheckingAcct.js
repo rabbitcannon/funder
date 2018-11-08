@@ -3,6 +3,7 @@ import Address from "../layout/controls/Address";
 import EFTAccount from "../layout/controls/EFTAccount";
 import Foundation from "foundation-sites";
 import Toastr from "toastr";
+import Axios from "axios";
 
 Toastr.options.closeMethod = 'fadeOut';
 Toastr.options.closeDuration = 300;
@@ -25,8 +26,54 @@ class AddNewCheckingAcct extends Component {
 
 		$('form#add-checking-form').foundation('validateForm');
 
-		let $errorSpan = $("#form-acct-error");
-		$errorSpan.text("");
+		$('form#add-checking-form').on("forminvalid.zf.abide", function(ev,frm) {
+			console.log("Form id "+ev.target.id+" is invalid");
+		});
+		$('form#add-checking-form').on("formvalid.zf.abide", function(ev,frm) {
+			console.log("Form id "+ev.target.id+" is valid");
+		});
+
+		let data = JSON.parse(sessionStorage.getItem('playerData'));
+		let defaultCheck = $('#make_default').is(':checked')
+		let checkValue = null;
+
+		if(defaultCheck) {
+			checkValue = true;
+		}
+		else {
+			checkValue = false;
+		}
+
+		Axios.post('/api/methods/add', {
+			playerHash: data.player.playerhash,
+			eft_profile: {
+				bank_name: $('#bank-name').val(),
+				bank_account_type: "checking",
+				account_holder_name: $('#card-name').val(),
+				account_number: $('#acct-number').val(),
+				routing_number: $('#routing-number').val(),
+			},
+			payment_method_nickname: $('#account-nickname').val(),
+			funding_method_type: "eft_profile",
+			default: checkValue,
+			billing_details: {
+				address_nickname: null,
+				address1: $('#address_1').val(),
+				address2: $('#address_2').val(),
+				city: $('#city').val(),
+				state: $('#state').val(),
+				country: 'US',
+				zip: $('#zip').val(),
+			}
+		}).then(function(response) {
+			Toastr.success('Payment method saved.');
+			$('form#add-card-form').trigger("reset");
+			$('#add-card-btn').html('Add Card');
+		}).catch(function(error) {
+			Toastr.error('Error saving payment method.');
+			$('#add-card-btn').html('Add Card');
+			console.log(error);
+		});
 	}
 
     render() {
@@ -47,14 +94,6 @@ class AddNewCheckingAcct extends Component {
 						<div className="grid-container">
 
 							<div className="grid-x grid-margin-x">
-								<div className="cell medium-12">
-									<div data-abide-error className="alert callout" style={styles.hidden}>
-										<p><i className="fi-alert"></i> There are some errors in your form.</p>
-									</div>
-								</div>
-							</div>
-
-							<div className="grid-x grid-margin-x">
 								<div className="cell medium-4">
 									<label htmlFor="account-nickname">Account Nickname
 										<input id="account-nickname" type="text" placeholder="account nickname"
@@ -69,12 +108,6 @@ class AddNewCheckingAcct extends Component {
 							<div className="grid-x grid-margin-x">
 								<Address />
 								<EFTAccount showDefault={true}/>
-							</div>
-
-							<div className="grid-x grid-margin-x">
-								<div className="cell medium-12 text-center">
-									<span className="form-error" id="form-acct-error"></span>
-								</div>
 							</div>
 
 							<div className="grid-x grid-margin-x">

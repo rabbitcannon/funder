@@ -4,12 +4,18 @@ import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
 import OneTimeFunding from './OneTimeFunding';
 import FundingOptions from "./FundingOptions";
+import ExistingProfile from "./ExistingProfile";
 
 class Index extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = {balance: this.props.balance ,paymentMethod: null, separator: false}
+		this.state = {
+			balance: this.props.balance,
+			existingMethod: null,
+			paymentMethod: null,
+			separator: false
+		}
 	}
 
 	componentDidMount = () => {
@@ -20,7 +26,14 @@ class Index extends Component {
 	}
 
 	handleSelection = (event) => {
-		this.setState({paymentMethod: event.target.value});
+		let selected = $('#funding-methods').find('option:selected').attr('id');
+
+		if(selected !== undefined) {
+			console.log("Select: " + selected);
+		}
+
+		this.setState({existingMethod: selected, paymentMethod: event.target.value});
+
 		if(this.state.paymentMethod != "default") {
 			this.setState({separator: true});
 		}
@@ -67,6 +80,9 @@ class Index extends Component {
 			case "new_checking":
 				component = <AddCheckingAcct/>;
 				break;
+			case "card":
+				component = <ExistingProfile paymentMethods={this.state.paymentMethod} existingMethod={this.state.existingMethod} />;
+				break;
 			default:
 				component = "Select Above";
 		}
@@ -77,7 +93,7 @@ class Index extends Component {
 					<div className="grid-x grid-margin-x">
 						<div className="cell large-4">
 							<FundingOptions paymentMethod={this.state.paymentMethod} separator={this.state.separator}
-											handleSelection={this.handleSelection}/>
+											handleSelection={this.handleSelection} />
 						</div>
 
 						<div className="cell large-8 text-right">

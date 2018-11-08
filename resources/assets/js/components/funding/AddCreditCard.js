@@ -59,16 +59,12 @@ class AddCreditCard extends Component {
 		$('form#add-card-form').foundation('validateForm');
 		$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Saving');
 
-		let $errorSpan = $("#form-card-error");
-		$errorSpan.text("");
-
 		if(!instance) {
 			console.log("No instance");
 		}
 
 		instance.tokenize(function(paysafeInstance, error, result) {
 			if(error) {
-				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				$('#add-card-btn').html('Add Card');
 				Toastr.error(error.detailedMessage);
@@ -103,6 +99,9 @@ class AddCreditCard extends Component {
 				}).then(function(response) {
 					Toastr.success('Payment method saved.');
 					$('form#add-card-form').trigger("reset");
+					$('#card-number').text("");
+					$('#exp-date').text("");
+					$('#cvv').text("");
 					$('#add-card-btn').html('Add Card');
 				}).catch(function(error) {
 					Toastr.error('Error saving payment method.');
@@ -129,14 +128,6 @@ class AddCreditCard extends Component {
 
 					<form id="add-card-form" data-abide noValidate>
 						<div className="grid-container">
-
-							<div className="grid-x grid-margin-x">
-								<div className="cell medium-12">
-									<div data-abide-error className="alert callout" style={styles.hidden}>
-										<p><i className="fi-alert"></i> There are some errors in your form.</p>
-									</div>
-								</div>
-							</div>
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-4">

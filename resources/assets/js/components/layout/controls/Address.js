@@ -6,11 +6,11 @@ class Address extends Component {
     render() {
         return (
 			<div className="cell medium-6">
-				<label htmlFor="card-name">Name on Card
+				<label htmlFor="card-name">Name
 					<input id="card-name" type="text" placeholder="name" aria-errormessage="exp-date-error" required/>
 				</label>
 				<span className="form-error" id="card-name-error" data-form-error-for="card-name">
-					Please enter the name on card.
+					Please enter the name for the appropriate account.
 				</span>
 
 				<label htmlFor="address_1">Address Line 1

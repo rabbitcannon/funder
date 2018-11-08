@@ -82,9 +82,6 @@ class OneTimeFunding extends Component {
 	handlePayment = (event) => {
 		event.preventDefault();
 
-		let $errorSpan = $("#form-submit-error");
-		$errorSpan.text("");
-
 		$('form#add-funds-form').foundation('validateForm');
 		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
 
@@ -94,7 +91,6 @@ class OneTimeFunding extends Component {
 
 		instance.tokenize((paysafeInstance, error, result) => {
 			if(error) {
-				$errorSpan.text("Tokenization error: " + error.code + " " + error.detailedMessage)
 				Toastr.error("Tokenization error: " + error.code + " " + error.detailedMessage);
 				$('#add-funds-btn').html('Add Funds');
 				Toastr.error(error.detailedMessage);
@@ -190,14 +186,6 @@ class OneTimeFunding extends Component {
                     <form id="add-funds-form" data-abide noValidate>
                         <div className="grid-container">
 
-                            <div className="grid-x grid-margin-x">
-                                <div className="cell medium-12">
-                                    <div data-abide-error className="alert callout" style={styles.hidden}>
-                                        <p><i className="fi-alert"></i> There are some errors in your form.</p>
-                                    </div>
-                                </div>
-                            </div>
-
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-6">
                                     <Address/>
@@ -207,14 +195,14 @@ class OneTimeFunding extends Component {
 									<FundAmount handleAmountChange={this.handleAmountChange}/>
 
 									<div className="grid-x grid-margin-x">
-										<div className="cell medium-12">
+										<div className="cell medium-5">
 											<input id="save_payment" name="save_payment" type="checkbox" onChange={this.handleVisibility} />
 											<label htmlFor="save_payment">Save payment method?</label>
 										</div>
-									</div>
+									{/*</div>*/}
 
-									<div className="grid-x grid-margin-x" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>
-										<div className="cell medium-4">
+									{/*<div className="grid-x grid-margin-x" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>*/}
+										<div className="cell medium-7" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>
 											<label htmlFor="account-nickname">Account Nickname
 												<input id="account-nickname" type="text" placeholder="account nickname"
 													   aria-errormessage="numberError" required />

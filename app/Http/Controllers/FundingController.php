@@ -104,43 +104,55 @@ class FundingController extends Controller
         $info = json_decode($request->getContent(), true);
 
         $type = $info['funding_method_type'];
+        $nickname = $info['payment_method_nickname'];
+
 
         if($type === "card_profile") {
-            $nickname = $info['payment_method_nickname'];
             $token = $info['provider_temporary_token'];
 
             $details = [
                 'provider_temporary_token' => $token,
             ];
+        }
 
-            $details['address'] = [
-                //todo: may need a better nickname mechanism for addresses
-                'address_nickname' => str_slug($info['billing_details']['address1']),
-                'address1' => $info['billing_details']['address1'],
-                'address2' => $info['billing_details']['address2'],
-                'city' => $info['billing_details']['city'],
-                'state' => $info['billing_details']['state'],
-                'country' => $info['billing_details']['country'],
-                'zip' => $info['billing_details']['zip'],
+        $details['address'] = [
+            //todo: may need a better nickname mechanism for addresses
+            'address_nickname' => str_slug($info['billing_details']['address1']),
+            'address1' => $info['billing_details']['address1'],
+            'address2' => $info['billing_details']['address2'],
+            'city' => $info['billing_details']['city'],
+            'state' => $info['billing_details']['state'],
+            'country' => $info['billing_details']['country'],
+            'zip' => $info['billing_details']['zip'],
+        ];
+
+        if($type === "eft_profile") {
+            $details['eft_profile'] = [
+                'bank_account_type' => $info['eft_profile']['bank_account_type'],
+                'account_holder_name' => $info['eft_profile']['account_holder_name'],
+                'account_number' => $info['eft_profile']['account_number'],
+                'routing_number' => $info['eft_profile']['routing_number'],
+                'bank_name' => $info['eft_profile']['bank_name'],
             ];
         }
 
-        if($type === "eft_profile") {
-            echo "EFT";
-            die;
-        }
-
-
         $default = $info['default'];
-
         $hash = $info['playerHash'];
         $player = Player::byHash($hash)->first();
+
         if(!$player) {
             throw new FundingException( '_AUTHERROR',['message' => 'missing player info in addpaymentmethod']);
         }
+//var_dump($type);
+//var_dump($nickname);
+//var_dump($details);
+//var_dump($default);
+//var_dump($player->toSimplePlayer());
+//die;
 
         $ws = new WalletService();
         $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
+
     }
 
 
@@ -173,7 +185,6 @@ class FundingController extends Controller
 
         $ws = new WalletService();
         Log::info("About to fund with type ".$type.", token ".$token.", zip ".$address['zip'].", amount $". $amount / 100.0);
-//        $ws->fundWalletAccount($type, $token, $address, $profile_id, $amount, $player);
 
         if($info['save_method'] === true) {
             $nickname = $info['payment_method_nickname'];
@@ -215,6 +226,7 @@ class FundingController extends Controller
 
         $ws = new WalletService();
         $options = $ws->getFundingOptions($player);
+
         return response()->json(
             $options
         );
