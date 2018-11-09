@@ -79633,6 +79633,7 @@ var Index = function (_Component) {
 		value: function render() {
 			var data = JSON.parse(this.state.playerData);
 			var accounts = data.accounts;
+			console.log(accounts);
 			var page = this.state.page;
 			var currentPage = null;
 
@@ -82448,6 +82449,8 @@ var Index = function (_Component) {
 			}
 		};
 
+		_this.setExistingMethodDetails = function () {};
+
 		_this.addFunds = function (page) {
 			_this.setState({
 				paymentMethod: page
@@ -82456,6 +82459,7 @@ var Index = function (_Component) {
 
 		_this.state = {
 			balance: _this.props.balance,
+			existingMethodDetails: null,
 			existingMethod: null,
 			paymentMethod: null,
 			separator: false
@@ -84189,6 +84193,8 @@ var FundingOptions = function (_Component) {
 		value: function render() {
 			var _this3 = this;
 
+			console.log(this.state.cardProfiles);
+
 			var cardMethods = _underscore2.default.map(this.state.cardProfiles, function (method) {
 				if (_this3.state.cardProfiles.length > 0) {
 					return _react2.default.createElement(
@@ -84547,7 +84553,7 @@ var AccountItem = function (_Component) {
 						"small",
 						null,
 						"Balance: $",
-						balance
+						balance / 100
 					)
 				)
 			);

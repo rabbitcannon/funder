@@ -12,6 +12,7 @@ class Index extends Component {
 
 		this.state = {
 			balance: this.props.balance,
+			existingMethodDetails: null,
 			existingMethod: null,
 			paymentMethod: null,
 			separator: false
@@ -58,6 +59,10 @@ class Index extends Component {
 				</div>
 			);
 		}
+	}
+
+	setExistingMethodDetails = () => {
+
 	}
 
 	addFunds = (page) => {

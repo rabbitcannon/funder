@@ -14,7 +14,7 @@ class AccountItem extends Component {
 
         return (
             <div className="animated fadeInUp">
-				<h5>{name} <small>Balance: ${balance}</small></h5>
+				<h5>{name} <small>Balance: ${balance / 100}</small></h5>
 			</div>
         );
     }

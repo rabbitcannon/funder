@@ -35,6 +35,8 @@ class FundingOptions extends Component {
 	}
 
     render() {
+		console.log(this.state.cardProfiles);
+
 		let cardMethods = _.map(this.state.cardProfiles, (method) => {
 			if(this.state.cardProfiles.length > 0) {
 				return <option key={method.id}
