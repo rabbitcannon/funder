@@ -151,7 +151,9 @@ class FundingController extends Controller
 //die;
 
         $ws = new WalletService();
-        $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer());
+        return response()->json(
+            $ws->addPaymentMethod($type, $nickname, $details, $default, $player->toSimplePlayer())
+        );
 
     }
 

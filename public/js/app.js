@@ -82467,7 +82467,6 @@ var Index = function (_Component) {
 		key: 'render',
 		value: function render() {
 			var selection = this.state.paymentMethod;
-			// console.log(selection);
 			var component = null;
 
 			switch (selection) {
@@ -83160,38 +83159,6 @@ var EFTAccount = function (_Component) {
 						{ className: "cell medium-6" },
 						_react2.default.createElement(
 							"label",
-							{ htmlFor: "acct-number" },
-							"Account Number",
-							_react2.default.createElement("input", { id: "acct-number", type: "text", placeholder: "account number", "aria-describedby": "acct-number-hint",
-								"aria-errormessage": "acct-number-error", required: true, pattern: "number" })
-						),
-						_react2.default.createElement(
-							"span",
-							{ className: "form-error", id: "acct-number-error", "data-form-error-for": "acct-number" },
-							"Please enter your account number."
-						)
-					),
-					_react2.default.createElement(
-						"div",
-						{ className: "cell medium-6" },
-						_react2.default.createElement(
-							"label",
-							{ htmlFor: "confirm-acct-number" },
-							"Confirm Account Number",
-							_react2.default.createElement("input", { id: "confirm-acct-number", type: "text", placeholder: "confirm account", "aria-describedby": "confirm-acct-number-hint",
-								"aria-errormessage": "confirm-acct-number-error", required: true, pattern: "number", "data-equalto": "acct-number" })
-						),
-						_react2.default.createElement(
-							"span",
-							{ className: "form-error", id: "confirm-acct-number-error", "data-form-error-for": "confirm-acct-number" },
-							"Your account numbers do not match."
-						)
-					),
-					_react2.default.createElement(
-						"div",
-						{ className: "cell medium-6" },
-						_react2.default.createElement(
-							"label",
 							{ htmlFor: "routing-number" },
 							"Routing Number",
 							_react2.default.createElement("input", { id: "routing-number", type: "text", placeholder: "account number", "aria-describedby": "routing-number-hint",
@@ -83217,6 +83184,38 @@ var EFTAccount = function (_Component) {
 							"span",
 							{ className: "form-error", id: "confirm-routing-number-error", "data-form-error-for": "confirm-routing-number" },
 							"Your routing numbers do not match."
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ className: "cell medium-6" },
+						_react2.default.createElement(
+							"label",
+							{ htmlFor: "acct-number" },
+							"Account Number",
+							_react2.default.createElement("input", { id: "acct-number", type: "text", placeholder: "account number", "aria-describedby": "acct-number-hint",
+								"aria-errormessage": "acct-number-error", required: true, pattern: "number" })
+						),
+						_react2.default.createElement(
+							"span",
+							{ className: "form-error", id: "acct-number-error", "data-form-error-for": "acct-number" },
+							"Please enter your account number."
+						)
+					),
+					_react2.default.createElement(
+						"div",
+						{ className: "cell medium-6" },
+						_react2.default.createElement(
+							"label",
+							{ htmlFor: "confirm-acct-number" },
+							"Confirm Account Number",
+							_react2.default.createElement("input", { id: "confirm-acct-number", type: "text", placeholder: "confirm account", "aria-describedby": "confirm-acct-number-hint",
+								"aria-errormessage": "confirm-acct-number-error", required: true, pattern: "number", "data-equalto": "acct-number" })
+						),
+						_react2.default.createElement(
+							"span",
+							{ className: "form-error", id: "confirm-acct-number-error", "data-form-error-for": "confirm-acct-number" },
+							"Your account numbers do not match."
 						)
 					)
 				)
@@ -84308,6 +84307,8 @@ var ExistingProfile = function (_Component) {
 
         _this.componentDidMount = function () {
             _this.determinePaymentType();
+
+            _this.props.existingMethod;
         };
 
         _this.determinePaymentType = function () {
@@ -84321,7 +84322,8 @@ var ExistingProfile = function (_Component) {
         };
 
         _this.state = {
-            paymentType: null
+            paymentType: null,
+            currentMethod: _this.props.existingMethod
         };
         return _this;
     }
@@ -84339,14 +84341,14 @@ var ExistingProfile = function (_Component) {
                     _react2.default.createElement(
                         "h4",
                         null,
-                        "Card "
+                        "Existing Payment Method "
                     )
                 ),
                 _react2.default.createElement(
                     "div",
                     { className: "card-section" },
                     "Current method id: ",
-                    this.props.existingMethod
+                    this.state.existingMethod
                 )
             );
         }

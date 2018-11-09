@@ -17,6 +17,26 @@ class EFTAccount extends Component {
 					</div>
 
 					<div className="cell medium-6">
+						<label htmlFor="routing-number">Routing Number
+							<input id="routing-number" type="text" placeholder="account number" aria-describedby="routing-number-hint"
+								   aria-errormessage="routing-number-error" required pattern="number" />
+						</label>
+						<span className="form-error" id="routing-number-error" data-form-error-for="routing-number">
+							Please enter your routing number.
+						</span>
+					</div>
+
+					<div className="cell medium-6">
+						<label htmlFor="confirm-routing-number">Confirm Routing Number
+							<input id="confirm-routing-number" type="text" placeholder="confirm routing" aria-describedby="confirm-routing-number-hint"
+								   aria-errormessage="confirm-routing-number-error" required pattern="number" data-equalto="routing-number" />
+						</label>
+						<span className="form-error" id="confirm-routing-number-error" data-form-error-for="confirm-routing-number">
+							Your routing numbers do not match.
+						</span>
+					</div>
+
+					<div className="cell medium-6">
 						<label htmlFor="acct-number">Account Number
 							<input id="acct-number" type="text" placeholder="account number" aria-describedby="acct-number-hint"
 								 aria-errormessage="acct-number-error" required pattern="number" />
@@ -36,25 +56,6 @@ class EFTAccount extends Component {
 						</span>
 					</div>
 
-					<div className="cell medium-6">
-						<label htmlFor="routing-number">Routing Number
-							<input id="routing-number" type="text" placeholder="account number" aria-describedby="routing-number-hint"
-								   aria-errormessage="routing-number-error" required pattern="number" />
-						</label>
-						<span className="form-error" id="routing-number-error" data-form-error-for="routing-number">
-							Please enter your routing number.
-						</span>
-					</div>
-
-					<div className="cell medium-6">
-						<label htmlFor="confirm-routing-number">Confirm Routing Number
-							<input id="confirm-routing-number" type="text" placeholder="confirm routing" aria-describedby="confirm-routing-number-hint"
-								   aria-errormessage="confirm-routing-number-error" required pattern="number" data-equalto="routing-number" />
-						</label>
-						<span className="form-error" id="confirm-routing-number-error" data-form-error-for="confirm-routing-number">
-							Your routing numbers do not match.
-						</span>
-					</div>
 				</div>
             </div>
         );
