@@ -63,7 +63,7 @@ class AddCreditCard extends Component {
 			console.log("No instance");
 		}
 
-		instance.tokenize(function(paysafeInstance, error, result) {
+		instance.tokenize((paysafeInstance, error, result) => {
 			if(error) {
 				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
 				$('#add-card-btn').html('Add Card');
@@ -96,20 +96,25 @@ class AddCreditCard extends Component {
 						country: 'US',
 						zip: $('#zip').val(),
 					}
-				}).then(function(response) {
+				}).then((response) => {
+					this.updatePaymentMethods();
 					Toastr.success('Payment method saved.');
 					$('form#add-card-form').trigger("reset");
 					$('#card-number').text("");
 					$('#exp-date').text("");
 					$('#cvv').text("");
 					$('#add-card-btn').html('Add Card');
-				}).catch(function(error) {
+				}).catch((error) => {
 					Toastr.error('Error saving payment method.');
 					$('#add-card-btn').html('Add Card');
 					console.log(error);
 				});
 			}
 		});
+	}
+
+	updatePaymentMethods = async () => {
+		await this.props.updatePaymentMethods();
 	}
 
     render() {

@@ -1,63 +1,47 @@
 import React, {Component} from "react";
-import Axios from "axios";
 import _ from "underscore";
 
 class FundingOptions extends Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { cardProfiles: [], eftProfiles: [] }
+		this.state = { allProfiles: this.props.allProfiles }
 	}
 
 	componentDidMount = () => {
-		this.getFundingOptions();
-
+		this.updatePaymentMethods();
 		$('#funding-methods option:first').text('Loading...');
 		$('#funding-methods').prop('disabled', true);
 	}
 
-	getFundingOptions = async () => {
-		let data = JSON.parse(sessionStorage.getItem('playerData'));
-
-		await Axios.post('/api/methods', {
-			playerHash: data.player.playerhash,
-		}).then(function(response) {
-			this.setState({
-				cardProfiles: response.data.card_profiles,
-				eftProfiles: response.data.eft_profiles
-			})
-			$('#funding-methods option:first').text("--Select One--");
-			$('#funding-methods').prop('disabled', false);
-			$("#loader").hide();
-		}.bind(this)).catch(function (error) {
-			console.log(error);
-		});
+	updatePaymentMethods = async () => {
+		this.props.updatePaymentMethods();
 	}
 
     render() {
-		console.log(this.state.cardProfiles);
+		let profiles = this.props.allProfiles;
 
-		let cardMethods = _.map(this.state.cardProfiles, (method) => {
-			if(this.state.cardProfiles.length > 0) {
-				return <option key={method.id}
-							   value="card"  id={"card-" + method.id}>
-							{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}
+		let cardMethods = _.map(profiles.card_profiles, (profile) => {
+			if(profiles.card_profiles.length > 0) {
+				return <option key={profile.id}
+							   value="card"  id={profile.id - 1}>
+							{profile.payment_method_nickname}: xxxx-xxxx-xxxx-{profile.last_4_digits}
 					</option>;
 			}
 			else {
-				return <option key={1} disabled>No Credit/Debit cards</option>;
+				return <option disabled>No Credit/Debit cards</option>;
 			}
 		});
 
-		let eftMethods = _.map(this.state.eftProfiles, (method) => {
-			if(this.state.cardProfiles.length > 0) {
-				return <option key={method.id}
-							   value="card"  id={"eft-" + method.id}>
-							{method.payment_method_nickname}: xxxx-xxxx-xxxx-{method.last_4_digits}
+		let eftMethods = _.map(profiles.eft_profiles, (profile) => {
+			if(profiles.eft_profiles.length > 0) {
+				return <option key={profile.id}
+							   value="eft"  id={profile.id - 1}>
+							{profile.payment_method_nickname}: xxxx-xxxx-xxxx-{profile.last_4_digits}
 					</option>;
 			}
 			else {
-				return <option key={1} disabled>No EFT accounts</option>;
+				return <option disabled>No EFT accounts</option>;
 			}
 		});
 

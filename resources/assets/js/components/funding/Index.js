@@ -1,4 +1,6 @@
 import React, {Component} from "react";
+import Axios from "axios";
+import _ from "underscore";
 
 import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
@@ -11,10 +13,11 @@ class Index extends Component {
 		super(props);
 
 		this.state = {
+			allProfiles: [],
 			balance: this.props.balance,
-			existingMethodDetails: null,
 			existingMethod: null,
 			paymentMethod: null,
+			paymentType: null,
 			separator: false
 		}
 	}
@@ -26,14 +29,41 @@ class Index extends Component {
 		});
 	}
 
-	handleSelection = (event) => {
-		let selected = $('#funding-methods').find('option:selected').attr('id');
+	updatePaymentMethods = async () => {
+		let data = JSON.parse(sessionStorage.getItem('playerData'));
 
-		if(selected !== undefined) {
-			console.log("Select: " + selected);
+		await Axios.post('/api/methods', {
+			playerHash: data.player.playerhash,
+		}).then((response) =>{
+			let data = response.data;
+			let profiles = _.omit(data, "addresses");
+			this.setState({
+				allProfiles: profiles,
+			})
+			$('#funding-methods option:first').text("--Select One--");
+			$('#funding-methods').prop('disabled', false);
+			$("#loader").hide();
+		}).catch((error) => {
+			console.log(error);
+		});
+	}
+
+	handleSelection = (event) => {
+		let selectedID = $('#funding-methods').find('option:selected').attr('id');
+		let selectedValue = $('#funding-methods').val();
+		let profile = this.state.allProfiles;
+
+		if(selectedValue === "card") {
+			let selectedProfile = profile.card_profiles[selectedID];
+			this.setState({existingMethod: selectedProfile, paymentType: "card_profile"});
 		}
 
-		this.setState({existingMethod: selected, paymentMethod: event.target.value});
+		if(selectedValue === "eft") {
+			let selectedProfile = profile.eft_profiles[selectedID];
+			this.setState({existingMethod: selectedProfile, paymentType: "eft_profile"});
+		}
+
+		this.setState({paymentMethod: event.target.value});
 
 		if(this.state.paymentMethod != "default") {
 			this.setState({separator: true});
@@ -61,10 +91,6 @@ class Index extends Component {
 		}
 	}
 
-	setExistingMethodDetails = () => {
-
-	}
-
 	addFunds = (page) => {
 		this.setState({
 			paymentMethod: page
@@ -77,16 +103,20 @@ class Index extends Component {
 
 		switch(selection) {
 			case "new_debit":
-				component = <AddCreditCard/>;
+				component = <AddCreditCard updatePaymentMethods={this.updatePaymentMethods}/>;
 				break;
 			case "oneTimeFunding":
-				component = <OneTimeFunding balance={this.props.balance} updateBalance={this.updateBalance}/>;
+				component = <OneTimeFunding balance={this.props.balance} updateBalance={this.updateBalance}
+											updatePaymentMethods={this.updatePaymentMethods} />;
 				break;
 			case "new_checking":
 				component = <AddCheckingAcct/>;
 				break;
 			case "card":
-				component = <ExistingProfile paymentMethods={this.state.paymentMethod} existingMethod={this.state.existingMethod} />;
+				component = <ExistingProfile balance={this.props.balance} paymentMethods={this.state.paymentMethod}
+											 paymentType={this.state.paymentType}
+											 updateBalance={this.updateBalance}
+											 existingMethod={this.state.existingMethod} />;
 				break;
 			default:
 				component = "Select Above";
@@ -97,8 +127,10 @@ class Index extends Component {
 				<div className="grid-container">
 					<div className="grid-x grid-margin-x">
 						<div className="cell large-4">
-							<FundingOptions paymentMethod={this.state.paymentMethod} separator={this.state.separator}
-											handleSelection={this.handleSelection} />
+							<FundingOptions refs={this.child} paymentMethod={this.state.paymentMethod} separator={this.state.separator}
+											allProfiles={this.state.allProfiles}
+											handleSelection={this.handleSelection}
+											updatePaymentMethods={this.updatePaymentMethods} />
 						</div>
 
 						<div className="cell large-8 text-right">
@@ -117,8 +149,6 @@ class Index extends Component {
 					</div>
 				</div>
 			</div>
-
-
         );
     }
 }

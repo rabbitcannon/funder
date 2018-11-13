@@ -143,12 +143,6 @@ class FundingController extends Controller
         if(!$player) {
             throw new FundingException( '_AUTHERROR',['message' => 'missing player info in addpaymentmethod']);
         }
-//var_dump($type);
-//var_dump($nickname);
-//var_dump($details);
-//var_dump($default);
-//var_dump($player->toSimplePlayer());
-//die;
 
         $ws = new WalletService();
         return response()->json(
@@ -168,8 +162,25 @@ class FundingController extends Controller
     public function fundWallet(Request $request) {
         $info = json_decode($request->getContent(), true);
 
+        $ws = new WalletService();
+
+        $amount = $info['amount'];
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
         $type = $info['funding_method_type'];
+
+        if($info['existingMethod'] === true) {
+//            dd($info);
+            $profile_id = ['method_id'];
+
+            return response()->json(
+                $ws->fundWalletAccount($type, null ,null , $profile_id, $amount, $player->toSimplePlayer())
+            );
+        }
+
         $token = $info['provider_temporary_token'];
+        $profile_id = null;
+
         $address = [
             'address_nickname' => $info['billing_details']['address_nickname'],
             'address1' => $info['billing_details']['address1'],
@@ -180,13 +191,7 @@ class FundingController extends Controller
             'zip' => $info['billing_details']['zip'],
         ];
 
-        $profile_id = null;
-        $amount = $info['amount'];
-        $hash = $info['playerHash'];
-        $player = Player::byHash($hash)->first();
-
-        $ws = new WalletService();
-        Log::info("About to fund with type ".$type.", token ".$token.", zip ".$address['zip'].", amount $". $amount / 100.0);
+//        Log::info("About to fund with type ".$type.", token ".$token.", zip ".$address['zip'].", amount $". $amount / 100.0);
 
         if($info['save_method'] === true) {
             $nickname = $info['payment_method_nickname'];

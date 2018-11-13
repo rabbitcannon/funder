@@ -151,6 +151,10 @@ class OneTimeFunding extends Component {
 		});
 	}
 
+	updatePaymentMethods = async () => {
+		await this.props.updatePaymentMethods();
+	}
+
 	handleVisibility = () => {
 		if($('#save_payment').is(':checked')) {
 			this.setState({ saveVisible: true })
@@ -199,9 +203,7 @@ class OneTimeFunding extends Component {
 											<input id="save_payment" name="save_payment" type="checkbox" onChange={this.handleVisibility} />
 											<label htmlFor="save_payment">Save payment method?</label>
 										</div>
-									{/*</div>*/}
 
-									{/*<div className="grid-x grid-margin-x" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>*/}
 										<div className="cell medium-7" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>
 											<label htmlFor="account-nickname">Account Nickname
 												<input id="account-nickname" type="text" placeholder="account nickname"
