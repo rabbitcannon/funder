@@ -29,6 +29,11 @@ Route::group(['namespace'=>'App\Http\Controllers'], function() {
     Route::post('/methods/add', 'FundingController@addPaymentMethod');
 
     /*
+     * Nickname Check
+     */
+    Route::post('/nickname/check', 'FundingController@checkDuplicateNickname');
+
+    /*
      * Fund Routes
      */
     Route::post('/funds/add', 'FundingController@fundWallet');

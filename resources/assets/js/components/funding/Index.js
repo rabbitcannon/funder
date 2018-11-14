@@ -6,7 +6,7 @@ import AddCreditCard from './AddCreditCard';
 import AddCheckingAcct from './AddNewCheckingAcct';
 import OneTimeFunding from './OneTimeFunding';
 import FundingOptions from "./FundingOptions";
-import ExistingProfile from "./ExistingProfile";
+import FundingMethodDetails from "./FundingMethodDetails";
 
 class Index extends Component {
 	constructor(props) {
@@ -30,6 +30,10 @@ class Index extends Component {
 	}
 
 	updatePaymentMethods = async () => {
+		$("#loader").show();
+		$('#funding-methods option:first').text('Loading...');
+		$('#funding-methods').prop('disabled', true);
+
 		let data = JSON.parse(sessionStorage.getItem('playerData'));
 
 		await Axios.post('/api/methods', {
@@ -113,10 +117,10 @@ class Index extends Component {
 				component = <AddCheckingAcct/>;
 				break;
 			case "card":
-				component = <ExistingProfile balance={this.props.balance} paymentMethods={this.state.paymentMethod}
-											 paymentType={this.state.paymentType}
-											 updateBalance={this.updateBalance}
-											 existingMethod={this.state.existingMethod} />;
+				component = <FundingMethodDetails balance={this.props.balance} paymentMethods={this.state.paymentMethod}
+												  paymentType={this.state.paymentType}
+												  updateBalance={this.updateBalance}
+												  existingMethod={this.state.existingMethod} />;
 				break;
 			default:
 				component = "Select Above";

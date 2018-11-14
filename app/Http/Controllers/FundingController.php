@@ -260,7 +260,7 @@ class FundingController extends Controller
      *   @SWG\Response(response=550, description="Failed login exception")
      *  )
      **/
-    public function getFunding( Request $request)
+    public function getFunding(Request $request)
     {
         $request->validate([
             'playerhash' => 'required'
@@ -295,6 +295,22 @@ class FundingController extends Controller
         }
 
         return response()->json(['balance' => $balance]);
+    }
+
+    public function checkDuplicateNickname(Request $request) {
+        $info = json_decode($request->getContent(), true);
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
+
+        $ws = new WalletService();
+        $options = $ws->getFundingOptions($player);
+
+
+        return response()->json(
+            $options
+        );
+
+
     }
 
     /**

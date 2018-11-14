@@ -52641,7 +52641,7 @@ var EntryPoint = function (_Component) {
 						switch (_context.prev = _context.next) {
 							case 0:
 								event.preventDefault();
-								$('#login-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Logging In');
+								$('#login-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Logging In');
 								$('#reset-btn').hide();
 
 								$error = $('span.error-msg');
@@ -82598,9 +82598,9 @@ var _FundingOptions = __webpack_require__(437);
 
 var _FundingOptions2 = _interopRequireDefault(_FundingOptions);
 
-var _ExistingProfile = __webpack_require__(438);
+var _FundingMethodDetails = __webpack_require__(438);
 
-var _ExistingProfile2 = _interopRequireDefault(_ExistingProfile);
+var _FundingMethodDetails2 = _interopRequireDefault(_FundingMethodDetails);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -82635,8 +82635,12 @@ var Index = function (_Component) {
 				while (1) {
 					switch (_context.prev = _context.next) {
 						case 0:
+							$("#loader").show();
+							$('#funding-methods option:first').text('Loading...');
+							$('#funding-methods').prop('disabled', true);
+
 							data = JSON.parse(sessionStorage.getItem('playerData'));
-							_context.next = 3;
+							_context.next = 6;
 							return _axios2.default.post('/api/methods', {
 								playerHash: data.player.playerhash
 							}).then(function (response) {
@@ -82652,7 +82656,7 @@ var Index = function (_Component) {
 								console.log(error);
 							});
 
-						case 3:
+						case 6:
 						case "end":
 							return _context.stop();
 					}
@@ -82741,7 +82745,7 @@ var Index = function (_Component) {
 					component = _react2.default.createElement(_AddNewCheckingAcct2.default, null);
 					break;
 				case "card":
-					component = _react2.default.createElement(_ExistingProfile2.default, { balance: this.props.balance, paymentMethods: this.state.paymentMethod,
+					component = _react2.default.createElement(_FundingMethodDetails2.default, { balance: this.props.balance, paymentMethods: this.state.paymentMethod,
 						paymentType: this.state.paymentType,
 						updateBalance: this.updateBalance,
 						existingMethod: this.state.existingMethod });
@@ -82928,7 +82932,7 @@ var AddCreditCard = function (_Component) {
 			event.preventDefault();
 
 			$('form#add-card-form').foundation('validateForm');
-			$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Saving');
+			$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Saving');
 
 			if (!instance) {
 				console.log("No instance");
@@ -83675,7 +83679,7 @@ var OneTimeFunding = function (_Component) {
 			event.preventDefault();
 
 			$('form#add-funds-form').foundation('validateForm');
-			$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
+			$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Adding funds');
 
 			if (!instance) {
 				console.log("No instance");
@@ -84258,8 +84262,6 @@ var FundingOptions = function (_Component) {
 
 		_this.componentDidMount = function () {
 			_this.updatePaymentMethods();
-			$('#funding-methods option:first').text('Loading...');
-			$('#funding-methods').prop('disabled', true);
 		};
 
 		_this.updatePaymentMethods = _asyncToGenerator( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
@@ -84422,13 +84424,13 @@ _toastr2.default.options.closeButton = true;
 _toastr2.default.options.preventDuplicates = true;
 _toastr2.default.options.progressBar = true;
 
-var ExistingProfile = function (_Component) {
-	_inherits(ExistingProfile, _Component);
+var FundingMethodDetails = function (_Component) {
+	_inherits(FundingMethodDetails, _Component);
 
-	function ExistingProfile(props) {
-		_classCallCheck(this, ExistingProfile);
+	function FundingMethodDetails(props) {
+		_classCallCheck(this, FundingMethodDetails);
 
-		var _this = _possibleConstructorReturn(this, (ExistingProfile.__proto__ || Object.getPrototypeOf(ExistingProfile)).call(this, props));
+		var _this = _possibleConstructorReturn(this, (FundingMethodDetails.__proto__ || Object.getPrototypeOf(FundingMethodDetails)).call(this, props));
 
 		_this.componentDidMount = function () {
 			$(document).foundation();
@@ -84448,7 +84450,7 @@ var ExistingProfile = function (_Component) {
 			event.preventDefault();
 
 			$('form#add-funds-form').foundation('validateForm');
-			$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
+			$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Adding funds');
 
 			var data = JSON.parse(sessionStorage.getItem('playerData'));
 			var amount = parseInt($('#fund-amount').val()) * 100;
@@ -84492,12 +84494,14 @@ var ExistingProfile = function (_Component) {
 		return _this;
 	}
 
-	_createClass(ExistingProfile, [{
+	_createClass(FundingMethodDetails, [{
 		key: "render",
 		value: function render() {
 			var _this2 = this;
 
 			console.log(this.props.existingMethod);
+			console.log(this.props.paymentType);
+
 			var paymentMethod = this.props.existingMethod;
 			var displayComponent = void 0;
 
@@ -84577,10 +84581,10 @@ var ExistingProfile = function (_Component) {
 		}
 	}]);
 
-	return ExistingProfile;
+	return FundingMethodDetails;
 }(_react.Component);
 
-exports.default = ExistingProfile;
+exports.default = FundingMethodDetails;
 
 /***/ }),
 /* 439 */

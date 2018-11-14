@@ -27,7 +27,7 @@ class EntryPoint extends Component {
 
 	handleSubmit = async (event) => {
 		event.preventDefault();
-		$('#login-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Logging In');
+		$('#login-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Logging In');
 		$('#reset-btn').hide();
 
 		let $error = $('span.error-msg');

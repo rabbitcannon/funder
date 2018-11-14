@@ -57,7 +57,7 @@ class AddCreditCard extends Component {
 		event.preventDefault();
 
 		$('form#add-card-form').foundation('validateForm');
-		$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Saving');
+		$('#add-card-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Saving');
 
 		if(!instance) {
 			console.log("No instance");

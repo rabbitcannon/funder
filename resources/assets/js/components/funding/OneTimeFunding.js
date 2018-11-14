@@ -83,7 +83,7 @@ class OneTimeFunding extends Component {
 		event.preventDefault();
 
 		$('form#add-funds-form').foundation('validateForm');
-		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15.svg" /> Adding funds');
+		$('#add-funds-btn').html('<img src="../../images/loaders/loader_pink_15_sharp.svg" /> Adding funds');
 
 		if(!instance) {
 			console.log("No instance");

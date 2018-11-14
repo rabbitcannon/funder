@@ -10,8 +10,6 @@ class FundingOptions extends Component {
 
 	componentDidMount = () => {
 		this.updatePaymentMethods();
-		$('#funding-methods option:first').text('Loading...');
-		$('#funding-methods').prop('disabled', true);
 	}
 
 	updatePaymentMethods = async () => {
