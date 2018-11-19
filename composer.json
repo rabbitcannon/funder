@@ -6,7 +6,7 @@
     "type": "project",
     "repositories": [{
         "type": "vcs",
-        "url": "http://mozart:wh2kylW1AemZ95@git.gamelogic.com/sciplay/eos-common"
+        "url": "http://mozart:wh2kylW1AemZ95@sciplay-git.gamelogic.com/sciplay/us/eos-common"
     }],
     "require": {
         "php": "^7.2",
