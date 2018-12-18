@@ -79,9 +79,6 @@ class FundingMethodDetails extends Component {
 	}
 
     render() {
-        console.log(this.props.existingMethod);
-        console.log(this.props.paymentType);
-
         let paymentMethod = this.props.existingMethod;
 		let displayComponent;
 

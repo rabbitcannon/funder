@@ -11,12 +11,6 @@ class LoginForm extends Component {
 	}
 
     render() {
-		const styles ={
-			center: {
-				textAlign: 'center'
-			}
-		}
-
         return (
 			<div className="login animated fadeIn">
 				<form action="/api/funding/login" method="post" onSubmit={this.props.handleSubmit.bind(this)}>
@@ -25,7 +19,7 @@ class LoginForm extends Component {
 							Login
 						</div>
 						<div className="card-section">
-							<div style={styles.center}>
+							<div style={{textAlign: "center"}}>
 								<span className="error-msg"><small>{this.props.errorMessage}</small></span>
 							</div>
 							<label>Email Address

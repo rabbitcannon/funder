@@ -3,7 +3,7 @@ import React, {Component} from "react";
 import States from "./States";
 
 class Address extends Component {
-    render() {
+	render() {
         return (
 			<div className="cell medium-6">
 				<label htmlFor="card-name">Name

@@ -1,6 +1,8 @@
 import React, {Component} from "react";
 import Axios from "axios";
 import Toastr from "toastr";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faCheck, faTimes} from "@fortawesome/free-solid-svg-icons";
 import Foundation from "foundation-sites";
 
 import Address from '../layout/controls/Address';
@@ -8,6 +10,7 @@ import CreditCard from "../layout/controls/CreditCard";
 import config from  "../../config/config.json";
 
 const API_KEY = btoa(config.keys.paysafe);
+const data = JSON.parse(sessionStorage.getItem('playerData'));
 let instance = null;
 
 Toastr.options.closeMethod = 'fadeOut';
@@ -40,6 +43,12 @@ let OPTIONS = {
 
 
 class AddCreditCard extends Component {
+	constructor(props) {
+		super(props);
+
+		this.state = { nicknameValid: true }
+	}
+
 	componentDidMount = async () => {
 		$(document).foundation();
 
@@ -49,6 +58,44 @@ class AddCreditCard extends Component {
 			}
 			else {
 				instance = paysafeInstance;
+			}
+		});
+
+		this.checkNickname();
+	}
+
+	checkNickname = () => {
+		let nickname = $('#account-nickname');
+		let validCheck = null;
+
+		nickname.on('blur', function() {
+			if(nickname.val() != "") {
+				$('#nickname-loader').show();
+				$('#nickname-success').hide();
+				$('#nickname-failed').hide();
+
+				Axios.post('/api/nickname/check', {
+					playerHash: data.player.playerhash,
+					nickname: $(this).val().trim(),
+					type: "card_profiles"
+				}).then((response) => {
+					if(response.data.valid === true) {
+						$('#nickname-loader').hide();
+						$('#nickname-success').fadeIn('fast');
+						validCheck = true;
+					}
+					else {
+						$('#nickname-loader').hide();
+						$('#nickname-failed').fadeIn('fast');
+						validCheck = false;
+					}
+					this.setState({
+						nicknameValid: response.data.valid
+					}, console.log(this.state.nicknameValid));
+				}).catch((error) => {
+					console.log(error);
+				});
+
 			}
 		});
 	}
@@ -63,54 +110,55 @@ class AddCreditCard extends Component {
 			console.log("No instance");
 		}
 
-		instance.tokenize((paysafeInstance, error, result) => {
-			if(error) {
-				console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
-				$('#add-card-btn').html('Add Card');
-				Toastr.error(error.detailedMessage);
-			}
-			else {
-				let data = JSON.parse(sessionStorage.getItem('playerData'));
-				let defaultCheck = $('#make_default').is(':checked')
-				let checkValue = null;
-
-				if(defaultCheck) {
-					checkValue = true;
+		if(this.state.validNickname === true) {
+			instance.tokenize((paysafeInstance, error, result) => {
+				if(error) {
+					console.log("Tokenization error: " + error.code + " " + error.detailedMessage);
+					$('#add-card-btn').html('Add Card');
+					Toastr.error(error.detailedMessage);
 				}
 				else {
-					checkValue = false;
-				}
+					let defaultCheck = $('#make_default').is(':checked')
+					let checkValue = null;
 
-				Axios.post('/api/methods/add', {
-					playerHash: data.player.playerhash,
-					provider_temporary_token: result.token,
-					payment_method_nickname: $('#account-nickname').val(),
-					funding_method_type: "card_profile",
-					default: checkValue,
-					billing_details: {
-						address_nickname: null,
-						address1: $('#address_1').val(),
-						address2: $('#address_2').val(),
-						city: $('#city').val(),
-						state: $('#state').val(),
-						country: 'US',
-						zip: $('#zip').val(),
+					if(defaultCheck) {
+						checkValue = true;
 					}
-				}).then((response) => {
-					this.updatePaymentMethods();
-					Toastr.success('Payment method saved.');
-					$('form#add-card-form').trigger("reset");
-					$('#card-number').text("");
-					$('#exp-date').text("");
-					$('#cvv').text("");
-					$('#add-card-btn').html('Add Card');
-				}).catch((error) => {
-					Toastr.error('Error saving payment method.');
-					$('#add-card-btn').html('Add Card');
-					console.log(error);
-				});
-			}
-		});
+					else {
+						checkValue = false;
+					}
+
+					Axios.post('/api/methods/add', {
+						playerHash: data.player.playerhash,
+						provider_temporary_token: result.token,
+						payment_method_nickname: $('#account-nickname').val(),
+						funding_method_type: "card_profile",
+						default: checkValue,
+						billing_details: {
+							address_nickname: null,
+							address1: $('#address_1').val(),
+							address2: $('#address_2').val(),
+							city: $('#city').val(),
+							state: $('#state').val(),
+							country: 'US',
+							zip: $('#zip').val(),
+						}
+					}).then((response) => {
+						this.updatePaymentMethods();
+						Toastr.success('Payment method saved.');
+						$('form#add-card-form').trigger("reset");
+						$('#card-number').text("");
+						$('#exp-date').text("");
+						$('#cvv').text("");
+						$('#add-card-btn').html('Add Card');
+					}).catch((error) => {
+						Toastr.error('Error saving payment method.');
+						$('#add-card-btn').html('Add Card');
+						console.log(error);
+					});
+				}
+			});
+		}
 	}
 
 	updatePaymentMethods = async () => {
@@ -136,7 +184,11 @@ class AddCreditCard extends Component {
 
 							<div className="grid-x grid-margin-x">
 								<div className="cell medium-4">
-									<label htmlFor="account-nickname">Account Nickname
+									<label htmlFor="account-nickname">Account Nickname&nbsp;
+										<span id="nickname-loader" style={styles.hidden}><img src="../../images/loaders/loader_black_15.gif" /></span>
+										<span id="nickname-failed" style={styles.hidden} className="error"><FontAwesomeIcon icon={faTimes} /> Name already in use.</span>
+										<span id="nickname-success" style={styles.hidden} className="success"><FontAwesomeIcon icon={faCheck} /> Name available!</span>
+
 										<input id="account-nickname" type="text" placeholder="account nickname"
 											   aria-errormessage="numberError" required />
 									</label>

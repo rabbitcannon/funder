@@ -31,11 +31,16 @@ Route::group(['namespace'=>'App\Http\Controllers'], function() {
     /*
      * Nickname Check
      */
-    Route::post('/nickname/check', 'FundingController@checkDuplicateNickname');
+    Route::post('/nickname/check', 'FundingController@checkNickname');
 
     /*
      * Fund Routes
      */
     Route::post('/funds/add', 'FundingController@fundWallet');
     Route::get('/funds/balance/{hash}', 'FundingController@getPlayerBalance');
+
+    /*
+     * Account History
+     */
+    Route::post('/account/history', 'FundingController@getAccountHistory');
 });

@@ -44,7 +44,7 @@ class Index extends Component {
 
     render() {
 		let data = JSON.parse(this.state.playerData);
-		let accounts = data.accounts;
+		// let accounts = data.accounts;
 		let page = this.state.page;
 		let currentPage = null;
 
@@ -53,7 +53,7 @@ class Index extends Component {
 				currentPage = "Welcome!";
 				break;
 			case "accounts":
-				currentPage = <AccountIndex accounts={accounts}/>;
+				currentPage = <AccountIndex />;
 				break;
 			case "deposits":
 				currentPage = <FundingIndex balance={this.state.cashBalance} updateBalance={this.updateBalance} />;

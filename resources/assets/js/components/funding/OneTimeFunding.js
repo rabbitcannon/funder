@@ -9,6 +9,8 @@ import FundAmount from "../layout/controls/FundAmount";
 import FundingBlock from "./FundingBlock";
 
 import config from  "../../config/config.json";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCheck, faTimes} from "@fortawesome/free-solid-svg-icons";
 
 const API_KEY = btoa(config.keys.paysafe);
 let instance = null;
@@ -65,6 +67,36 @@ class OneTimeFunding extends Component {
 			}
 			else {
 				instance = paysafeInstance;
+			}
+		});
+		this.checkNickname();
+	}
+
+	checkNickname = async () => {
+		let nickname = $('#onetime-account-nickname');
+		let data = JSON.parse(sessionStorage.getItem('playerData'));
+
+		await nickname.on('blur', function() {
+			if(nickname.val() != "") {
+				$('#onetime-nickname-loader').show();
+				$('#onetime-nickname-success').hide();
+				$('#onetime-nickname-failed').hide();
+				Axios.post('/api/nickname/check', {
+					playerHash: data.player.playerhash,
+					nickname: $(this).val().trim(),
+					type: "card_profiles"
+				}).then((response) => {
+					if(response.data.valid === true) {
+						$('#onetime-nickname-loader').hide();
+						$('#onetime-nickname-success').fadeIn('fast');
+					}
+					else {
+						$('#onetime-nickname-loader').hide();
+						$('#onetime-nickname-failed').fadeIn('fast');
+					}
+				}).catch((error) => {
+					console.log(error);
+				});
 			}
 		});
 	}
@@ -205,11 +237,15 @@ class OneTimeFunding extends Component {
 										</div>
 
 										<div className="cell medium-7" style={{ display: this.state.saveVisible == true ? 'block': 'none'}}>
-											<label htmlFor="account-nickname">Account Nickname
-												<input id="account-nickname" type="text" placeholder="account nickname"
+											<label htmlFor="onetime-account-nickname">Account Nickname&nbsp;
+												<span id="onetime-nickname-loader" style={styles.hidden}><img src="../../images/loaders/loader_black_15.gif" /></span>
+												<span id="onetime-nickname-failed" style={styles.hidden} className="error"><FontAwesomeIcon icon={faTimes} /> Name already in use.</span>
+												<span id="onetime-nickname-success" style={styles.hidden} className="success"><FontAwesomeIcon icon={faCheck} /> Name available!</span>
+
+												<input id="onetime-account-nickname" type="text" placeholder="account nickname"
 													   aria-errormessage="numberError" required />
 											</label>
-											<span className="form-error" id="nickname-error" data-form-error-for="account-nickname">
+											<span className="form-error" id="nickname-error" data-form-error-for="onetime-account-nickname">
 												Please add a name to identify this account.
 											</span>
 										</div>

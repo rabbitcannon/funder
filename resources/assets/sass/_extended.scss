@@ -4,6 +4,8 @@
 
 @import "variables";
 @import "mixins";
+@import "modules/pagination";
+@import "modules/rcselect";
 
 /**
   Table of Contents
@@ -32,14 +34,8 @@ html, body {
     font-weight: 400;
 
     &:hover {
-      //@extend %fa-icon;
-      //@extend .fas;
 
       color: $light-pink;
-
-      //&:before {
-      //  content: fa-content($fa-var-caret-right);
-      //}
     }
     &:active {
       color: $light-pink;
@@ -88,6 +84,16 @@ footer {
   -webkit-box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 46px 0px rgba(0,0,0,0.75);
+}
+
+.success { color: $brand-success; }
+.error { color: $brand-danger; }
+
+.left { float: left; }
+.right { float: right; }
+
+table tr td {
+  text-transform: capitalize;
 }
 
 /** CS02 Menu Items

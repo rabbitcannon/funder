@@ -1,5 +1,4 @@
 import React, {Component} from "react";
-import _ from "underscore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 

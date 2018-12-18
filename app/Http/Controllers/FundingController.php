@@ -169,7 +169,7 @@ class FundingController extends Controller
         $player = Player::byHash($hash)->first();
         $type = $info['funding_method_type'];
 
-        if($info['existingMethod'] === true) {
+        if(isset($info['existingMethod']) && $info['existingMethod'] === true) {
 //            dd($info);
             $profile_id = ['method_id'];
 
@@ -240,6 +240,27 @@ class FundingController extends Controller
     }
 
     /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     */
+    public function getAccountHistory(Request $request) {
+        $info = json_decode($request->getContent(), true);
+        $hash = $info['playerHash'];
+        $player = Player::byHash($hash)->first();
+        $filters = [];
+        $paging = ['page' => $info['currentPageQueried'], 'page_size' => $info['itemsPerPage']];
+
+        $ws = new WalletService();
+        $history = $ws->getAccountHistory($player->id, $filters, $paging, $player);
+
+        return response()->json(
+            $history
+        );
+    }
+
+    /**
      * @SWG\Get(
      *   path="/api/funding",
      *   summary="Get stored funding methods",
@@ -297,20 +318,45 @@ class FundingController extends Controller
         return response()->json(['balance' => $balance]);
     }
 
-    public function checkDuplicateNickname(Request $request) {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Eos\Common\Exceptions\EosException
+     * @throws \Eos\Common\Exceptions\EosServiceException
+     */
+    public function checkNickname(Request $request) {
         $info = json_decode($request->getContent(), true);
+
         $hash = $info['playerHash'];
+        $alias = $info['nickname'];
+        $type = $info['type'];
         $player = Player::byHash($hash)->first();
+        $valid = null;
+        $field = null;
+
+        if($type === "addresses") {
+            $field = "address_nickname";
+        }
+        else {
+            $field = "payment_method_nickname";
+        }
 
         $ws = new WalletService();
-        $options = $ws->getFundingOptions($player);
+        $nicknames = $ws->getFundingOptions($player)->$type;
 
+        foreach($nicknames as $key => $value) {
+            if($alias === $value->$field) {
+                $valid = false;
+                break;
+            }
+            else {
+                $valid = true;
+            }
+        }
 
         return response()->json(
-            $options
+            ['valid' => $valid]
         );
-
-
     }
 
     /**
