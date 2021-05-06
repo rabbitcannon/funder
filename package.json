@@ -33,7 +33,7 @@
         "react": "^16.5.2",
         "react-dom": "^16.5.2",
         "react-spring": "^5.9.0",
-        "underscore": "^1.9.1"
+        "underscore": "^1.12.1"
     },
     "dependencies": {
         "foundation-sites": "^6.5.0-rc.3",
