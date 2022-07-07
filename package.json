@@ -27,7 +27,7 @@
         "jquery": "^3.1.1",
         "laravel-mix": "^2.1.14",
         "lodash": "^4.17.11",
-        "moment": "^2.22.2",
+        "moment": "^2.29.4",
         "rc-pagination": "^1.17.3",
         "rc-select": "^8.6.4",
         "react": "^16.5.2",
